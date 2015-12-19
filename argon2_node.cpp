@@ -44,19 +44,10 @@ void EncryptAsyncWorker::Execute()
 {
     char encoded[ENCODED_LEN];
 
-    {
-        auto result = argon2i_hash_encoded(3, 4096, 1, plain.c_str(), plain.size(),
-            salt.c_str(), salt.size(), HASH_LEN, encoded, ENCODED_LEN);
-        if (result != ARGON2_OK) {
-            return;
-        }
-    }
-
-    {
-        auto result = argon2i_verify(encoded, plain.c_str(), plain.size());
-        if (result != ARGON2_OK) {
-            return;
-        }
+    auto result = argon2i_hash_encoded(3, 4096, 1, plain.c_str(), plain.size(),
+        salt.c_str(), salt.size(), HASH_LEN, encoded, ENCODED_LEN);
+    if (result != ARGON2_OK) {
+        return;
     }
 
     output = std::string{encoded};
