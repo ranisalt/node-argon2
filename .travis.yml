@@ -1,0 +1,16 @@
+language: node_js
+node_js:
+  - stable
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - g++-4.8
+cache:
+  - apt
+  - directories:
+    - node_modules
+env:
+  CXX="g++-4.8"
+before_script: npm install -g node-gyp nodeunit
