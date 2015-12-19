@@ -7,6 +7,7 @@
     "build": "npm run configure && node-gyp build",
     "clean": "node-gyp clean",
     "configure": "node-gyp configure",
+    "preinstall": "git submodule init && git submodule update",
     "test": "npm run build && nodeunit test.spec.js"
   },
   "repository": {
