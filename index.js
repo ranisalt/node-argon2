@@ -10,3 +10,9 @@ exports.encrypt = function (plain, salt, callback) {
 
   return bindings.encrypt(plain, salt, callback);
 };
+
+exports.verify = function (encrypted, plain, callback) {
+  "use strict";
+
+  return bindings.verify(encrypted, plain, callback);
+}

@@ -87,10 +87,62 @@ NAN_METHOD(Encrypt) {
     Nan::AsyncQueueWorker(worker);
 }
 
+class VerifyAsyncWorker : public Nan::AsyncWorker {
+public:
+    VerifyAsyncWorker(Nan::Callback* callback,
+        const std::string& encrypted, const std::string& plain);
+
+    void Execute();
+
+private:
+    std::string encrypted;
+    std::string plain;
+    std::string error;
+    bool output;
+};
+
+VerifyAsyncWorker::VerifyAsyncWorker(Nan::Callback* callback,
+    const std::string& encrypted, const std::string& plain) :
+    Nan::AsyncWorker(callback), encrypted{encrypted}, plain{plain},
+    error{}, output{}
+{ }
+
+void VerifyAsyncWorker::Execute()
+{
+    auto result = argon2i_verify(encrypted.c_str(), plain.c_str(),
+        plain.size());
+
+    if (result != ARGON2_OK) {
+        SetErrorMessage("The password did not match.");
+    }
+}
+
+NAN_METHOD(Verify) {
+    using v8::Function;
+    using v8::Local;
+
+    Nan::HandleScope scope;
+
+    if (info.Length() < 3) {
+        Nan::ThrowTypeError("3 arguments expected");
+        return;
+    }
+
+    Nan::Utf8String encrypted{ info[0]->ToString() };
+    Nan::Utf8String plain{ info[1]->ToString() };
+    Local<Function> callback = Local<Function>::Cast(info[2]);
+
+    auto worker = new VerifyAsyncWorker(new Nan::Callback(callback),
+    *encrypted, *plain);
+
+    Nan::AsyncQueueWorker(worker);
+}
+
 }
 
 NAN_MODULE_INIT(init) {
     Nan::Export(target, "encrypt", Encrypt);
+    Nan::Export(target, "verify", Verify);
 };
 
 NODE_MODULE(argon2_lib, init);

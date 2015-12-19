@@ -11,5 +11,27 @@ module.exports = {
         "Hash should be equal to expected.");
       assert.done();
     });
+  },
+
+  test_verify_ok: function (assert) {
+    "use strict";
+
+    argon2.verify(
+      "$argon2i$m=4096,t=3,p=1$c29tZXNhbHQAAAAAAAAAAA$FHF/OZ0GJpMRAlBmPTqXxw36Ftp87JllALZPcP9w9gs",
+      "password", function (err) {
+        assert.equal(undefined, err, "Error should be undefined.");
+        assert.done();
+      });
+  },
+
+  test_verify_fail: function (assert) {
+    "use strict";
+
+    argon2.verify(
+      "$argon2i$m=4096,t=3,p=1$c29tZXNhbHQAAAAAAAAAAA$FHF/OZ0GJpMRAlBmPTqXxw36Ftp87JllALZPcP9w9gs",
+      "passwolrd", function (err) {
+        assert.ok(err, "Error should be defined.");
+        assert.done();
+      });
   }
 };
