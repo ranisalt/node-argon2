@@ -6,9 +6,20 @@ module.exports = {
 
     argon2.encrypt("password", "somesalt", function (err, hash) {
       assert.ok(hash, "Hash should be defined.");
-      assert.equal(hash,
-        "$argon2i$m=4096,t=3,p=1$c29tZXNhbHQAAAAAAAAAAA$FHF/OZ0GJpMRAlBmPTqXxw36Ftp87JllALZPcP9w9gs",
+      assert.equal(hash, "$argon2i$m=4096,t=3,p=1$c29tZXNhbHQAAAAAAAAAAA$FHF/OZ0GJpMRAlBmPTqXxw36Ftp87JllALZPcP9w9gs",
         "Hash should be equal to expected.");
+      assert.equal(undefined, err, "Error should not be defined.");
+      assert.done();
+    });
+  },
+
+  test_hash_long_salt: function (assert) {
+    "use strict";
+
+    argon2.encrypt("password", "somesaltwaytoobig", function (err, hash) {
+      assert.ok(err, "Error should be defined.");
+      assert.equal(err.message, "Salt too long, maximum 16 characters.", "Error message should be equal to expected.");
+      assert.equal(undefined, hash, "Hash should not be defined.");
       assert.done();
     });
   },
