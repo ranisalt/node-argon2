@@ -187,7 +187,7 @@ module.exports = {
     assert.expect(1);
 
     assert.throws(function () {
-      argon2.encryptSync("password", "somesaltwaytoobig")
+      argon2.encryptSync("password", "somesaltwaytoobig");
     }, Error, "Error should be thrown.");
     assert.done();
   },

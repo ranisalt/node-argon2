@@ -20,9 +20,9 @@ argon2.encrypt('password', 'somesalt', function (err, hash) {
 // OR
 
 try {
-    var hash = argon2.encryptSync('password', 'somesalt');
+  var hash = argon2.encryptSync('password', 'somesalt');
 } catch (err) {
-    console.log(err);
+  console.log(err);
 }
 ```
 Resultant hashes will be 90 characters long.
