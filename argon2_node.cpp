@@ -1,10 +1,8 @@
 #include <nan.h>
 #include <node.h>
-#include <stdio.h>
 
-#include <memory>
+#include <cstring>
 #include <string>
-#include <vector>
 
 #include "argon2/src/argon2.h"
 
