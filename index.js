@@ -22,8 +22,9 @@ exports.encrypt = function (plain, salt, options, callback) {
 
   if (options.memoryCost >= 32) {
     process.nextTick(function() {
-      callback(new Error("Memory cost too high, maximum of 32"), null);
+      callback(new Error("Memory cost too high, maximum of 32."), null);
     });
+    return;
   }
 
   return bindings.encrypt(plain, salt, options.timeCost, options.memoryCost,

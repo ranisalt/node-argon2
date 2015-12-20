@@ -58,6 +58,21 @@ module.exports = {
     });
   },
 
+  test_hash_high_memory_cost: function (assert) {
+    "use strict";
+
+    assert.expect(3);
+
+    argon2.encrypt("password", "somesalt", {
+      memoryCost: 32
+    }, function (err, hash) {
+      assert.ok(err, "Error should be defined.");
+      assert.equal(err.message, "Memory cost too high, maximum of 32.", "Error message should be equal to expected.");
+      assert.equal(undefined, hash, "Hash should not be defined.");
+      assert.done();
+    });
+  },
+
   test_hash_parallelism: function (assert) {
     "use strict";
 
@@ -122,6 +137,19 @@ module.exports = {
       memoryCost: 13
     });
     assert.ok(/m=8192,t=3,p=1/.test(hash), "Hash should have correct memory cost.");
+    assert.done();
+  },
+
+  test_hash_sync_high_memory_cost: function (assert) {
+    "use strict";
+
+    assert.expect(1);
+
+    assert.throws(function () {
+      var hash = argon2.encryptSync("password", "somesalt", {
+        memoryCost: 32
+      }, Error, "Error should be thrown.");
+    });
     assert.done();
   },
 
