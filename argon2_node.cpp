@@ -14,8 +14,8 @@ const auto SALT_LEN = 16u;
 
 class EncryptAsyncWorker : public Nan::AsyncWorker {
 public:
-    EncryptAsyncWorker(Nan::Callback* callback,
-        const std::string& plain, const std::string& salt);
+    EncryptAsyncWorker(Nan::Callback* callback, const std::string& plain,
+            const std::string& salt);
 
     void Execute();
 
@@ -29,9 +29,8 @@ private:
 };
 
 EncryptAsyncWorker::EncryptAsyncWorker(Nan::Callback* callback,
-    const std::string& plain, const std::string& salt) :
-    Nan::AsyncWorker(callback), plain{plain},
-    salt{salt}, error{}, output{}
+        const std::string& plain, const std::string& salt):
+    Nan::AsyncWorker(callback), plain{plain}, salt{salt}, error{}, output{}
 {
     if (salt.size() < SALT_LEN) {
         this->salt.resize(SALT_LEN, 0x0);
@@ -43,7 +42,7 @@ void EncryptAsyncWorker::Execute()
     char encoded[ENCODED_LEN];
 
     auto result = argon2i_hash_encoded(3, 4096, 1, plain.c_str(), plain.size(),
-        salt.c_str(), salt.size(), HASH_LEN, encoded, ENCODED_LEN);
+            salt.c_str(), salt.size(), HASH_LEN, encoded, ENCODED_LEN);
     if (result != ARGON2_OK) {
         return;
     }
@@ -80,7 +79,8 @@ NAN_METHOD(Encrypt) {
     Nan::Utf8String salt{info[1]->ToString()};
     Local<Function> callback = Local<Function>::Cast(info[2]);
 
-    auto worker = new EncryptAsyncWorker(new Nan::Callback(callback), *plain, *salt);
+    auto worker = new EncryptAsyncWorker(new Nan::Callback(callback), *plain,
+            *salt);
 
     Nan::AsyncQueueWorker(worker);
 }
@@ -116,7 +116,7 @@ NAN_METHOD(EncryptSync) {
 class VerifyAsyncWorker : public Nan::AsyncWorker {
 public:
     VerifyAsyncWorker(Nan::Callback* callback,
-        const std::string& encrypted, const std::string& plain);
+            const std::string& encrypted, const std::string& plain);
 
     void Execute();
 
@@ -128,7 +128,7 @@ private:
 };
 
 VerifyAsyncWorker::VerifyAsyncWorker(Nan::Callback* callback,
-    const std::string& encrypted, const std::string& plain) :
+        const std::string& encrypted, const std::string& plain):
     Nan::AsyncWorker(callback), encrypted{encrypted}, plain{plain},
     error{}, output{}
 { }
@@ -154,8 +154,8 @@ NAN_METHOD(Verify) {
         return;
     }
 
-    Nan::Utf8String encrypted{ info[0]->ToString() };
-    Nan::Utf8String plain{ info[1]->ToString() };
+    Nan::Utf8String encrypted{info[0]->ToString()};
+    Nan::Utf8String plain{info[1]->ToString()};
     Local<Function> callback = Local<Function>::Cast(info[2]);
 
     auto worker = new VerifyAsyncWorker(new Nan::Callback(callback),
