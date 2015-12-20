@@ -41,6 +41,25 @@ argon2.generateSalt(function (salt) {
 var salt = argon2.generateSaltSync();
 ```
 
+You can also modify time, memory and parallelism constraints passing an object
+as the third parameter, with keys `timeCost`, `memoryCost` and `parallelism`,
+respectively defaulted to 3, 12 (meaning 2^12 KB) and 1 (threads):
+```js
+var argon2 = require('argon2');
+
+argon2.encrypt('password', saltGeneratedWithAboveFunction, {
+    timeCost: 4, memoryCost: 13, parallelism: 2
+}, function (err, hash) {
+  // ...
+});
+
+// OR
+
+var hash = argon2.encryptSync('password', saltGeneratedWithAboveFunction, {
+  timeCost: 4, memoryCost: 13, parallelism: 2
+};
+```
+
 To verify a password:
 ```js
 var argon2 = require('argon2');
