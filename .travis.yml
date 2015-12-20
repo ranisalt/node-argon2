@@ -8,8 +8,8 @@ addons:
     packages:
       - g++-4.8
 cache:
-  - apt
-  - directories:
+  apt: true
+  directories:
     - node_modules
 env:
   CXX="g++-4.8"
