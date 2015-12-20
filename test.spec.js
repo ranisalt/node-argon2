@@ -1,4 +1,6 @@
-var argon2 = require('.');
+var argon2 = process.env.ARGON2_COVERAGE
+  ? require('./index-cov')
+  : require('./index');
 
 module.exports = {
   test_hash: function (assert) {

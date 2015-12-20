@@ -8,6 +8,7 @@
     "clean": "node-gyp clean",
     "configure": "node-gyp configure",
     "preinstall": "git submodule init && git submodule update",
+    "coveralls": "jscoverage index.js && ARGON2_COVERAGE=1 nodeunit --reporter=lcov test.spec.js | coveralls",
     "test": "npm run build && nodeunit test.spec.js"
   },
   "repository": {
@@ -33,6 +34,8 @@
     "node-gyp": "^3.2.1"
   },
   "devDependencies": {
+    "coveralls": "^2.11.6",
+    "jscoverage": "^0.6.0",
     "nodeunit": "^0.9.1"
   }
 }

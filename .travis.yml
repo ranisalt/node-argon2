@@ -13,4 +13,5 @@ cache:
     - node_modules
 env:
   CXX="g++-4.8"
-before_script: npm install -g node-gyp nodeunit
+before_script: npm install -g node-gyp
+after_script: npm run coveralls
