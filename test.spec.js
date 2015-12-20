@@ -44,9 +44,29 @@ module.exports = {
 
     assert.expect(1);
 
-    assert.throws(function() {
+    assert.throws(function () {
       argon2.encryptSync("password", "somesaltwaytoobig")
     }, Error, "Error should be thrown.");
+    assert.done();
+  },
+
+  test_generate_salt: function (assert) {
+    "use strict";
+
+    assert.expect(1);
+
+    argon2.generateSalt(function (salt) {
+      assert.equal(salt.length, 16, "Generated salt length should be 16.");
+      assert.done();
+    });
+  },
+
+  test_generate_salt_sync: function (assert) {
+    "use strict";
+
+    assert.expect(1);
+
+    assert.equal(argon2.generateSaltSync().length, 16, "Generated salt length should be 16.");
     assert.done();
   },
 

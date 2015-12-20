@@ -1,4 +1,5 @@
-var bindings = require("bindings")("argon2_lib");
+var bindings = require("bindings")("argon2_lib"),
+  crypto = require("crypto");
 
 exports.encrypt = function (plain, salt, callback) {
   "use strict";
@@ -21,6 +22,20 @@ exports.encryptSync = function (plain, salt) {
   }
 
   return bindings.encryptSync(plain, salt);
+};
+
+exports.generateSalt = function (callback) {
+  "use strict";
+
+  process.nextTick(function() {
+    callback(crypto.randomBytes(16).toString());
+  });
+};
+
+exports.generateSaltSync = function () {
+  "use strict";
+
+  return crypto.randomBytes(16).toString();
 };
 
 exports.verify = function (encrypted, plain, callback) {
