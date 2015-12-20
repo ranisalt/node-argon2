@@ -85,6 +85,34 @@ NAN_METHOD(Encrypt) {
     Nan::AsyncQueueWorker(worker);
 }
 
+NAN_METHOD(EncryptSync) {
+    Nan::HandleScope scope;
+
+    if (info.Length() < 2) {
+        Nan::ThrowTypeError("2 arguments expected");
+        info.GetReturnValue().Set(Nan::Undefined());
+        return;
+    }
+
+    Nan::Utf8String plain{info[0]->ToString()};
+    Nan::Utf8String raw_salt{info[1]->ToString()};
+
+    char encoded[ENCODED_LEN];
+
+    auto salt = std::string{*raw_salt};
+    salt.resize(SALT_LEN, 0x0);
+
+    auto result = argon2i_hash_encoded(3, 4096, 1, *plain, strlen(*plain),
+            salt.c_str(), salt.size(), HASH_LEN, encoded, ENCODED_LEN);
+    if (result != ARGON2_OK) {
+        info.GetReturnValue().Set(Nan::Undefined());
+        return;
+    }
+
+    info.GetReturnValue().Set(Nan::Encode(encoded, std::strlen(encoded),
+                Nan::BINARY));
+}
+
 class VerifyAsyncWorker : public Nan::AsyncWorker {
 public:
     VerifyAsyncWorker(Nan::Callback* callback,
@@ -140,6 +168,7 @@ NAN_METHOD(Verify) {
 
 NAN_MODULE_INIT(init) {
     Nan::Export(target, "encrypt", Encrypt);
+    Nan::Export(target, "encryptSync", EncryptSync);
     Nan::Export(target, "verify", Verify);
 };
 

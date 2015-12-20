@@ -24,6 +24,24 @@ module.exports = {
     });
   },
 
+  test_hash_sync: function (assert) {
+    "use strict";
+
+    var hash = argon2.encryptSync("password", "somesalt");
+    assert.equal(hash, "$argon2i$m=4096,t=3,p=1$c29tZXNhbHQAAAAAAAAAAA$FHF/OZ0GJpMRAlBmPTqXxw36Ftp87JllALZPcP9w9gs",
+        "Hash should be equal to expected.");
+    assert.done();
+  },
+
+  test_hash_sync_long_salt: function (assert) {
+    "use strict";
+
+    assert.throws(function() {
+      argon2.encryptSync("password", "somesaltwaytoobig")
+    }, Error, "Error should be thrown.");
+    assert.done();
+  },
+
   test_verify_ok: function (assert) {
     "use strict";
 
