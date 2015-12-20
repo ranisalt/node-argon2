@@ -1,10 +1,10 @@
 # node-argon2 [![NPM package][npm-image]][npm-url] [![Build status][travis-image]][travis-url] [![Coverage status][coveralls-image]][coveralls-url] [![Code Climate][codeclimate-image]][codeclimate-url] [![Dependencies][david-dm-image]][david-dm-url]
-Bindings to the  reference [Argon2](https://github.com/P-H-C/phc-winner-argon2).
+Bindings to the  reference [Argon2](https://github.com/P-H-C/phc-winner-argon2)
 implementation.
 
 ### Usage
-Currently, only the encrypt and verify methods are implemented for Argon2i, and a method to generate cryptographically
-safe random salts.
+Currently, only the encrypt and verify methods are implemented for Argon2i, and
+a method to generate cryptographically safe random salts.
 
 To hash a password:
 ```js
