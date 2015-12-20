@@ -3,7 +3,8 @@ Bindings to the  reference [Argon2](https://github.com/P-H-C/phc-winner-argon2).
 implementation.
 
 ### Usage
-Currently, only the encrypt and verify methods are implemented for Argon2i.
+Currently, only the encrypt and verify methods are implemented for Argon2i, and a method to generate cryptographically
+safe random salts.
 
 To hash a password:
 ```js
@@ -25,6 +26,20 @@ try {
 }
 ```
 Resultant hashes will be 90 characters long.
+
+You can provide your own salt as the second parameter. It is recommended to use
+the salt generating methods instead of a hardcoded, constant salt:
+```js
+var argon2 = require('argon2');
+
+argon2.generateSalt(function (salt) {
+  doSomethingWith(salt);
+});
+
+// OR
+
+var salt = argon2.generateSaltSync();
+```
 
 To verify a password:
 ```js
