@@ -4,6 +4,8 @@ module.exports = {
   test_hash: function (assert) {
     "use strict";
 
+    assert.expect(3);
+
     argon2.encrypt("password", "somesalt", function (err, hash) {
       assert.ok(hash, "Hash should be defined.");
       assert.equal(hash, "$argon2i$m=4096,t=3,p=1$c29tZXNhbHQAAAAAAAAAAA$FHF/OZ0GJpMRAlBmPTqXxw36Ftp87JllALZPcP9w9gs",
@@ -16,6 +18,8 @@ module.exports = {
   test_hash_long_salt: function (assert) {
     "use strict";
 
+    assert.expect(3);
+
     argon2.encrypt("password", "somesaltwaytoobig", function (err, hash) {
       assert.ok(err, "Error should be defined.");
       assert.equal(err.message, "Salt too long, maximum 16 characters.", "Error message should be equal to expected.");
@@ -27,6 +31,8 @@ module.exports = {
   test_hash_sync: function (assert) {
     "use strict";
 
+    assert.expect(1);
+
     var hash = argon2.encryptSync("password", "somesalt");
     assert.equal(hash, "$argon2i$m=4096,t=3,p=1$c29tZXNhbHQAAAAAAAAAAA$FHF/OZ0GJpMRAlBmPTqXxw36Ftp87JllALZPcP9w9gs",
         "Hash should be equal to expected.");
@@ -36,6 +42,8 @@ module.exports = {
   test_hash_sync_long_salt: function (assert) {
     "use strict";
 
+    assert.expect(1);
+
     assert.throws(function() {
       argon2.encryptSync("password", "somesaltwaytoobig")
     }, Error, "Error should be thrown.");
@@ -44,6 +52,8 @@ module.exports = {
 
   test_verify_ok: function (assert) {
     "use strict";
+
+    assert.expect(1);
 
     argon2.verify(
       "$argon2i$m=4096,t=3,p=1$c29tZXNhbHQAAAAAAAAAAA$FHF/OZ0GJpMRAlBmPTqXxw36Ftp87JllALZPcP9w9gs",
@@ -56,6 +66,8 @@ module.exports = {
   test_verify_fail: function (assert) {
     "use strict";
 
+    assert.expect(1);
+
     argon2.verify(
       "$argon2i$m=4096,t=3,p=1$c29tZXNhbHQAAAAAAAAAAA$FHF/OZ0GJpMRAlBmPTqXxw36Ftp87JllALZPcP9w9gs",
       "passwolrd", function (err) {
@@ -67,6 +79,8 @@ module.exports = {
   test_verify_sync_ok: function (assert) {
     "use strict";
 
+    assert.expect(1);
+
     assert.equal(true, argon2.verifySync(
       "$argon2i$m=4096,t=3,p=1$c29tZXNhbHQAAAAAAAAAAA$FHF/OZ0GJpMRAlBmPTqXxw36Ftp87JllALZPcP9w9gs",
       "password"));
@@ -75,6 +89,8 @@ module.exports = {
 
   test_verify_sync_fail: function (assert) {
     "use strict";
+
+    assert.expect(1);
 
     assert.equal(false, argon2.verifySync(
       "$argon2i$m=4096,t=3,p=1$c29tZXNhbHQAAAAAAAAAAA$FHF/OZ0GJpMRAlBmPTqXxw36Ftp87JllALZPcP9w9gs",
