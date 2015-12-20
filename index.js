@@ -20,6 +20,12 @@ exports.encrypt = function (plain, salt, options, callback) {
     return;
   }
 
+  if (options.memoryCost >= 32) {
+    process.nextTick(function() {
+      callback(new Error("Memory cost too high, maximum of 32"), null);
+    });
+  }
+
   return bindings.encrypt(plain, salt, options.timeCost, options.memoryCost,
     options.parallelism, callback);
 };
@@ -35,6 +41,10 @@ exports.encryptSync = function (plain, salt, options) {
 
   if (salt.length > 16) {
     throw new Error("Salt too long, maximum 16 characters.");
+  }
+
+  if (options.memoryCost >= 32) {
+    throw new Error("Memory cost too high, maximum of 32");
   }
 
   return bindings.encryptSync(plain, salt, options.timeCost, options.memoryCost,
