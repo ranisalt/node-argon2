@@ -55,8 +55,8 @@ module.exports = {
 
     assert.expect(1);
 
-    argon2.generateSalt(function (salt) {
-      assert.equal(salt.length, 16, "Generated salt length should be 16.");
+    argon2.generateSalt(function (err, salt) {
+      assert.ok(salt.length <= 16, "Generated salt length should be less than 16.");
       assert.done();
     });
   },
@@ -66,7 +66,7 @@ module.exports = {
 
     assert.expect(1);
 
-    assert.equal(argon2.generateSaltSync().length, 16, "Generated salt length should be 16.");
+    assert.ok(argon2.generateSaltSync().length <= 16, "Generated salt length should be less than 16.");
     assert.done();
   },
 

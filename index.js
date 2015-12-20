@@ -27,8 +27,8 @@ exports.encryptSync = function (plain, salt) {
 exports.generateSalt = function (callback) {
   "use strict";
 
-  process.nextTick(function() {
-    callback(crypto.randomBytes(16).toString());
+  crypto.randomBytes(16, function (err, buffer) {
+    callback(err, buffer.toString());
   });
 };
 
