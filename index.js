@@ -1,8 +1,17 @@
 var bindings = require("bindings")("argon2_lib"),
   crypto = require("crypto");
 
-exports.encrypt = function (plain, salt, callback) {
+exports.encrypt = function (plain, salt, options, callback) {
   "use strict";
+
+  if (typeof(callback) == 'undefined') {
+    callback = options;
+    options = {};
+  }
+
+  options.timeCost = options.timeCost || 3;
+  options.memoryCost = options.memoryCost || 12;
+  options.parallelism = options.parallelism || 1;
 
   if (salt.length > 16) {
     process.nextTick(function () {
@@ -11,17 +20,25 @@ exports.encrypt = function (plain, salt, callback) {
     return;
   }
 
-  return bindings.encrypt(plain, salt, callback);
+  return bindings.encrypt(plain, salt, options.timeCost, options.memoryCost,
+    options.parallelism, callback);
 };
 
-exports.encryptSync = function (plain, salt) {
+exports.encryptSync = function (plain, salt, options) {
   "use strict";
+
+  options = options || {};
+
+  options.timeCost = options.timeCost || 3;
+  options.memoryCost = options.memoryCost || 12;
+  options.parallelism = options.parallelism || 1;
 
   if (salt.length > 16) {
     throw new Error("Salt too long, maximum 16 characters.");
   }
 
-  return bindings.encryptSync(plain, salt);
+  return bindings.encryptSync(plain, salt, options.timeCost, options.memoryCost,
+    options.parallelism);
 };
 
 exports.generateSalt = function (callback) {
