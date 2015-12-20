@@ -27,4 +27,11 @@ exports.verify = function (encrypted, plain, callback) {
   "use strict";
 
   return bindings.verify(encrypted, plain, callback);
-}
+};
+
+exports.verifySync = function (encrypted, plain) {
+  "use strict";
+
+  return bindings.verifySync(encrypted, plain);
+};
+

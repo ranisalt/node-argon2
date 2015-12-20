@@ -164,12 +164,31 @@ NAN_METHOD(Verify) {
     Nan::AsyncQueueWorker(worker);
 }
 
+NAN_METHOD(VerifySync) {
+    using std::strlen;
+
+    Nan::HandleScope scope;
+
+    if (info.Length() < 2) {
+        Nan::ThrowTypeError("2 arguments expected");
+        return;
+    }
+
+    Nan::Utf8String encrypted{info[0]->ToString()};
+    Nan::Utf8String plain{info[1]->ToString()};
+
+    auto result = argon2i_verify(*encrypted, *plain, strlen(*plain));
+
+    info.GetReturnValue().Set(result == ARGON2_OK ? Nan::True() : Nan::False());
+}
+
 }
 
 NAN_MODULE_INIT(init) {
     Nan::Export(target, "encrypt", Encrypt);
     Nan::Export(target, "encryptSync", EncryptSync);
     Nan::Export(target, "verify", Verify);
+    Nan::Export(target, "verifySync", VerifySync);
 };
 
 NODE_MODULE(argon2_lib, init);

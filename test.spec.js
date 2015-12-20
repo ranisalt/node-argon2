@@ -62,5 +62,23 @@ module.exports = {
         assert.ok(err, "Error should be defined.");
         assert.done();
       });
+  },
+
+  test_verify_sync_ok: function (assert) {
+    "use strict";
+
+    assert.equal(true, argon2.verifySync(
+      "$argon2i$m=4096,t=3,p=1$c29tZXNhbHQAAAAAAAAAAA$FHF/OZ0GJpMRAlBmPTqXxw36Ftp87JllALZPcP9w9gs",
+      "password"));
+    assert.done();
+  },
+
+  test_verify_sync_fail: function (assert) {
+    "use strict";
+
+    assert.equal(false, argon2.verifySync(
+      "$argon2i$m=4096,t=3,p=1$c29tZXNhbHQAAAAAAAAAAA$FHF/OZ0GJpMRAlBmPTqXxw36Ftp87JllALZPcP9w9gs",
+      "passwolrd"));
+    assert.done();
   }
 };
