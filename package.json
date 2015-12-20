@@ -15,10 +15,11 @@
     "url": "git+https://github.com/ranisalt/node-argon2.git"
   },
   "keywords": [
-    "password",
-    "hashing",
     "argon2",
-    "crypto"
+    "crypto",
+    "encryption",
+    "hashing",
+    "password"
   ],
   "author": "Ranieri Althoff <ranisalt+argon2@gmail.com>",
   "license": "MIT",
