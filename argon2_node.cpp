@@ -31,11 +31,7 @@ private:
 EncryptAsyncWorker::EncryptAsyncWorker(Nan::Callback* callback,
         const std::string& plain, const std::string& salt):
     Nan::AsyncWorker(callback), plain{plain}, salt{salt}, error{}, output{}
-{
-    if (salt.size() < SALT_LEN) {
-        this->salt.resize(SALT_LEN, 0x0);
-    }
-}
+{ }
 
 void EncryptAsyncWorker::Execute()
 {
@@ -76,11 +72,14 @@ NAN_METHOD(Encrypt) {
     }
 
     Nan::Utf8String plain{info[0]->ToString()};
-    Nan::Utf8String salt{info[1]->ToString()};
+    Nan::Utf8String raw_salt{info[1]->ToString()};
     Local<Function> callback = Local<Function>::Cast(info[2]);
 
+    auto salt = std::string{*raw_salt};
+    salt.resize(SALT_LEN, 0x0);
+
     auto worker = new EncryptAsyncWorker(new Nan::Callback(callback), *plain,
-            *salt);
+            salt);
 
     Nan::AsyncQueueWorker(worker);
 }
