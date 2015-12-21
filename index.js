@@ -12,6 +12,7 @@ exports.encrypt = function (plain, salt, options, callback) {
   options.timeCost = options.timeCost || 3;
   options.memoryCost = options.memoryCost || 12;
   options.parallelism = options.parallelism || 1;
+  options.argon2d = !!options.argon2d;
 
   if (salt.length > 16) {
     process.nextTick(function () {
@@ -28,7 +29,7 @@ exports.encrypt = function (plain, salt, options, callback) {
   }
 
   return bindings.encrypt(plain, salt, options.timeCost, options.memoryCost,
-    options.parallelism, callback);
+    options.parallelism, options.argon2d, callback);
 };
 
 exports.encryptSync = function (plain, salt, options) {
@@ -39,6 +40,7 @@ exports.encryptSync = function (plain, salt, options) {
   options.timeCost = options.timeCost || 3;
   options.memoryCost = options.memoryCost || 12;
   options.parallelism = options.parallelism || 1;
+  options.argon2d = !!options.argon2d;
 
   if (salt.length > 16) {
     throw new Error("Salt too long, maximum 16 characters.");
@@ -49,7 +51,7 @@ exports.encryptSync = function (plain, salt, options) {
   }
 
   return bindings.encryptSync(plain, salt, options.timeCost, options.memoryCost,
-    options.parallelism);
+    options.parallelism, options.argon2d);
 };
 
 exports.generateSalt = function (callback) {
@@ -69,12 +71,12 @@ exports.generateSaltSync = function () {
 exports.verify = function (encrypted, plain, callback) {
   "use strict";
 
-  return bindings.verify(encrypted, plain, callback);
+  return bindings.verify(encrypted, plain, /argon2d/.test(encrypted), callback);
 };
 
 exports.verifySync = function (encrypted, plain) {
   "use strict";
 
-  return bindings.verifySync(encrypted, plain);
+  return bindings.verifySync(encrypted, plain, /argon2d/.test(encrypted));
 };
 

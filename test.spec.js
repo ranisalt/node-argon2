@@ -17,6 +17,21 @@ module.exports = {
     });
   },
 
+  test_hash_argon2d: function (assert) {
+    "use strict";
+
+    assert.expect(3);
+
+    argon2.encrypt("password", "somesalt", {
+      argon2d: true
+    }, function (err, hash) {
+      assert.ok(hash, "Hash should be defined.");
+      assert.ok(/\$argon2d\$/.test(hash), "Hash should use argon2d signature.");
+      assert.equal(undefined, err, "Error should not be defined.");
+      assert.done();
+    });
+  },
+
   test_hash_long_salt: function (assert) {
     "use strict";
 
@@ -115,6 +130,18 @@ module.exports = {
     var hash = argon2.encryptSync("password", "somesalt");
     assert.equal(hash, "$argon2i$m=4096,t=3,p=1$c29tZXNhbHQAAAAAAAAAAA$FHF/OZ0GJpMRAlBmPTqXxw36Ftp87JllALZPcP9w9gs",
       "Hash should be equal to expected.");
+    assert.done();
+  },
+
+  test_hash_argon2d_sync: function (assert) {
+    "use strict";
+
+    assert.expect(1);
+
+    var hash = argon2.encryptSync("password", "somesalt", {
+      argon2d: true
+    });
+    assert.ok(/\$argon2d\$/.test(hash), "Hash should use argon2d signature.");
     assert.done();
   },
 
@@ -238,6 +265,36 @@ module.exports = {
       });
   },
 
+  test_verify_argon2d_ok: function (assert) {
+    "use strict";
+
+    assert.expect(1);
+
+    argon2.encrypt("password", "somesalt", {
+      argon2d: true
+    }, function (err, hash) {
+      argon2.verify(hash, "password", function (err) {
+        assert.equal(undefined, err, "Error should be undefined.");
+        assert.done();
+      });
+    });
+  },
+
+  test_verify_argon2d_fail: function (assert) {
+    "use strict";
+
+    assert.expect(1);
+
+    argon2.encrypt("password", "somesalt", {
+      argon2d: true
+    }, function (err, hash) {
+      argon2.verify(hash, "passwolrd", function (err) {
+        assert.ok(err, "Error should be defined.");
+        assert.done();
+      });
+    });
+  },
+
   test_verify_sync_ok: function (assert) {
     "use strict";
 
@@ -258,5 +315,31 @@ module.exports = {
       "$argon2i$m=4096,t=3,p=1$c29tZXNhbHQAAAAAAAAAAA$FHF/OZ0GJpMRAlBmPTqXxw36Ftp87JllALZPcP9w9gs",
       "passwolrd"));
     assert.done();
+  },
+
+  test_verify_argon2d_sync_ok: function (assert) {
+    "use strict";
+
+    assert.expect(1);
+
+    argon2.encrypt("password", "somesalt", {
+      argon2d: true
+    }, function (err, hash) {
+      assert.equal(true, argon2.verifySync(hash, "password"));
+      assert.done();
+    });
+  },
+
+  test_verify_argon2d_sync_fail: function (assert) {
+    "use strict";
+
+    assert.expect(1);
+
+    argon2.encrypt("password", "somesalt", {
+      argon2d: true
+    }, function (err, hash) {
+      assert.equal(false, argon2.verifySync(hash, "passwolrd"));
+      assert.done();
+    });
   }
 };

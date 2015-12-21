@@ -18,7 +18,7 @@ class EncryptAsyncWorker : public Nan::AsyncWorker {
 public:
     EncryptAsyncWorker(Nan::Callback* callback, const std::string& plain,
             const std::string& salt, uint time_cost, uint memory_cost,
-            uint parallelism);
+            uint parallelism, argon2_type type);
 
     void Execute();
 
@@ -31,23 +31,25 @@ private:
     uint memory_cost;
     uint parallelism;
     std::string error;
+    Argon2_type type;
     std::string output;
 };
 
 EncryptAsyncWorker::EncryptAsyncWorker(Nan::Callback* callback,
-        const std::string& plain, const std::string& salt,
-        uint time_cost, uint memory_cost, uint parallelism):
+        const std::string& plain, const std::string& salt, uint time_cost,
+        uint memory_cost, uint parallelism, Argon2_type type):
     Nan::AsyncWorker(callback), plain{plain}, salt{salt}, time_cost{time_cost},
-    memory_cost{memory_cost}, parallelism{parallelism}, error{}, output{}
+    memory_cost{memory_cost}, parallelism{parallelism}, error{}, type{type},
+    output{}
 { }
 
 void EncryptAsyncWorker::Execute()
 {
     char encoded[ENCODED_LEN];
 
-    auto result = argon2i_hash_encoded(time_cost, memory_cost, parallelism,
-            plain.c_str(), plain.size(), salt.c_str(), salt.size(), HASH_LEN,
-            encoded, ENCODED_LEN);
+    auto result = argon2_hash(time_cost, memory_cost, parallelism,
+            plain.c_str(), plain.size(), salt.c_str(), salt.size(), nullptr,
+            HASH_LEN, encoded, ENCODED_LEN, type);
     if (result != ARGON2_OK) {
         return;
     }
@@ -75,8 +77,8 @@ NAN_METHOD(Encrypt) {
 
     Nan::HandleScope scope;
 
-    if (info.Length() < 6) {
-        Nan::ThrowTypeError("6 arguments expected");
+    if (info.Length() < 7) {
+        Nan::ThrowTypeError("7 arguments expected");
         return;
     }
 
@@ -85,13 +87,14 @@ NAN_METHOD(Encrypt) {
     auto time_cost = info[2]->Uint32Value();
     auto memory_cost = info[3]->Uint32Value();
     auto parallelism = info[4]->Uint32Value();
-    Local<Function> callback = Local<Function>::Cast(info[5]);
+    argon2_type type = info[5]->BooleanValue() ? Argon2_d : Argon2_i;
+    Local<Function> callback = Local<Function>::Cast(info[6]);
 
     auto salt = std::string{*raw_salt};
     salt.resize(SALT_LEN, 0x0);
 
     auto worker = new EncryptAsyncWorker(new Nan::Callback(callback), *plain,
-            salt, time_cost, 1 << memory_cost, parallelism);
+            salt, time_cost, 1 << memory_cost, parallelism, type);
 
     Nan::AsyncQueueWorker(worker);
 }
@@ -99,8 +102,8 @@ NAN_METHOD(Encrypt) {
 NAN_METHOD(EncryptSync) {
     Nan::HandleScope scope;
 
-    if (info.Length() < 5) {
-        Nan::ThrowTypeError("5 arguments expected");
+    if (info.Length() < 6) {
+        Nan::ThrowTypeError("6 arguments expected");
         info.GetReturnValue().Set(Nan::Undefined());
         return;
     }
@@ -110,14 +113,16 @@ NAN_METHOD(EncryptSync) {
     auto time_cost = info[2]->Uint32Value();
     auto memory_cost = info[3]->Uint32Value();
     auto parallelism = info[4]->Uint32Value();
+    argon2_type type = info[5]->BooleanValue() ? Argon2_d : Argon2_i;
 
     char encoded[ENCODED_LEN];
 
     auto salt = std::string{*raw_salt};
     salt.resize(SALT_LEN, 0x0);
 
-    auto result = argon2i_hash_encoded(time_cost, 1 << memory_cost, parallelism,
-            *plain, strlen(*plain), salt.c_str(), salt.size(), HASH_LEN, encoded, ENCODED_LEN);
+    auto result = argon2_hash(time_cost, 1 << memory_cost, parallelism, *plain,
+            strlen(*plain), salt.c_str(), salt.size(), nullptr, HASH_LEN,
+            encoded, ENCODED_LEN, type);
     if (result != ARGON2_OK) {
         info.GetReturnValue().Set(Nan::Undefined());
         return;
@@ -129,8 +134,8 @@ NAN_METHOD(EncryptSync) {
 
 class VerifyAsyncWorker : public Nan::AsyncWorker {
 public:
-    VerifyAsyncWorker(Nan::Callback* callback,
-            const std::string& encrypted, const std::string& plain);
+    VerifyAsyncWorker(Nan::Callback* callback, const std::string& encrypted,
+            const std::string& plain, argon2_type type);
 
     void Execute();
 
@@ -138,19 +143,21 @@ private:
     std::string encrypted;
     std::string plain;
     std::string error;
+    argon2_type type;
     bool output;
 };
 
 VerifyAsyncWorker::VerifyAsyncWorker(Nan::Callback* callback,
-        const std::string& encrypted, const std::string& plain):
-    Nan::AsyncWorker(callback), encrypted{encrypted}, plain{plain},
-    error{}, output{}
+        const std::string& encrypted, const std::string& plain,
+        argon2_type type):
+    Nan::AsyncWorker(callback), encrypted{encrypted}, plain{plain}, error{},
+    type{type}, output{}
 { }
 
 void VerifyAsyncWorker::Execute()
 {
-    auto result = argon2i_verify(encrypted.c_str(), plain.c_str(),
-        plain.size());
+    auto result = argon2_verify(encrypted.c_str(), plain.c_str(), plain.size(),
+            type);
 
     if (result != ARGON2_OK) {
         SetErrorMessage("The password did not match.");
@@ -170,10 +177,11 @@ NAN_METHOD(Verify) {
 
     Nan::Utf8String encrypted{info[0]->ToString()};
     Nan::Utf8String plain{info[1]->ToString()};
-    Local<Function> callback = Local<Function>::Cast(info[2]);
+    argon2_type type = info[2]->BooleanValue() ? Argon2_d : Argon2_i;
+    Local<Function> callback = Local<Function>::Cast(info[3]);
 
     auto worker = new VerifyAsyncWorker(new Nan::Callback(callback),
-    *encrypted, *plain);
+            *encrypted, *plain, type);
 
     Nan::AsyncQueueWorker(worker);
 }
@@ -190,8 +198,9 @@ NAN_METHOD(VerifySync) {
 
     Nan::Utf8String encrypted{info[0]->ToString()};
     Nan::Utf8String plain{info[1]->ToString()};
+    argon2_type type = info[2]->BooleanValue() ? Argon2_d : Argon2_i;
 
-    auto result = argon2i_verify(*encrypted, *plain, strlen(*plain));
+    auto result = argon2_verify(*encrypted, *plain, strlen(*plain), type);
 
     info.GetReturnValue().Set(result == ARGON2_OK ? Nan::True() : Nan::False());
 }
