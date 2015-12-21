@@ -153,7 +153,7 @@ module.exports = {
     var hash = argon2.encryptSync("password", "somesalt", {
       timeCost: 4
     });
-    assert.ok(/m=4096,t=4,p=1/.test(hash),"Hash should have correct time cost.");
+    assert.ok(/m=4096,t=4,p=1/.test(hash), "Hash should have correct time cost.");
     assert.done();
   },
 
@@ -204,7 +204,7 @@ module.exports = {
       memoryCost: 13,
       parallelism: 2
     });
-    assert.ok(/m=8192,t=4,p=2/.test(hash),"Hash should have correct options.");
+    assert.ok(/m=8192,t=4,p=2/.test(hash), "Hash should have correct options.");
     assert.done();
   },
 
