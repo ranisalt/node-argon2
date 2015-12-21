@@ -3,8 +3,9 @@ Bindings to the  reference [Argon2](https://github.com/P-H-C/phc-winner-argon2)
 implementation.
 
 ### Usage
-Currently, only the encrypt and verify methods are implemented for Argon2i, and
-a method to generate cryptographically safe random salts.
+It's possible to hash a password using both Argon2i (default) and Argon2d, sync
+and async, and to verify if a password matches a hash, and also generate random
+cryptographically-safe salts.
 
 To hash a password:
 ```js
@@ -25,7 +26,28 @@ try {
   console.log(err);
 }
 ```
-Resultant hashes will be 90 characters long.
+Resultant hashes will be 90 characters long. You can choose between Argon2i and
+Argon2d by passing an object as the third argument with the `argon2d` key set to
+whether or not you want Argon2d:
+```js
+var argon2 = require('argon2');
+
+argon2.encrypt('password', 'somesalt', {
+  argon2d: true
+}, function (err, hash) {
+  // ...
+});
+
+// OR
+
+try {
+  var hash = argon2.encryptSync('password', 'somesalt', {
+    argon2d: true
+  });
+} catch (err) {
+  // ...
+}
+```
 
 You can provide your own salt as the second parameter. It is recommended to use
 the salt generating methods instead of a hardcoded, constant salt:
@@ -41,23 +63,25 @@ argon2.generateSalt(function (salt) {
 var salt = argon2.generateSaltSync();
 ```
 
-You can also modify time, memory and parallelism constraints passing an object
+You can also modify time, memory and parallelism constraints passing the object
 as the third parameter, with keys `timeCost`, `memoryCost` and `parallelism`,
 respectively defaulted to 3, 12 (meaning 2^12 KB) and 1 (threads):
 ```js
 var argon2 = require('argon2');
 
-argon2.encrypt('password', saltGeneratedWithAboveFunction, {
+argon2.generateSalt(function (salt) {
+  argon2.encrypt('password', salt, {
     timeCost: 4, memoryCost: 13, parallelism: 2
-}, function (err, hash) {
-  // ...
+  }, function (err, hash) {
+    // ...
+  });
 });
 
 // OR
 
-var hash = argon2.encryptSync('password', saltGeneratedWithAboveFunction, {
+var hash = argon2.encryptSync('password', argon2.generateSalt(), {
   timeCost: 4, memoryCost: 13, parallelism: 2
-};
+});
 ```
 
 To verify a password:
