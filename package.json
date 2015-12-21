@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "npm run configure && node-gyp build",
-    "clean": "node-gyp clean && rm index-cov.js",
+    "clean": "node-gyp clean && rm -f index-cov.js",
     "configure": "node-gyp configure",
     "coveralls": "jscoverage index.js && ARGON2_COVERAGE=1 nodeunit --reporter=lcov test.spec.js | coveralls",
     "preinstall": "node-gyp rebuild && git submodule init && git submodule update",
