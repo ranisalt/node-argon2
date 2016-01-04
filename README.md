@@ -111,13 +111,13 @@ Work licensed under the [MIT License](LICENSE). Please check
 [P-H-C/phc-winner-argon2] (https://github.com/P-H-C/phc-winner-argon2) for
 license over Argon2 and the reference implementation.
 
-[npm-image]: https://img.shields.io/npm/v/argon2.svg
+[npm-image]: https://img.shields.io/npm/v/argon2.svg?style=flat-square
 [npm-url]: https://www.npmjs.com/package/argon2
-[travis-image]: https://img.shields.io/travis/ranisalt/node-argon2.svg
+[travis-image]: https://img.shields.io/travis/ranisalt/node-argon2.svg?style=flat-square
 [travis-url]: https://travis-ci.org/ranisalt/node-argon2
-[coveralls-image]: https://img.shields.io/coveralls/ranisalt/node-argon2.svg
+[coveralls-image]: https://img.shields.io/coveralls/ranisalt/node-argon2.svg?style=flat-square
 [coveralls-url]: https://coveralls.io/github/ranisalt/node-argon2
-[codeclimate-image]: https://img.shields.io/codeclimate/github/ranisalt/node-argon2.svg
+[codeclimate-image]: https://img.shields.io/codeclimate/github/ranisalt/node-argon2.svg?style=flat-square
 [codeclimate-url]: https://codeclimate.com/github/ranisalt/node-argon2
-[david-dm-image]: https://img.shields.io/david/ranisalt/node-argon2.svg
+[david-dm-image]: https://img.shields.io/david/ranisalt/node-argon2.svg?style=flat-square
 [david-dm-url]: https://david-dm.org/ranisalt/node-argon2
