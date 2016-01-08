@@ -45,6 +45,36 @@ module.exports = {
     });
   },
 
+  test_hash_truthy_argon2d: function (assert) {
+    "use strict";
+
+    assert.expect(3);
+
+    argon2.encrypt("password", "somesalt", {
+      argon2d: "foo"
+    }, function (err, hash) {
+      assert.ok(hash, "Hash should be defined.");
+      assert.ok(/\$argon2d\$/.test(hash), "Should have argon2d signature.");
+      assert.equal(undefined, err);
+      assert.done();
+    });
+  },
+
+  test_hash_falsy_argon2d: function (assert) {
+    "use strict";
+
+    assert.expect(3);
+
+    argon2.encrypt("password", "somesalt", {
+      argon2d: ""
+    }, function (err, hash) {
+      assert.ok(hash, "Hash should be defined.");
+      assert.ok(/\$argon2i\$/.test(hash), "Should not have argon2d signature.");
+      assert.equal(undefined, err);
+      assert.done();
+    });
+  },
+
   test_hash_long_salt: function (assert) {
     "use strict";
 
@@ -199,6 +229,30 @@ module.exports = {
       argon2d: true
     });
     assert.ok(/\$argon2d\$/.test(hash), "Should use argon2d signature.");
+    assert.done();
+  },
+
+  test_hash_truthy_argon2d_sync: function (assert) {
+    "use strict";
+
+    assert.expect(1);
+
+    var hash = argon2.encryptSync("password", "somesalt", {
+      argon2d: "foo"
+    });
+    assert.ok(/\$argon2d\$/.test(hash), "Should use argon2d signature.");
+    assert.done();
+  },
+
+  test_hash_falsy_argon2d_sync: function (assert) {
+    "use strict";
+
+    assert.expect(1);
+
+    var hash = argon2.encryptSync("password", "somesalt", {
+      argon2d: ""
+    });
+    assert.ok(/\$argon2i\$/.test(hash), "Should not use argon2d signature.");
     assert.done();
   },
 
