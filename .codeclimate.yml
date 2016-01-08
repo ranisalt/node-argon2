@@ -9,5 +9,8 @@ engines:
     enabled: true
   fixme:
     enabled: true
+ratings:
+  paths:
+    - "index.js"
 exclude_paths:
   - "test.spec.js"
