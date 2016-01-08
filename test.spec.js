@@ -326,8 +326,7 @@ module.exports = {
 
     assert.expect(1);
 
-    argon2.verify(
-      "$argon2i$m=4096,t=3,p=1$c29tZXNhbHQAAAAAAAAAAA$FHF/OZ0GJpMRAlBmPTqXxw36Ftp87JllALZPcP9w9gs",
+    argon2.verify(argon2.encryptSync("password", argon2.generateSaltSync()),
       "password", function (err) {
         assert.equal(undefined, err);
         assert.done();
@@ -339,8 +338,7 @@ module.exports = {
 
     assert.expect(1);
 
-    argon2.verify(
-      "$argon2i$m=4096,t=3,p=1$c29tZXNhbHQAAAAAAAAAAA$FHF/OZ0GJpMRAlBmPTqXxw36Ftp87JllALZPcP9w9gs",
+    argon2.verify(argon2.encryptSync("password", argon2.generateSaltSync()),
       "passwolrd", function (err) {
         assert.ok(err, "Error should be defined.");
         assert.done();
@@ -352,7 +350,7 @@ module.exports = {
 
     assert.expect(1);
 
-    argon2.encrypt("password", "somesalt", {
+    argon2.encrypt("password", argon2.generateSaltSync(), {
       argon2d: true
     }, function (err, hash) {
       argon2.verify(hash, "password", function (err) {
@@ -367,7 +365,7 @@ module.exports = {
 
     assert.expect(1);
 
-    argon2.encrypt("password", "somesalt", {
+    argon2.encrypt("password", argon2.generateSaltSync(), {
       argon2d: true
     }, function (err, hash) {
       argon2.verify(hash, "passwolrd", function (err) {
@@ -382,9 +380,8 @@ module.exports = {
 
     assert.expect(1);
 
-    assert.equal(true, argon2.verifySync(
-      "$argon2i$m=4096,t=3,p=1$c29tZXNhbHQAAAAAAAAAAA$FHF/OZ0GJpMRAlBmPTqXxw36Ftp87JllALZPcP9w9gs",
-      "password"));
+    assert.equal(true, argon2.verifySync(argon2.encryptSync("password",
+      argon2.generateSaltSync()), "password"));
     assert.done();
   },
 
@@ -393,9 +390,8 @@ module.exports = {
 
     assert.expect(1);
 
-    assert.equal(false, argon2.verifySync(
-      "$argon2i$m=4096,t=3,p=1$c29tZXNhbHQAAAAAAAAAAA$FHF/OZ0GJpMRAlBmPTqXxw36Ftp87JllALZPcP9w9gs",
-      "passwolrd"));
+    assert.equal(false, argon2.verifySync(argon2.encryptSync("password",
+      argon2.generateSaltSync()), "passworld"));
     assert.done();
   },
 
@@ -404,7 +400,7 @@ module.exports = {
 
     assert.expect(1);
 
-    argon2.encrypt("password", "somesalt", {
+    argon2.encrypt("password", argon2.generateSaltSync(), {
       argon2d: true
     }, function (err, hash) {
       assert.equal(true, argon2.verifySync(hash, "password"));
@@ -417,7 +413,7 @@ module.exports = {
 
     assert.expect(1);
 
-    argon2.encrypt("password", "somesalt", {
+    argon2.encrypt("password", argon2.generateSaltSync(), {
       argon2d: true
     }, function (err, hash) {
       assert.equal(false, argon2.verifySync(hash, "passwolrd"));
