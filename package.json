@@ -4,9 +4,9 @@
   "description": "An Argon2 library for Node",
   "main": "index.js",
   "scripts": {
-    "build": "make -C argon2 && node-gyp configure build",
-    "clean": "make -C argon2 clean && node-gyp clean && rm -f index-cov.js",
-    "preinstall": "git submodule update --init",
+    "build": "node-gyp configure rebuild",
+    "clean": "node-gyp clean",
+    "preinstall": "git submodule update --init && make -C argon2",
     "postinstall": "npm run build",
     "test": "nodeunit test.spec.js"
   },

@@ -7,11 +7,17 @@ addons:
       - ubuntu-toolchain-r-test
     packages:
       - g++-4.8
+      - lcov
   code_climate:
     repo_token: c4a365fa745eacefa21ef1bda85c2f5031419ace0ef9d643d91ae149e796d8c4
 cache: apt
 env: CXX="g++-4.8"
-before_script: npm install -g codeclimate-test-reporter node-gyp
+before_script: npm install -g codeclimate-test-reporter coveralls node-gyp
 after_script:
-  - jscoverage index.js
-  - ARGON2_COVERAGE=TRUE nodeunit --reporter=lcov test.spec.js | codeclimate-test-reporter
+  - jscoverage index.js && node-gyp --debug rebuild
+  - COVERAGE=1 nodeunit --reporter=lcov test.spec.js > lcov-js.info
+  - lcov -c -d . -o lcov-cpp.info
+  - lcov -e lcov-cpp.info "$PWD/src/*" -o lcov-cpp.info
+  - lcov -a lcov-cpp.info -a lcov-js.info -o lcov.info
+  - codeclimate-test-reporter < lcov.info
+  - coveralls < lcov.info

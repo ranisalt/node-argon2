@@ -1,4 +1,4 @@
-var argon2 = process.env.ARGON2_COVERAGE
+var argon2 = process.env.COVERAGE
   ? require('./index-cov')
   : require('./index');
 
