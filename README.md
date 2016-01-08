@@ -48,6 +48,7 @@ try {
   // ...
 }
 ```
+The `argon2d` option is flexible and accepts any truthy or falsy values.
 
 You can provide your own salt as the second parameter. It is recommended to use
 the salt generating methods instead of a hardcoded, constant salt:
@@ -82,6 +83,14 @@ argon2.generateSalt(function (salt) {
 var hash = argon2.encryptSync('password', argon2.generateSalt(), {
   timeCost: 4, memoryCost: 13, parallelism: 2
 });
+```
+
+The default parameters for Argon2 can be accessed with `defaults`:
+```js
+var argon2 = require('argon2');
+
+console.log(argon2.defaults);
+// => { timeCost: 3, memoryCost: 12, parallelism: 1, argon2d: false }
 ```
 
 To verify a password:
