@@ -9,10 +9,7 @@ addons:
       - g++-4.8
   code_climate:
     repo_token: c4a365fa745eacefa21ef1bda85c2f5031419ace0ef9d643d91ae149e796d8c4
-cache:
-  apt: true
-  directories:
-    - node_modules
+cache: apt
 env: CXX="g++-4.8"
 before_script: npm install -g codeclimate-test-reporter node-gyp
 after_script:
