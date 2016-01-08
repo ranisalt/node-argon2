@@ -3,7 +3,7 @@
     {
       "target_name": "argon2",
       "sources": [
-        "argon2_node.cpp"
+        "src/argon2_node.cpp"
       ],
       "include_dirs": [
         "<!(node -e \"require('nan')\")"

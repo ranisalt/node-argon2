@@ -4,7 +4,7 @@
 #include <cstring>
 #include <string>
 
-#include "argon2/src/argon2.h"
+#include "../argon2/src/argon2.h"
 
 namespace {
 
@@ -51,7 +51,7 @@ void EncryptAsyncWorker::Execute()
             plain.c_str(), plain.size(), salt.c_str(), salt.size(), nullptr,
             HASH_LEN, encoded, ENCODED_LEN, type);
     if (result != ARGON2_OK) {
-        return;
+        return; // LCOV_EXCL_LINE
     }
 
     output = std::string{encoded};
@@ -78,8 +78,10 @@ NAN_METHOD(Encrypt) {
     Nan::HandleScope scope;
 
     if (info.Length() < 7) {
+        /* LCOV_EXCL_START */
         Nan::ThrowTypeError("7 arguments expected");
         return;
+        /* LCOV_EXCL_STOP */
     }
 
     Nan::Utf8String plain{info[0]->ToString()};
@@ -103,9 +105,11 @@ NAN_METHOD(EncryptSync) {
     Nan::HandleScope scope;
 
     if (info.Length() < 6) {
+        /* LCOV_EXCL_START */
         Nan::ThrowTypeError("6 arguments expected");
         info.GetReturnValue().Set(Nan::Undefined());
         return;
+        /* LCOV_EXCL_STOP */
     }
 
     Nan::Utf8String plain{info[0]->ToString()};
@@ -123,9 +127,12 @@ NAN_METHOD(EncryptSync) {
     auto result = argon2_hash(time_cost, 1 << memory_cost, parallelism, *plain,
             strlen(*plain), salt.c_str(), salt.size(), nullptr, HASH_LEN,
             encoded, ENCODED_LEN, type);
+
     if (result != ARGON2_OK) {
+        /* LCOV_EXCL_START */
         info.GetReturnValue().Set(Nan::Undefined());
         return;
+        /* LCOV_EXCL_STOP */
     }
 
     info.GetReturnValue().Set(Nan::Encode(encoded, std::strlen(encoded),
@@ -171,8 +178,10 @@ NAN_METHOD(Verify) {
     Nan::HandleScope scope;
 
     if (info.Length() < 3) {
+        /* LCOV_EXCL_START */
         Nan::ThrowTypeError("3 arguments expected");
         return;
+        /* LCOV_EXCL_STOP */
     }
 
     Nan::Utf8String encrypted{info[0]->ToString()};
@@ -192,8 +201,10 @@ NAN_METHOD(VerifySync) {
     Nan::HandleScope scope;
 
     if (info.Length() < 2) {
+        /* LCOV_EXCL_START */
         Nan::ThrowTypeError("2 arguments expected");
         return;
+        /* LCOV_EXCL_STOP */
     }
 
     Nan::Utf8String encrypted{info[0]->ToString()};
