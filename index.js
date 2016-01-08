@@ -1,4 +1,4 @@
-var bindings = require("bindings")("argon2_lib"),
+var bindings = require("bindings")("argon2"),
   crypto = require("crypto");
 
 var defaults = exports.defaults = Object.freeze({
