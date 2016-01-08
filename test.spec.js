@@ -10,9 +10,8 @@ module.exports = {
 
     argon2.encrypt("password", "somesalt", function (err, hash) {
       assert.ok(hash, "Hash should be defined.");
-      assert.equal(hash, "$argon2i$m=4096,t=3,p=1$c29tZXNhbHQAAAAAAAAAAA$FHF/OZ0GJpMRAlBmPTqXxw36Ftp87JllALZPcP9w9gs",
-        "Hash should be equal to expected.");
-      assert.equal(undefined, err, "Error should not be defined.");
+      assert.equal(hash, "$argon2i$m=4096,t=3,p=1$c29tZXNhbHQAAAAAAAAAAA$FHF/OZ0GJpMRAlBmPTqXxw36Ftp87JllALZPcP9w9gs");
+      assert.equal(undefined, err);
       assert.done();
     });
   },
@@ -26,8 +25,8 @@ module.exports = {
       argon2d: true
     }, function (err, hash) {
       assert.ok(hash, "Hash should be defined.");
-      assert.ok(/\$argon2d\$/.test(hash), "Hash should use argon2d signature.");
-      assert.equal(undefined, err, "Error should not be defined.");
+      assert.ok(/\$argon2d\$/.test(hash), "Should have argon2d signature.");
+      assert.equal(undefined, err);
       assert.done();
     });
   },
@@ -39,8 +38,8 @@ module.exports = {
 
     argon2.encrypt("password", "somesaltwaytoobig", function (err, hash) {
       assert.ok(err, "Error should be defined.");
-      assert.equal(err.message, "Salt too long, maximum 16 characters.", "Error message should be equal to expected.");
-      assert.equal(undefined, hash, "Hash should not be defined.");
+      assert.equal(err.message, "Salt too long, maximum 16 characters.");
+      assert.equal(undefined, hash);
       assert.done();
     });
   },
@@ -54,8 +53,8 @@ module.exports = {
       timeCost: 4
     }, function (err, hash) {
       assert.ok(hash, "Hash should be defined.");
-      assert.ok(/m=4096,t=4,p=1/.test(hash), "Hash should have correct time cost.");
-      assert.equal(undefined, err, "Error should not be defined.");
+      assert.ok(/m=4096,t=4,p=1/.test(hash), "Should have correct time cost.");
+      assert.equal(undefined, err);
       assert.done();
     });
   },
@@ -69,8 +68,8 @@ module.exports = {
       timeCost: "foo"
     }, function (err, hash) {
       assert.ok(err, "Error should be defined.");
-      assert.equal(err.message, "Invalid time cost, must be a number.", "Error message should be equal to expected.");
-      assert.equal(undefined, hash, "Hash should not be defined.");
+      assert.equal(err.message, "Invalid time cost, must be a number.");
+      assert.equal(undefined, hash);
       assert.done();
     });
   },
@@ -84,8 +83,8 @@ module.exports = {
       memoryCost: 13
     }, function (err, hash) {
       assert.ok(hash, "Hash should be defined.");
-      assert.ok(/m=8192,t=3,p=1/.test(hash), "Hash should have correct memory cost.");
-      assert.equal(undefined, err, "Error should not be defined.");
+      assert.ok(/m=8192,t=3,p=1/.test(hash), "Should have correct memory cost.");
+      assert.equal(undefined, err);
       assert.done();
     });
   },
@@ -99,8 +98,8 @@ module.exports = {
       memoryCost: "foo"
     }, function (err, hash) {
       assert.ok(err, "Error should be defined.");
-      assert.equal(err.message, "Invalid memory cost, must be a number.", "Error message should be equal to expected.");
-      assert.equal(undefined, hash, "Hash should not be defined.");
+      assert.equal(err.message, "Invalid memory cost, must be a number.");
+      assert.equal(undefined, hash);
       assert.done();
     });
   },
@@ -114,8 +113,8 @@ module.exports = {
       memoryCost: 32
     }, function (err, hash) {
       assert.ok(err, "Error should be defined.");
-      assert.equal(err.message, "Memory cost too high, maximum of 32.", "Error message should be equal to expected.");
-      assert.equal(undefined, hash, "Hash should not be defined.");
+      assert.equal(err.message, "Memory cost too high, maximum of 32.");
+      assert.equal(undefined, hash);
       assert.done();
     });
   },
@@ -129,8 +128,8 @@ module.exports = {
       parallelism: 2
     }, function (err, hash) {
       assert.ok(hash, "Hash should be defined.");
-      assert.ok(/m=4096,t=3,p=2/.test(hash), "Hash should have correct parallelism.");
-      assert.equal(undefined, err, "Error should not be defined.");
+      assert.ok(/m=4096,t=3,p=2/.test(hash), "Should have correct parallelism.");
+      assert.equal(undefined, err);
       assert.done();
     });
   },
@@ -144,8 +143,8 @@ module.exports = {
       parallelism: "foo"
     }, function (err, hash) {
       assert.ok(err, "Error should be defined.");
-      assert.equal(err.message, "Invalid parallelism, must be a number.", "Error message should be equal to expected.");
-      assert.equal(undefined, hash, "Hash should not be defined.");
+      assert.equal(err.message, "Invalid parallelism, must be a number.");
+      assert.equal(undefined, hash);
       assert.done();
     });
   },
@@ -161,8 +160,8 @@ module.exports = {
       parallelism: 2
     }, function (err, hash) {
       assert.ok(hash, "Hash should be defined.");
-      assert.ok(/m=8192,t=4,p=2/.test(hash), "Hash should have correct options.");
-      assert.equal(undefined, err, "Error should not be defined.");
+      assert.ok(/m=8192,t=4,p=2/.test(hash), "Should have correct options.");
+      assert.equal(undefined, err);
       assert.done();
     });
   },
@@ -173,8 +172,7 @@ module.exports = {
     assert.expect(1);
 
     var hash = argon2.encryptSync("password", "somesalt");
-    assert.equal(hash, "$argon2i$m=4096,t=3,p=1$c29tZXNhbHQAAAAAAAAAAA$FHF/OZ0GJpMRAlBmPTqXxw36Ftp87JllALZPcP9w9gs",
-      "Hash should be equal to expected.");
+    assert.equal(hash, "$argon2i$m=4096,t=3,p=1$c29tZXNhbHQAAAAAAAAAAA$FHF/OZ0GJpMRAlBmPTqXxw36Ftp87JllALZPcP9w9gs");
     assert.done();
   },
 
@@ -186,7 +184,7 @@ module.exports = {
     var hash = argon2.encryptSync("password", "somesalt", {
       argon2d: true
     });
-    assert.ok(/\$argon2d\$/.test(hash), "Hash should use argon2d signature.");
+    assert.ok(/\$argon2d\$/.test(hash), "Should use argon2d signature.");
     assert.done();
   },
 
@@ -198,7 +196,7 @@ module.exports = {
     var hash = argon2.encryptSync("password", "somesalt", {
       timeCost: 4
     });
-    assert.ok(/m=4096,t=4,p=1/.test(hash), "Hash should have correct time cost.");
+    assert.ok(/m=4096,t=4,p=1/.test(hash), "Should have correct time cost.");
     assert.done();
   },
 
@@ -211,7 +209,7 @@ module.exports = {
       var hash = argon2.encryptSync("password", "somesalt", {
         timeCost: "foo"
       });
-    }, Error, "Error should be thrown.");
+    });
     assert.done();
   },
 
@@ -223,7 +221,7 @@ module.exports = {
     var hash = argon2.encryptSync("password", "somesalt", {
       memoryCost: 13
     });
-    assert.ok(/m=8192,t=3,p=1/.test(hash), "Hash should have correct memory cost.");
+    assert.ok(/m=8192,t=3,p=1/.test(hash), "Should have correct memory cost.");
     assert.done();
   },
 
@@ -236,7 +234,7 @@ module.exports = {
       var hash = argon2.encryptSync("password", "somesalt", {
         memoryCost: "foo"
       });
-    }, Error, "Error should be thrown.");
+    });
     assert.done();
   },
 
@@ -249,7 +247,7 @@ module.exports = {
       argon2.encryptSync("password", "somesalt", {
         memoryCost: 32
       });
-    }, Error, "Error should be thrown.");
+    });
     assert.done();
   },
 
@@ -261,7 +259,7 @@ module.exports = {
     var hash = argon2.encryptSync("password", "somesalt", {
       parallelism: 2
     });
-    assert.ok(/m=4096,t=3,p=2/.test(hash), "Hash should have correct parallelism.");
+    assert.ok(/m=4096,t=3,p=2/.test(hash), "Should have correct parallelism.");
     assert.done();
   },
 
@@ -274,7 +272,7 @@ module.exports = {
       var hash = argon2.encryptSync("password", "somesalt", {
         parallelism: "foo"
       });
-    }, Error, "Error should be thrown.");
+    });
     assert.done();
   },
 
@@ -288,7 +286,7 @@ module.exports = {
       memoryCost: 13,
       parallelism: 2
     });
-    assert.ok(/m=8192,t=4,p=2/.test(hash), "Hash should have correct options.");
+    assert.ok(/m=8192,t=4,p=2/.test(hash), "Should have correct options.");
     assert.done();
   },
 
@@ -299,7 +297,7 @@ module.exports = {
 
     assert.throws(function () {
       argon2.encryptSync("password", "somesaltwaytoobig");
-    }, Error, "Error should be thrown.");
+    });
     assert.done();
   },
 
@@ -309,7 +307,7 @@ module.exports = {
     assert.expect(1);
 
     argon2.generateSalt(function (err, salt) {
-      assert.ok(salt.length <= 16, "Generated salt length should be less than 16.");
+      assert.ok(salt.length <= 16);
       assert.done();
     });
   },
@@ -319,7 +317,7 @@ module.exports = {
 
     assert.expect(1);
 
-    assert.ok(argon2.generateSaltSync().length <= 16, "Generated salt length should be less than 16.");
+    assert.ok(argon2.generateSaltSync().length <= 16);
     assert.done();
   },
 
@@ -331,7 +329,7 @@ module.exports = {
     argon2.verify(
       "$argon2i$m=4096,t=3,p=1$c29tZXNhbHQAAAAAAAAAAA$FHF/OZ0GJpMRAlBmPTqXxw36Ftp87JllALZPcP9w9gs",
       "password", function (err) {
-        assert.equal(undefined, err, "Error should be undefined.");
+        assert.equal(undefined, err);
         assert.done();
       });
   },
@@ -358,7 +356,7 @@ module.exports = {
       argon2d: true
     }, function (err, hash) {
       argon2.verify(hash, "password", function (err) {
-        assert.equal(undefined, err, "Error should be undefined.");
+        assert.equal(undefined, err);
         assert.done();
       });
     });
