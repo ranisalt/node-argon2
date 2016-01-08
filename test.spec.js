@@ -3,6 +3,20 @@ var argon2 = process.env.ARGON2_COVERAGE
   : require('./index');
 
 module.exports = {
+  test_defaults: function (assert) {
+    "use strict";
+
+    assert.expect(1);
+
+    assert.deepEqual(argon2.defaults, {
+      timeCost: 3,
+      memoryCost: 12,
+      parallelism: 1,
+      argon2d: false
+    });
+    assert.done();
+  },
+
   test_hash: function (assert) {
     "use strict";
 

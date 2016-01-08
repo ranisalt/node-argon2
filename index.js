@@ -1,6 +1,13 @@
 var bindings = require("bindings")("argon2_lib"),
   crypto = require("crypto");
 
+var defaults = exports.defaults = Object.freeze({
+  timeCost: 3,
+  memoryCost: 12,
+  parallelism: 1,
+  argon2d: false
+});
+
 var fail = function (message, callback) {
   var error = new Error(message);
 
@@ -19,10 +26,7 @@ var validate = function (salt, options, callback) {
     return false;
   }
 
-  options.timeCost = options.timeCost || 3;
-  options.memoryCost = options.memoryCost || 12;
-  options.parallelism = options.parallelism || 1;
-  options.argon2d = !!options.argon2d;
+  Object.assign(options, Object.assign({}, defaults, options));
 
   if (isNaN(options.timeCost)) {
     fail("Invalid time cost, must be a number.", callback);
@@ -43,6 +47,8 @@ var validate = function (salt, options, callback) {
     fail("Invalid parallelism, must be a number.", callback);
     return false;
   }
+
+  options.argon2d = !!options.argon2d;
 
   return true;
 };
