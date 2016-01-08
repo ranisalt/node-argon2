@@ -4,11 +4,11 @@
   "description": "An Argon2 library for Node",
   "main": "index.js",
   "scripts": {
-    "build": "npm run configure && node-gyp build",
+    "build": "node-gyp configure && node-gyp build",
     "clean": "node-gyp clean && rm -f index-cov.js",
-    "configure": "node-gyp configure",
-    "preinstall": "node-gyp rebuild && git submodule update --init",
-    "test": "npm run build && nodeunit test.spec.js"
+    "preinstall": "git submodule update --init",
+    "postinstall": "npm run build",
+    "test": "nodeunit test.spec.js"
   },
   "repository": {
     "type": "git",
