@@ -60,6 +60,21 @@ module.exports = {
     });
   },
 
+  test_hash_invalid_time_cost: function (assert) {
+    "use strict";
+
+    assert.expect(3);
+
+    argon2.encrypt("password", "somesalt", {
+      timeCost: "foo"
+    }, function (err, hash) {
+      assert.ok(err, "Error should be defined.");
+      assert.equal(err.message, "Invalid time cost, must be a number.", "Error message should be equal to expected.");
+      assert.equal(undefined, hash, "Hash should not be defined.");
+      assert.done();
+    });
+  },
+
   test_hash_memory_cost: function (assert) {
     "use strict";
 
@@ -71,6 +86,21 @@ module.exports = {
       assert.ok(hash, "Hash should be defined.");
       assert.ok(/m=8192,t=3,p=1/.test(hash), "Hash should have correct memory cost.");
       assert.equal(undefined, err, "Error should not be defined.");
+      assert.done();
+    });
+  },
+
+  test_hash_invalid_memory_cost: function (assert) {
+    "use strict";
+
+    assert.expect(3);
+
+    argon2.encrypt("password", "somesalt", {
+      memoryCost: "foo"
+    }, function (err, hash) {
+      assert.ok(err, "Error should be defined.");
+      assert.equal(err.message, "Invalid memory cost, must be a number.", "Error message should be equal to expected.");
+      assert.equal(undefined, hash, "Hash should not be defined.");
       assert.done();
     });
   },
@@ -101,6 +131,21 @@ module.exports = {
       assert.ok(hash, "Hash should be defined.");
       assert.ok(/m=4096,t=3,p=2/.test(hash), "Hash should have correct parallelism.");
       assert.equal(undefined, err, "Error should not be defined.");
+      assert.done();
+    });
+  },
+
+  test_hash_invalid_parallelism: function (assert) {
+    "use strict";
+
+    assert.expect(3);
+
+    argon2.encrypt("password", "somesalt", {
+      parallelism: "foo"
+    }, function (err, hash) {
+      assert.ok(err, "Error should be defined.");
+      assert.equal(err.message, "Invalid parallelism, must be a number.", "Error message should be equal to expected.");
+      assert.equal(undefined, hash, "Hash should not be defined.");
       assert.done();
     });
   },
@@ -157,6 +202,19 @@ module.exports = {
     assert.done();
   },
 
+  test_hash_sync_invalid_time_cost: function (assert) {
+    "use strict";
+
+    assert.expect(1);
+
+    assert.throws(function () {
+      var hash = argon2.encryptSync("password", "somesalt", {
+        timeCost: "foo"
+      });
+    }, Error, "Error should be thrown.");
+    assert.done();
+  },
+
   test_hash_sync_memory_cost: function (assert) {
     "use strict";
 
@@ -169,16 +227,29 @@ module.exports = {
     assert.done();
   },
 
-  test_hash_sync_high_memory_cost: function (assert) {
+  test_hash_sync_invalid_memory_cost: function (assert) {
     "use strict";
 
     assert.expect(1);
 
     assert.throws(function () {
       var hash = argon2.encryptSync("password", "somesalt", {
+        memoryCost: "foo"
+      });
+    }, Error, "Error should be thrown.");
+    assert.done();
+  },
+
+  test_hash_sync_high_memory_cost: function (assert) {
+    "use strict";
+
+    assert.expect(1);
+
+    assert.throws(function () {
+      argon2.encryptSync("password", "somesalt", {
         memoryCost: 32
-      }, Error, "Error should be thrown.");
-    });
+      });
+    }, Error, "Error should be thrown.");
     assert.done();
   },
 
@@ -191,6 +262,19 @@ module.exports = {
       parallelism: 2
     });
     assert.ok(/m=4096,t=3,p=2/.test(hash), "Hash should have correct parallelism.");
+    assert.done();
+  },
+
+  test_hash_sync_invalid_parallelism: function (assert) {
+    "use strict";
+
+    assert.expect(1);
+
+    assert.throws(function () {
+      var hash = argon2.encryptSync("password", "somesalt", {
+        parallelism: "foo"
+      });
+    }, Error, "Error should be thrown.");
     assert.done();
   },
 

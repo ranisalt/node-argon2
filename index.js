@@ -13,12 +13,10 @@ var fail = function (message, callback) {
   }
 };
 
-exports.encrypt = function (plain, salt, options, callback) {
-  "use strict";
-
-  if (typeof(callback) === "undefined") {
-    callback = options;
-    options = {};
+var validate = function (salt, options, callback) {
+  if (salt.length > 16) {
+    fail("Salt too long, maximum 16 characters.", callback);
+    return false;
   }
 
   options.timeCost = options.timeCost || 3;
@@ -26,18 +24,41 @@ exports.encrypt = function (plain, salt, options, callback) {
   options.parallelism = options.parallelism || 1;
   options.argon2d = !!options.argon2d;
 
-  if (salt.length > 16) {
-    fail("Salt too long, maximum 16 characters.", callback);
-    return;
+  if (isNaN(options.timeCost)) {
+    fail("Invalid time cost, must be a number.", callback);
+    return false;
+  }
+
+  if (isNaN(options.memoryCost)) {
+    fail("Invalid memory cost, must be a number.", callback);
+    return false;
   }
 
   if (options.memoryCost >= 32) {
     fail("Memory cost too high, maximum of 32.", callback);
-    return;
+    return false;
   }
 
-  return bindings.encrypt(plain, salt, options.timeCost, options.memoryCost,
-    options.parallelism, options.argon2d, callback);
+  if (isNaN(options.parallelism)) {
+    fail("Invalid parallelism, must be a number.", callback);
+    return false;
+  }
+
+  return true;
+};
+
+exports.encrypt = function (plain, salt, options, callback) {
+  "use strict";
+
+  if (!callback) {
+    callback = options;
+    options = {};
+  }
+
+  if (validate(salt, options, callback)) {
+    return bindings.encrypt(plain, salt, options.timeCost, options.memoryCost,
+      options.parallelism, options.argon2d, callback);
+  }
 };
 
 exports.encryptSync = function (plain, salt, options) {
@@ -45,23 +66,10 @@ exports.encryptSync = function (plain, salt, options) {
 
   options = options || {};
 
-  options.timeCost = options.timeCost || 3;
-  options.memoryCost = options.memoryCost || 12;
-  options.parallelism = options.parallelism || 1;
-  options.argon2d = !!options.argon2d;
-
-  if (salt.length > 16) {
-    fail("Salt too long, maximum 16 characters.");
-    return;
+  if (validate(salt, options)) {
+    return bindings.encryptSync(plain, salt, options.timeCost,
+      options.memoryCost, options.parallelism, options.argon2d);
   }
-
-  if (options.memoryCost >= 32) {
-    fail("Memory cost too high, maximum of 32");
-    return;
-  }
-
-  return bindings.encryptSync(plain, salt, options.timeCost, options.memoryCost,
-    options.parallelism, options.argon2d);
 };
 
 exports.generateSalt = function (callback) {
