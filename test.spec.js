@@ -53,7 +53,7 @@ module.exports = {
       timeCost: 4
     }, function (err, hash) {
       assert.ok(hash, "Hash should be defined.");
-      assert.ok(/m=4096,t=4,p=1/.test(hash), "Should have correct time cost.");
+      assert.ok(/t=4/.test(hash), "Should have correct time cost.");
       assert.equal(undefined, err);
       assert.done();
     });
@@ -83,7 +83,7 @@ module.exports = {
       memoryCost: 13
     }, function (err, hash) {
       assert.ok(hash, "Hash should be defined.");
-      assert.ok(/m=8192,t=3,p=1/.test(hash), "Should have correct memory cost.");
+      assert.ok(/m=8192/.test(hash), "Should have correct memory cost.");
       assert.equal(undefined, err);
       assert.done();
     });
@@ -128,7 +128,7 @@ module.exports = {
       parallelism: 2
     }, function (err, hash) {
       assert.ok(hash, "Hash should be defined.");
-      assert.ok(/m=4096,t=3,p=2/.test(hash), "Should have correct parallelism.");
+      assert.ok(/p=2/.test(hash), "Should have correct parallelism.");
       assert.equal(undefined, err);
       assert.done();
     });
@@ -196,7 +196,7 @@ module.exports = {
     var hash = argon2.encryptSync("password", "somesalt", {
       timeCost: 4
     });
-    assert.ok(/m=4096,t=4,p=1/.test(hash), "Should have correct time cost.");
+    assert.ok(/t=4/.test(hash), "Should have correct time cost.");
     assert.done();
   },
 
@@ -221,7 +221,7 @@ module.exports = {
     var hash = argon2.encryptSync("password", "somesalt", {
       memoryCost: 13
     });
-    assert.ok(/m=8192,t=3,p=1/.test(hash), "Should have correct memory cost.");
+    assert.ok(/m=8192/.test(hash), "Should have correct memory cost.");
     assert.done();
   },
 
@@ -259,7 +259,7 @@ module.exports = {
     var hash = argon2.encryptSync("password", "somesalt", {
       parallelism: 2
     });
-    assert.ok(/m=4096,t=3,p=2/.test(hash), "Should have correct parallelism.");
+    assert.ok(/p=2/.test(hash), "Should have correct parallelism.");
     assert.done();
   },
 
