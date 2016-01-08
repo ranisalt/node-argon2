@@ -16,7 +16,7 @@ var fail = function (message, callback) {
 exports.encrypt = function (plain, salt, options, callback) {
   "use strict";
 
-  if (typeof(callback) == 'undefined') {
+  if (typeof(callback) === "undefined") {
     callback = options;
     options = {};
   }
