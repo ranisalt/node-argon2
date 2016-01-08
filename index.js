@@ -1,6 +1,18 @@
 var bindings = require("bindings")("argon2_lib"),
   crypto = require("crypto");
 
+var fail = function (message, callback) {
+  var error = new Error(message);
+
+  if (typeof(callback) === "undefined") {
+    throw error;
+  } else {
+    process.nextTick(function () {
+      callback(error, null);
+    });
+  }
+};
+
 exports.encrypt = function (plain, salt, options, callback) {
   "use strict";
 
@@ -15,16 +27,12 @@ exports.encrypt = function (plain, salt, options, callback) {
   options.argon2d = !!options.argon2d;
 
   if (salt.length > 16) {
-    process.nextTick(function () {
-      callback(new Error("Salt too long, maximum 16 characters."), null);
-    });
+    fail("Salt too long, maximum 16 characters.", callback);
     return;
   }
 
   if (options.memoryCost >= 32) {
-    process.nextTick(function () {
-      callback(new Error("Memory cost too high, maximum of 32."), null);
-    });
+    fail("Memory cost too high, maximum of 32.", callback);
     return;
   }
 
@@ -43,11 +51,13 @@ exports.encryptSync = function (plain, salt, options) {
   options.argon2d = !!options.argon2d;
 
   if (salt.length > 16) {
-    throw new Error("Salt too long, maximum 16 characters.");
+    fail("Salt too long, maximum 16 characters.");
+    return;
   }
 
   if (options.memoryCost >= 32) {
-    throw new Error("Memory cost too high, maximum of 32");
+    fail("Memory cost too high, maximum of 32");
+    return;
   }
 
   return bindings.encryptSync(plain, salt, options.timeCost, options.memoryCost,
