@@ -1,4 +1,4 @@
-# node-argon2 [![NPM package][npm-image]][npm-url] [![Build status][travis-image]][travis-url] [![Coverage status][coverage-image]][codeclimate-url] [![Code Climate][codeclimate-image]][codeclimate-url] [![Dependencies][david-dm-image]][david-dm-url]
+# node-argon2 [![NPM package][npm-image]][npm-url] [![Build status][codeship-image]][codeship-url] [![Coverage status][coverage-image]][codeclimate-url] [![Code Climate][codeclimate-image]][codeclimate-url] [![Dependencies][david-dm-image]][david-dm-url]
 Bindings to the  reference [Argon2](https://github.com/P-H-C/phc-winner-argon2)
 implementation.
 
@@ -122,8 +122,8 @@ license over Argon2 and the reference implementation.
 
 [npm-image]: https://img.shields.io/npm/v/argon2.svg?style=flat-square
 [npm-url]: https://www.npmjs.com/package/argon2
-[travis-image]: https://img.shields.io/travis/ranisalt/node-argon2.svg?style=flat-square
-[travis-url]: https://travis-ci.org/ranisalt/node-argon2
+[codeship-image]: https://img.shields.io/codeship/eb7243d0-f615-0132-1cce-020cea137f51/master.svg?style=flat-square
+[codeship-url]: https://codeship.com/projects/85936
 [coverage-image]: https://img.shields.io/codeclimate/coverage/github/ranisalt/node-argon2.svg?style=flat-square
 [codeclimate-image]: https://img.shields.io/codeclimate/github/ranisalt/node-argon2.svg?style=flat-square
 [codeclimate-url]: https://codeclimate.com/github/ranisalt/node-argon2
