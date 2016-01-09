@@ -213,7 +213,7 @@ NAN_METHOD(VerifySync) {
 
     auto result = argon2_verify(*encrypted, *plain, strlen(*plain), type);
 
-    info.GetReturnValue().Set(result == ARGON2_OK ? Nan::True() : Nan::False());
+    info.GetReturnValue().Set(result == ARGON2_OK);
 }
 
 }
