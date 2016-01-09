@@ -14,7 +14,7 @@
           "conditions": [
             ["OS == 'linux'", {
               "cflags": ["--coverage"],
-              "ldflags": ["-fprofile-arcs"],
+              "ldflags": ["-fprofile-arcs", "-ftest-coverage"],
             }]
           ]
         }
