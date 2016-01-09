@@ -4,6 +4,7 @@
   "description": "An Argon2 library for Node",
   "main": "index.js",
   "scripts": {
+    "benchmark": "node benchmark.js",
     "build": "node-gyp configure rebuild",
     "clean": "node-gyp clean",
     "preinstall": "git submodule update --init",
@@ -32,6 +33,8 @@
     "nan": "^2.2.0"
   },
   "devDependencies": {
+    "async": "^1.5.2",
+    "async-benchmark": "^1.0.1",
     "nodeunit": "^0.9.1"
   },
   "engines": {
