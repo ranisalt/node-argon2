@@ -2,6 +2,10 @@
 Bindings to the  reference [Argon2](https://github.com/P-H-C/phc-winner-argon2)
 implementation.
 
+### Before installing
+You **MUST** have a C++ compiler and **node-gyp** (globally) installed before
+proceeding with the package install.
+
 ### Usage
 It's possible to hash a password using both Argon2i (default) and Argon2d, sync
 and async, and to verify if a password matches a hash, and also generate random
