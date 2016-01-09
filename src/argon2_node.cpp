@@ -64,9 +64,9 @@ void EncryptAsyncWorker::HandleOKCallback()
 
     Nan::HandleScope scope;
 
-    Local <Value> argv[2];
-    argv[0] = Nan::Undefined();
-    argv[1] = Nan::Encode(output.c_str(), output.size(), Nan::BINARY);
+    Local <Value> argv[] = {
+        Nan::Undefined(), Nan::Encode(output.c_str(), output.size(), Nan::BINARY)
+    };
 
     callback->Call(2, argv);
 }
