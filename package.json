@@ -6,7 +6,7 @@
   "scripts": {
     "build": "node-gyp configure rebuild",
     "clean": "node-gyp clean",
-    "preinstall": "git submodule update --init && make -C argon2",
+    "preinstall": "git submodule update --init",
     "postinstall": "npm run build",
     "test": "nodeunit test.spec.js"
   },
