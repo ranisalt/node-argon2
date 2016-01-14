@@ -58,7 +58,7 @@ the salt generating methods instead of a hardcoded, constant salt:
 ```js
 var argon2 = require('argon2');
 
-argon2.generateSalt(function (salt) {
+argon2.generateSalt(function (err, salt) {
   doSomethingWith(salt);
 });
 
@@ -73,7 +73,7 @@ respectively defaulted to 3, 12 (meaning 2^12 KB) and 1 (threads):
 ```js
 var argon2 = require('argon2');
 
-argon2.generateSalt(function (salt) {
+argon2.generateSalt(function (err, salt) {
   argon2.hash('password', salt, {
     timeCost: 4, memoryCost: 13, parallelism: 2
   }, function (err, hash) {
@@ -83,7 +83,7 @@ argon2.generateSalt(function (salt) {
 
 // OR
 
-var hash = argon2.hashSync('password', argon2.generateSalt(), {
+var hash = argon2.hashSync('password', argon2.generateSaltSync(), {
   timeCost: 4, memoryCost: 13, parallelism: 2
 });
 ```
