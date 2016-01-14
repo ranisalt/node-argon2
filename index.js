@@ -53,7 +53,7 @@ var validate = function (salt, options, callback) {
   return true;
 };
 
-exports.encrypt = function (plain, salt, options, callback) {
+exports.hash = function (plain, salt, options, callback) {
   "use strict";
 
   if (!callback) {
@@ -62,19 +62,19 @@ exports.encrypt = function (plain, salt, options, callback) {
   }
 
   if (validate(salt, options, callback)) {
-    return bindings.encrypt(plain, salt, options.timeCost, options.memoryCost,
+    return bindings.hash(plain, salt, options.timeCost, options.memoryCost,
       options.parallelism, options.argon2d, callback);
   }
 };
 
-exports.encryptSync = function (plain, salt, options) {
+exports.hashSync = function (plain, salt, options) {
   "use strict";
 
   options = options || {};
 
   if (validate(salt, options)) {
-    return bindings.encryptSync(plain, salt, options.timeCost,
-      options.memoryCost, options.parallelism, options.argon2d);
+    return bindings.hashSync(plain, salt, options.timeCost, options.memoryCost,
+        options.parallelism, options.argon2d);
   }
 };
 
@@ -92,15 +92,15 @@ exports.generateSaltSync = function () {
   return crypto.randomBytes(16).toString();
 };
 
-exports.verify = function (encrypted, plain, callback) {
+exports.verify = function (hash, plain, callback) {
   "use strict";
 
-  return bindings.verify(encrypted, plain, /argon2d/.test(encrypted), callback);
+  return bindings.verify(hash, plain, /argon2d/.test(hash), callback);
 };
 
-exports.verifySync = function (encrypted, plain) {
+exports.verifySync = function (hash, plain) {
   "use strict";
 
-  return bindings.verifySync(encrypted, plain, /argon2d/.test(encrypted));
+  return bindings.verifySync(hash, plain, /argon2d/.test(hash));
 };
 

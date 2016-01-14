@@ -14,9 +14,9 @@ const auto ENCODED_LEN = 108u;
 const auto HASH_LEN = 32u;
 const auto SALT_LEN = 16u;
 
-class EncryptAsyncWorker : public Nan::AsyncWorker {
+class HashAsyncWorker : public Nan::AsyncWorker {
 public:
-    EncryptAsyncWorker(Nan::Callback* callback, const std::string& plain,
+    HashAsyncWorker(Nan::Callback* callback, const std::string& plain,
             const std::string& salt, uint time_cost, uint memory_cost,
             uint parallelism, argon2_type type);
 
@@ -35,7 +35,7 @@ private:
     std::string output;
 };
 
-EncryptAsyncWorker::EncryptAsyncWorker(Nan::Callback* callback,
+HashAsyncWorker::HashAsyncWorker(Nan::Callback* callback,
         const std::string& plain, const std::string& salt, uint time_cost,
         uint memory_cost, uint parallelism, Argon2_type type):
     Nan::AsyncWorker(callback), plain{plain}, salt{salt}, time_cost{time_cost},
@@ -43,7 +43,7 @@ EncryptAsyncWorker::EncryptAsyncWorker(Nan::Callback* callback,
     output{}
 { }
 
-void EncryptAsyncWorker::Execute()
+void HashAsyncWorker::Execute()
 {
     char encoded[ENCODED_LEN];
 
@@ -57,7 +57,7 @@ void EncryptAsyncWorker::Execute()
     output = std::string{encoded};
 }
 
-void EncryptAsyncWorker::HandleOKCallback()
+void HashAsyncWorker::HandleOKCallback()
 {
     using v8::Local;
     using v8::Value;
@@ -71,7 +71,7 @@ void EncryptAsyncWorker::HandleOKCallback()
     callback->Call(2, argv);
 }
 
-NAN_METHOD(Encrypt) {
+NAN_METHOD(Hash) {
     using v8::Function;
     using v8::Local;
 
@@ -95,13 +95,13 @@ NAN_METHOD(Encrypt) {
     auto salt = std::string{*raw_salt};
     salt.resize(SALT_LEN, 0x0);
 
-    auto worker = new EncryptAsyncWorker(new Nan::Callback(callback), *plain,
-            salt, time_cost, 1 << memory_cost, parallelism, type);
+    auto worker = new HashAsyncWorker(new Nan::Callback(callback), *plain, salt,
+            time_cost, 1 << memory_cost, parallelism, type);
 
     Nan::AsyncQueueWorker(worker);
 }
 
-NAN_METHOD(EncryptSync) {
+NAN_METHOD(HashSync) {
     Nan::HandleScope scope;
 
     if (info.Length() < 6) {
@@ -141,13 +141,13 @@ NAN_METHOD(EncryptSync) {
 
 class VerifyAsyncWorker : public Nan::AsyncWorker {
 public:
-    VerifyAsyncWorker(Nan::Callback* callback, const std::string& encrypted,
+    VerifyAsyncWorker(Nan::Callback* callback, const std::string& hash,
             const std::string& plain, argon2_type type);
 
     void Execute();
 
 private:
-    std::string encrypted;
+    std::string hash;
     std::string plain;
     std::string error;
     argon2_type type;
@@ -155,16 +155,14 @@ private:
 };
 
 VerifyAsyncWorker::VerifyAsyncWorker(Nan::Callback* callback,
-        const std::string& encrypted, const std::string& plain,
-        argon2_type type):
-    Nan::AsyncWorker(callback), encrypted{encrypted}, plain{plain}, error{},
-    type{type}, output{}
+        const std::string& hash, const std::string& plain, argon2_type type):
+    Nan::AsyncWorker(callback), hash{hash}, plain{plain}, error{}, type{type},
+    output{}
 { }
 
 void VerifyAsyncWorker::Execute()
 {
-    auto result = argon2_verify(encrypted.c_str(), plain.c_str(), plain.size(),
-            type);
+    auto result = argon2_verify(hash.c_str(), plain.c_str(), plain.size(), type);
 
     if (result != ARGON2_OK) {
         SetErrorMessage("The password did not match.");
@@ -184,13 +182,13 @@ NAN_METHOD(Verify) {
         /* LCOV_EXCL_STOP */
     }
 
-    Nan::Utf8String encrypted{info[0]->ToString()};
+    Nan::Utf8String hash{info[0]->ToString()};
     Nan::Utf8String plain{info[1]->ToString()};
     argon2_type type = info[2]->BooleanValue() ? Argon2_d : Argon2_i;
     Local<Function> callback = Local<Function>::Cast(info[3]);
 
-    auto worker = new VerifyAsyncWorker(new Nan::Callback(callback),
-            *encrypted, *plain, type);
+    auto worker = new VerifyAsyncWorker(new Nan::Callback(callback), *hash,
+            *plain, type);
 
     Nan::AsyncQueueWorker(worker);
 }
@@ -207,11 +205,11 @@ NAN_METHOD(VerifySync) {
         /* LCOV_EXCL_STOP */
     }
 
-    Nan::Utf8String encrypted{info[0]->ToString()};
+    Nan::Utf8String hash{info[0]->ToString()};
     Nan::Utf8String plain{info[1]->ToString()};
     argon2_type type = info[2]->BooleanValue() ? Argon2_d : Argon2_i;
 
-    auto result = argon2_verify(*encrypted, *plain, strlen(*plain), type);
+    auto result = argon2_verify(*hash, *plain, strlen(*plain), type);
 
     info.GetReturnValue().Set(result == ARGON2_OK);
 }
@@ -219,8 +217,8 @@ NAN_METHOD(VerifySync) {
 }
 
 NAN_MODULE_INIT(init) {
-    Nan::Export(target, "encrypt", Encrypt);
-    Nan::Export(target, "encryptSync", EncryptSync);
+    Nan::Export(target, "hash", Hash);
+    Nan::Export(target, "hashSync", HashSync);
     Nan::Export(target, "verify", Verify);
     Nan::Export(target, "verifySync", VerifySync);
 };
