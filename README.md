@@ -14,8 +14,8 @@ To hash a password:
 ```js
 var argon2 = require('argon2');
 
-argon2.encrypt('password', 'somesalt', function (err, hash) {
-  if (err) // encryption failure
+argon2.hash('password', 'somesalt', function (err, hash) {
+  if (err) // hashion failure
     throw err;
 
   doSomethingWith(hash);
@@ -24,7 +24,7 @@ argon2.encrypt('password', 'somesalt', function (err, hash) {
 // OR
 
 try {
-  var hash = argon2.encryptSync('password', 'somesalt');
+  var hash = argon2.hashSync('password', 'somesalt');
 } catch (err) {
   console.log(err);
 }
@@ -35,7 +35,7 @@ whether or not you want Argon2d:
 ```js
 var argon2 = require('argon2');
 
-argon2.encrypt('password', 'somesalt', {
+argon2.hash('password', 'somesalt', {
   argon2d: true
 }, function (err, hash) {
   // ...
@@ -44,7 +44,7 @@ argon2.encrypt('password', 'somesalt', {
 // OR
 
 try {
-  var hash = argon2.encryptSync('password', 'somesalt', {
+  var hash = argon2.hashSync('password', 'somesalt', {
     argon2d: true
   });
 } catch (err) {
@@ -74,7 +74,7 @@ respectively defaulted to 3, 12 (meaning 2^12 KB) and 1 (threads):
 var argon2 = require('argon2');
 
 argon2.generateSalt(function (salt) {
-  argon2.encrypt('password', salt, {
+  argon2.hash('password', salt, {
     timeCost: 4, memoryCost: 13, parallelism: 2
   }, function (err, hash) {
     // ...
@@ -83,7 +83,7 @@ argon2.generateSalt(function (salt) {
 
 // OR
 
-var hash = argon2.encryptSync('password', argon2.generateSalt(), {
+var hash = argon2.hashSync('password', argon2.generateSalt(), {
   timeCost: 4, memoryCost: 13, parallelism: 2
 });
 ```
