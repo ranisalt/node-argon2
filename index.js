@@ -39,7 +39,7 @@ var validate = function (salt, options, callback) {
   }
 
   if (options.memoryCost >= 32) {
-    fail("Memory cost too high, maximum of 32.", callback);
+    fail("Memory cost too high, maximum of 31.", callback);
     return false;
   }
 

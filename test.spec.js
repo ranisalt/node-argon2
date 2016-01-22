@@ -157,7 +157,7 @@ module.exports = {
       memoryCost: 32
     }, function (err, hash) {
       assert.ok(err, "Error should be defined.");
-      assert.equal(err.message, "Memory cost too high, maximum of 32.");
+      assert.equal(err.message, "Memory cost too high, maximum of 31.");
       assert.equal(undefined, hash);
       assert.done();
     });
