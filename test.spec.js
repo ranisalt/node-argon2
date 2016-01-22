@@ -118,6 +118,36 @@ module.exports = {
     });
   },
 
+  test_hash_negative_time_cost: function (assert) {
+    "use strict";
+
+    assert.expect(3);
+
+    argon2.hash("password", "somesalt", {
+      timeCost: -4294967290
+    }, function (err, hash) {
+      assert.ok(err, "Error should be defined.");
+      assert.equal(err.message, "Time cost must be positive.");
+      assert.equal(undefined, hash);
+      assert.done();
+    });
+  },
+
+  test_hash_high_time_cost: function (assert) {
+    "use strict";
+
+    assert.expect(3);
+
+    argon2.hash("password", "somesalt", {
+      timeCost: 4294967297
+    }, function (err, hash) {
+      assert.ok(err, "Error should be defined.");
+      assert.equal(err.message, "Time cost too high, maximum of 4294967295.");
+      assert.equal(undefined, hash);
+      assert.done();
+    });
+  },
+
   test_hash_memory_cost: function (assert) {
     "use strict";
 
@@ -143,6 +173,21 @@ module.exports = {
     }, function (err, hash) {
       assert.ok(err, "Error should be defined.");
       assert.equal(err.message, "Invalid memory cost, must be a number.");
+      assert.equal(undefined, hash);
+      assert.done();
+    });
+  },
+
+  test_hash_negative_memory_cost: function (assert) {
+    "use strict";
+
+    assert.expect(3);
+
+    argon2.hash("password", "somesalt", {
+      memoryCost: -4294967290
+    }, function (err, hash) {
+      assert.ok(err, "Error should be defined.");
+      assert.equal(err.message, "Memory cost must be positive.");
       assert.equal(undefined, hash);
       assert.done();
     });
@@ -188,6 +233,36 @@ module.exports = {
     }, function (err, hash) {
       assert.ok(err, "Error should be defined.");
       assert.equal(err.message, "Invalid parallelism, must be a number.");
+      assert.equal(undefined, hash);
+      assert.done();
+    });
+  },
+
+  test_hash_negative_parallelism: function (assert) {
+    "use strict";
+
+    assert.expect(3);
+
+    argon2.hash("password", "somesalt", {
+      parallelism: -4294967290
+    }, function (err, hash) {
+      assert.ok(err, "Error should be defined.");
+      assert.equal(err.message, "Parallelism must be positive.");
+      assert.equal(undefined, hash);
+      assert.done();
+    });
+  },
+
+  test_hash_high_parallelism: function (assert) {
+    "use strict";
+
+    assert.expect(3);
+
+    argon2.hash("password", "somesalt", {
+      parallelism: 4294967297
+    }, function (err, hash) {
+      assert.ok(err, "Error should be defined.");
+      assert.equal(err.message, "Parallelism too high.");
       assert.equal(undefined, hash);
       assert.done();
     });
