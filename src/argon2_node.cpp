@@ -104,6 +104,8 @@ NAN_METHOD(Hash) {
 }
 
 NAN_METHOD(HashSync) {
+    using std::strlen;
+
     Nan::HandleScope scope;
 
     if (info.Length() < 6) {
@@ -136,7 +138,7 @@ NAN_METHOD(HashSync) {
         return;
     }
 
-    info.GetReturnValue().Set(Nan::Encode(encoded, std::strlen(encoded),
+    info.GetReturnValue().Set(Nan::Encode(encoded, strlen(encoded),
             Nan::BINARY));
 }
 
