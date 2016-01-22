@@ -1,6 +1,7 @@
 #include <nan.h>
 #include <node.h>
 
+#include <cstdint>
 #include <cstring>
 #include <string>
 
@@ -8,7 +9,7 @@
 
 namespace {
 
-using uint = unsigned int;
+using std::uint32_t;
 
 const auto ENCODED_LEN = 108u;
 const auto HASH_LEN = 32u;
@@ -17,8 +18,8 @@ const auto SALT_LEN = 16u;
 class HashAsyncWorker : public Nan::AsyncWorker {
 public:
     HashAsyncWorker(Nan::Callback* callback, const std::string& plain,
-            const std::string& salt, uint time_cost, uint memory_cost,
-            uint parallelism, argon2_type type);
+            const std::string& salt, uint32_t time_cost, uint32_t memory_cost,
+            uint32_t parallelism, argon2_type type);
 
     void Execute();
 
@@ -27,17 +28,17 @@ public:
 private:
     std::string plain;
     std::string salt;
-    uint time_cost;
-    uint memory_cost;
-    uint parallelism;
+    uint32_t time_cost;
+    uint32_t memory_cost;
+    uint32_t parallelism;
     std::string error;
     Argon2_type type;
     std::string output;
 };
 
 HashAsyncWorker::HashAsyncWorker(Nan::Callback* callback,
-        const std::string& plain, const std::string& salt, uint time_cost,
-        uint memory_cost, uint parallelism, Argon2_type type):
+        const std::string& plain, const std::string& salt, uint32_t time_cost,
+        uint32_t memory_cost, uint32_t parallelism, Argon2_type type):
     Nan::AsyncWorker(callback), plain{plain}, salt{salt}, time_cost{time_cost},
     memory_cost{memory_cost}, parallelism{parallelism}, error{}, type{type},
     output{}
