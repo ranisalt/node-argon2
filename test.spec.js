@@ -384,6 +384,32 @@ module.exports = {
     assert.done();
   },
 
+  test_hash_sync_negative_time_cost: function (assert) {
+    "use strict";
+
+    assert.expect(1);
+
+    assert.throws(function () {
+      var hash = argon2.hashSync("password", "somesalt", {
+        timeCost: -4294967290
+      });
+    }, /Time cost must be positive/);
+    assert.done();
+  },
+
+  test_hash_sync_high_time_cost: function (assert) {
+    "use strict";
+
+    assert.expect(1);
+
+    assert.throws(function () {
+      var hash = argon2.hashSync("password", "somesalt", {
+        timeCost: 4294967297
+      });
+    }, /Time cost too high, maximum of 4294967295/);
+    assert.done();
+  },
+
   test_hash_sync_memory_cost: function (assert) {
     "use strict";
 
@@ -406,6 +432,19 @@ module.exports = {
         memoryCost: "foo"
       });
     });
+    assert.done();
+  },
+
+  test_hash_sync_negative_memory_cost: function (assert) {
+    "use strict";
+
+    assert.expect(1);
+
+    assert.throws(function () {
+      var hash = argon2.hashSync("password", "somesalt", {
+        memoryCost: -4294967290
+      });
+    }, /Memory cost must be positive/);
     assert.done();
   },
 
@@ -444,6 +483,32 @@ module.exports = {
         parallelism: "foo"
       });
     });
+    assert.done();
+  },
+
+  test_hash_sync_negative_parallelism: function (assert) {
+    "use strict";
+
+    assert.expect(1);
+
+    assert.throws(function () {
+      var hash = argon2.hashSync("password", "somesalt", {
+        parallelism: -4294967290
+      });
+    }, /Parallelism must be positive/);
+    assert.done();
+  },
+
+  test_hash_sync_high_parallelism: function (assert) {
+    "use strict";
+
+    assert.expect(1);
+
+    assert.throws(function () {
+      var hash = argon2.hashSync("password", "somesalt", {
+        parallelism: 4294967297
+      });
+    }, /Parallelism too high/);
     assert.done();
   },
 
