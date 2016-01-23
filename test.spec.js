@@ -133,6 +133,21 @@ module.exports = {
     });
   },
 
+  test_hash_low_time_cost: function (assert) {
+    "use strict";
+
+    assert.expect(3);
+
+    argon2.hash("password", "somesalt", {
+      timeCost: 0
+    }, function (err, hash) {
+      assert.ok(err, "Error should be defined.");
+      assert.equal(err.message, "Time cost is too small");
+      assert.equal(undefined, hash);
+      assert.done();
+    });
+  },
+
   test_hash_high_time_cost: function (assert) {
     "use strict";
 
@@ -353,6 +368,19 @@ module.exports = {
         timeCost: "foo"
       });
     });
+    assert.done();
+  },
+
+  test_hash_sync_low_time_cost: function (assert) {
+    "use strict";
+
+    assert.expect(1);
+
+    assert.throws(function () {
+      var hash = argon2.hashSync("password", "somesalt", {
+        timeCost: 0
+      });
+    }, /Time cost is too small/);
     assert.done();
   },
 

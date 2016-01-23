@@ -51,7 +51,8 @@ void HashAsyncWorker::Execute()
             plain.c_str(), plain.size(), salt.c_str(), salt.size(), nullptr,
             HASH_LEN, encoded, ENCODED_LEN, type);
     if (result != ARGON2_OK) {
-        return; // LCOV_EXCL_LINE
+        SetErrorMessage(error_message(result));
+        return;
     }
 
     output = std::string{encoded};
@@ -129,10 +130,9 @@ NAN_METHOD(HashSync) {
             encoded, ENCODED_LEN, type);
 
     if (result != ARGON2_OK) {
-        /* LCOV_EXCL_START */
+        Nan::ThrowError(error_message(result));
         info.GetReturnValue().Set(Nan::Undefined());
         return;
-        /* LCOV_EXCL_STOP */
     }
 
     info.GetReturnValue().Set(Nan::Encode(encoded, std::strlen(encoded),
