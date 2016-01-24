@@ -1,0 +1,28 @@
+language: node_js
+node_js:
+  - "4.0"
+  - "4.1"
+  - "4.2"
+  - "5.0"
+  - "5.1"
+  - "5.2"
+  - "5.3"
+  - "5.4"
+  - stable
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - g++-4.8
+      - lcov
+cache: apt
+env: CXX=g++-4.8
+before_script: npm install -g coveralls jscoverage node-gyp
+after_script:
+  - jscoverage index.js && node-gyp --debug rebuild
+  - COVERAGE=ON nodeunit --reporter=lcov test.spec.js > lcov-js.info
+  - lcov -c -d . --no-external -o lcov-cpp.info
+  - lcov -r lcov-cpp.info "*/node_modules/*" -o lcov-cpp.info
+  - lcov -a lcov-cpp.info -a lcov-js.info -o lcov.info
+  - coveralls < lcov-js.info
