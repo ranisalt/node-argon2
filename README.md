@@ -15,7 +15,7 @@ To hash a password:
 var argon2 = require('argon2');
 
 argon2.hash('password', 'somesalt', function (err, hash) {
-  if (err) // hashion failure
+  if (err) // hashing failure
     throw err;
 
   doSomethingWith(hash);
