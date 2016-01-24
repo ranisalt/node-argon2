@@ -1,4 +1,9 @@
 {
+  "target_defaults": {
+    "target_conditions": [
+      ["OS != 'win'", {"cflags": ["-msse","-msse2"]}]
+    ]
+  },
   "targets": [
     {
       "target_name": "libargon2",
