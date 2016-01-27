@@ -4,6 +4,7 @@ implementation.
 
 ### Before installing
 You **MUST** have a **node-gyp** global install before proceeding with install.
+**node-argon2** works only and is tested against >=4.0.0 .
 
 ### Usage
 It's possible to hash a password using both Argon2i (default) and Argon2d, sync
