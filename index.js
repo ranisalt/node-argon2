@@ -33,18 +33,43 @@ var validate = function (salt, options, callback) {
     return false;
   }
 
+  if (options.timeCost < 0) {
+    fail("Time cost must be positive.", callback);
+    return false;
+  }
+
+  if (options.timeCost >= 4294967296) {
+    fail("Time cost too high, maximum of 4294967295.", callback);
+    return false;
+  }
+
   if (isNaN(options.memoryCost)) {
     fail("Invalid memory cost, must be a number.", callback);
     return false;
   }
 
+  if (options.memoryCost < 0) {
+    fail("Memory cost must be positive.", callback);
+    return false;
+  }
+
   if (options.memoryCost >= 32) {
-    fail("Memory cost too high, maximum of 32.", callback);
+    fail("Memory cost too high, maximum of 31.", callback);
     return false;
   }
 
   if (isNaN(options.parallelism)) {
     fail("Invalid parallelism, must be a number.", callback);
+    return false;
+  }
+
+  if (options.parallelism < 0) {
+    fail("Parallelism must be positive.", callback);
+    return false;
+  }
+
+  if (options.parallelism >= 4294967296) {
+    fail("Parallelism too high.", callback);
     return false;
   }
 

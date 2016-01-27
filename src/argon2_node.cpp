@@ -1,6 +1,7 @@
 #include <nan.h>
 #include <node.h>
 
+#include <cstdint>
 #include <cstring>
 #include <string>
 
@@ -8,7 +9,7 @@
 
 namespace {
 
-using uint = unsigned int;
+using std::uint32_t;
 
 const auto ENCODED_LEN = 108u;
 const auto HASH_LEN = 32u;
@@ -17,8 +18,8 @@ const auto SALT_LEN = 16u;
 class HashAsyncWorker : public Nan::AsyncWorker {
 public:
     HashAsyncWorker(Nan::Callback* callback, const std::string& plain,
-            const std::string& salt, uint time_cost, uint memory_cost,
-            uint parallelism, argon2_type type);
+            const std::string& salt, uint32_t time_cost, uint32_t memory_cost,
+            uint32_t parallelism, argon2_type type);
 
     void Execute();
 
@@ -27,17 +28,17 @@ public:
 private:
     std::string plain;
     std::string salt;
-    uint time_cost;
-    uint memory_cost;
-    uint parallelism;
+    uint32_t time_cost;
+    uint32_t memory_cost;
+    uint32_t parallelism;
     std::string error;
     Argon2_type type;
     std::string output;
 };
 
 HashAsyncWorker::HashAsyncWorker(Nan::Callback* callback,
-        const std::string& plain, const std::string& salt, uint time_cost,
-        uint memory_cost, uint parallelism, Argon2_type type):
+        const std::string& plain, const std::string& salt, uint32_t time_cost,
+        uint32_t memory_cost, uint32_t parallelism, Argon2_type type):
     Nan::AsyncWorker(callback), plain{plain}, salt{salt}, time_cost{time_cost},
     memory_cost{memory_cost}, parallelism{parallelism}, error{}, type{type},
     output{}
@@ -51,7 +52,8 @@ void HashAsyncWorker::Execute()
             plain.c_str(), plain.size(), salt.c_str(), salt.size(), nullptr,
             HASH_LEN, encoded, ENCODED_LEN, type);
     if (result != ARGON2_OK) {
-        return; // LCOV_EXCL_LINE
+        SetErrorMessage(error_message(result));
+        return;
     }
 
     output = std::string{encoded};
@@ -102,6 +104,8 @@ NAN_METHOD(Hash) {
 }
 
 NAN_METHOD(HashSync) {
+    using std::strlen;
+
     Nan::HandleScope scope;
 
     if (info.Length() < 6) {
@@ -129,13 +133,12 @@ NAN_METHOD(HashSync) {
             encoded, ENCODED_LEN, type);
 
     if (result != ARGON2_OK) {
-        /* LCOV_EXCL_START */
+        Nan::ThrowError(error_message(result));
         info.GetReturnValue().Set(Nan::Undefined());
         return;
-        /* LCOV_EXCL_STOP */
     }
 
-    info.GetReturnValue().Set(Nan::Encode(encoded, std::strlen(encoded),
+    info.GetReturnValue().Set(Nan::Encode(encoded, strlen(encoded),
             Nan::BINARY));
 }
 
