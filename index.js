@@ -33,8 +33,8 @@ var validate = function (salt, options, callback) {
     return false;
   }
 
-  if (options.timeCost < 0) {
-    fail("Time cost must be positive.", callback);
+  if (options.timeCost <= 0) {
+    fail("Time cost too low, minimum of 1.", callback);
     return false;
   }
 
@@ -48,8 +48,8 @@ var validate = function (salt, options, callback) {
     return false;
   }
 
-  if (options.memoryCost < 0) {
-    fail("Memory cost must be positive.", callback);
+  if (options.memoryCost <= 0) {
+    fail("Memory cost too low, minimum of 1.", callback);
     return false;
   }
 
@@ -63,13 +63,13 @@ var validate = function (salt, options, callback) {
     return false;
   }
 
-  if (options.parallelism < 0) {
-    fail("Parallelism must be positive.", callback);
+  if (options.parallelism <= 0) {
+    fail("Parallelism too low, minimum of 1.", callback);
     return false;
   }
 
   if (options.parallelism >= 4294967296) {
-    fail("Parallelism too high.", callback);
+    fail("Parallelism too high, maximum of 4294967295.", callback);
     return false;
   }
 

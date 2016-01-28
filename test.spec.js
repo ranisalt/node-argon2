@@ -118,7 +118,7 @@ module.exports = {
     });
   },
 
-  test_hash_negative_time_cost: function (assert) {
+  test_hash_low_time_cost: function (assert) {
     "use strict";
 
     assert.expect(3);
@@ -127,22 +127,7 @@ module.exports = {
       timeCost: -4294967290
     }, function (err, hash) {
       assert.ok(err, "Error should be defined.");
-      assert.equal(err.message, "Time cost must be positive.");
-      assert.equal(undefined, hash);
-      assert.done();
-    });
-  },
-
-  test_hash_low_time_cost: function (assert) {
-    "use strict";
-
-    assert.expect(3);
-
-    argon2.hash("password", "somesalt", {
-      timeCost: 0
-    }, function (err, hash) {
-      assert.ok(err, "Error should be defined.");
-      assert.equal(err.message, "Time cost is too small");
+      assert.equal(err.message, "Time cost too low, minimum of 1.");
       assert.equal(undefined, hash);
       assert.done();
     });
@@ -193,7 +178,7 @@ module.exports = {
     });
   },
 
-  test_hash_negative_memory_cost: function (assert) {
+  test_hash_low_memory_cost: function (assert) {
     "use strict";
 
     assert.expect(3);
@@ -202,7 +187,7 @@ module.exports = {
       memoryCost: -4294967290
     }, function (err, hash) {
       assert.ok(err, "Error should be defined.");
-      assert.equal(err.message, "Memory cost must be positive.");
+      assert.equal(err.message, "Memory cost too low, minimum of 1.");
       assert.equal(undefined, hash);
       assert.done();
     });
@@ -253,7 +238,7 @@ module.exports = {
     });
   },
 
-  test_hash_negative_parallelism: function (assert) {
+  test_hash_low_parallelism: function (assert) {
     "use strict";
 
     assert.expect(3);
@@ -262,7 +247,7 @@ module.exports = {
       parallelism: -4294967290
     }, function (err, hash) {
       assert.ok(err, "Error should be defined.");
-      assert.equal(err.message, "Parallelism must be positive.");
+      assert.equal(err.message, "Parallelism too low, minimum of 1.");
       assert.equal(undefined, hash);
       assert.done();
     });
@@ -277,7 +262,7 @@ module.exports = {
       parallelism: 4294967297
     }, function (err, hash) {
       assert.ok(err, "Error should be defined.");
-      assert.equal(err.message, "Parallelism too high.");
+      assert.equal(err.message, "Parallelism too high, maximum of 4294967295.");
       assert.equal(undefined, hash);
       assert.done();
     });
@@ -378,19 +363,6 @@ module.exports = {
 
     assert.throws(function () {
       var hash = argon2.hashSync("password", "somesalt", {
-        timeCost: 0
-      });
-    }, /Time cost is too small/);
-    assert.done();
-  },
-
-  test_hash_sync_negative_time_cost: function (assert) {
-    "use strict";
-
-    assert.expect(1);
-
-    assert.throws(function () {
-      var hash = argon2.hashSync("password", "somesalt", {
         timeCost: -4294967290
       });
     }, /too low/);
@@ -435,7 +407,7 @@ module.exports = {
     assert.done();
   },
 
-  test_hash_sync_negative_memory_cost: function (assert) {
+  test_hash_sync_low_memory_cost: function (assert) {
     "use strict";
 
     assert.expect(1);
@@ -486,7 +458,7 @@ module.exports = {
     assert.done();
   },
 
-  test_hash_sync_negative_parallelism: function (assert) {
+  test_hash_sync_low_parallelism: function (assert) {
     "use strict";
 
     assert.expect(1);
