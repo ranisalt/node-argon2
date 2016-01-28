@@ -367,7 +367,7 @@ module.exports = {
       var hash = argon2.hashSync("password", "somesalt", {
         timeCost: "foo"
       });
-    });
+    }, /invalid/i);
     assert.done();
   },
 
@@ -393,7 +393,7 @@ module.exports = {
       var hash = argon2.hashSync("password", "somesalt", {
         timeCost: -4294967290
       });
-    }, /Time cost must be positive/);
+    }, /too low/);
     assert.done();
   },
 
@@ -406,7 +406,7 @@ module.exports = {
       var hash = argon2.hashSync("password", "somesalt", {
         timeCost: 4294967297
       });
-    }, /Time cost too high, maximum of 4294967295/);
+    }, /too high/);
     assert.done();
   },
 
@@ -431,7 +431,7 @@ module.exports = {
       var hash = argon2.hashSync("password", "somesalt", {
         memoryCost: "foo"
       });
-    });
+    }, /invalid/i);
     assert.done();
   },
 
@@ -444,7 +444,7 @@ module.exports = {
       var hash = argon2.hashSync("password", "somesalt", {
         memoryCost: -4294967290
       });
-    }, /Memory cost must be positive/);
+    }, /too low/);
     assert.done();
   },
 
@@ -457,7 +457,7 @@ module.exports = {
       argon2.hashSync("password", "somesalt", {
         memoryCost: 32
       });
-    });
+    }, /too high/);
     assert.done();
   },
 
@@ -482,7 +482,7 @@ module.exports = {
       var hash = argon2.hashSync("password", "somesalt", {
         parallelism: "foo"
       });
-    });
+    }, /invalid/i);
     assert.done();
   },
 
@@ -495,7 +495,7 @@ module.exports = {
       var hash = argon2.hashSync("password", "somesalt", {
         parallelism: -4294967290
       });
-    }, /Parallelism must be positive/);
+    }, /too low/);
     assert.done();
   },
 
@@ -508,7 +508,7 @@ module.exports = {
       var hash = argon2.hashSync("password", "somesalt", {
         parallelism: 4294967297
       });
-    }, /Parallelism too high/);
+    }, /too high/);
     assert.done();
   },
 
