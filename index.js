@@ -26,7 +26,9 @@ var validate = function (salt, options, callback) {
     return false;
   }
 
-  Object.assign(options, Object.assign({}, defaults, options));
+  for (var key in defaults) {
+    options[key] = options[key] || defaults[key];
+  }
 
   if (isNaN(options.timeCost)) {
     fail('Invalid time cost, must be a number.', callback);
@@ -71,8 +73,10 @@ exports.hash = function (plain, salt, options, callback) {
 
   if (!callback) {
     callback = options;
-    options = {};
+    options = defaults;
   }
+
+  options = Object.assign({}, options);
 
   if (validate(salt, options, callback)) {
     return bindings.hash(plain, salt, options.timeCost, options.memoryCost,
@@ -83,7 +87,7 @@ exports.hash = function (plain, salt, options, callback) {
 exports.hashSync = function (plain, salt, options) {
   'use strict';
 
-  options = options || {};
+  options = Object.assign({}, options || defaults);
 
   if (validate(salt, options)) {
     return bindings.hashSync(plain, salt, options.timeCost, options.memoryCost,
