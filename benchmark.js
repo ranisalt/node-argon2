@@ -2,17 +2,17 @@ var argon2 = require('./'),
   async = require('async'),
   benchmark = require('async-benchmark');
 
-var hash = argon2.encryptSync('password', 'salt');
+var hash = argon2.hashSync('password', 'salt');
 
 var fixtures = [{
-  name: 'argon2#encrypt',
+  name: 'argon2#hash',
   func: function (done) {
-    argon2.encrypt('password', 'salt', done);
+    argon2.hash('password', 'salt', done);
   }
 }, {
-  name: 'argon2#encryptSync',
+  name: 'argon2#hashSync',
   func: function (done) {
-    argon2.encryptSync('password', 'salt');
+    argon2.hashSync('password', 'salt');
     done();
   }
 }, {
