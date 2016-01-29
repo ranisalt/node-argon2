@@ -3,7 +3,7 @@ var argon2 = process.env.COVERAGE
   : require('./index');
 
 module.exports = {
-  test_defaults: function (assert) {
+  test_defaults(assert) {
     'use strict';
 
     assert.expect(1);
@@ -17,7 +17,7 @@ module.exports = {
     assert.done();
   },
 
-  test_hash: function (assert) {
+  test_hash(assert) {
     'use strict';
 
     assert.expect(3);
@@ -30,7 +30,7 @@ module.exports = {
     });
   },
 
-  test_hash_argon2d: function (assert) {
+  test_hash_argon2d(assert) {
     'use strict';
 
     assert.expect(3);
@@ -45,7 +45,7 @@ module.exports = {
     });
   },
 
-  test_hash_truthy_argon2d: function (assert) {
+  test_hash_truthy_argon2d(assert) {
     'use strict';
 
     assert.expect(3);
@@ -60,7 +60,7 @@ module.exports = {
     });
   },
 
-  test_hash_falsy_argon2d: function (assert) {
+  test_hash_falsy_argon2d(assert) {
     'use strict';
 
     assert.expect(3);
@@ -75,7 +75,7 @@ module.exports = {
     });
   },
 
-  test_hash_long_salt: function (assert) {
+  test_hash_long_salt(assert) {
     'use strict';
 
     assert.expect(3);
@@ -88,7 +88,7 @@ module.exports = {
     });
   },
 
-  test_hash_time_cost: function (assert) {
+  test_hash_time_cost(assert) {
     'use strict';
 
     assert.expect(3);
@@ -103,7 +103,7 @@ module.exports = {
     });
   },
 
-  test_hash_invalid_time_cost: function (assert) {
+  test_hash_invalid_time_cost(assert) {
     'use strict';
 
     assert.expect(3);
@@ -118,7 +118,7 @@ module.exports = {
     });
   },
 
-  test_hash_low_time_cost: function (assert) {
+  test_hash_low_time_cost(assert) {
     'use strict';
 
     assert.expect(3);
@@ -133,7 +133,7 @@ module.exports = {
     });
   },
 
-  test_hash_high_time_cost: function (assert) {
+  test_hash_high_time_cost(assert) {
     'use strict';
 
     assert.expect(3);
@@ -148,7 +148,7 @@ module.exports = {
     });
   },
 
-  test_hash_memory_cost: function (assert) {
+  test_hash_memory_cost(assert) {
     'use strict';
 
     assert.expect(3);
@@ -163,7 +163,7 @@ module.exports = {
     });
   },
 
-  test_hash_invalid_memory_cost: function (assert) {
+  test_hash_invalid_memory_cost(assert) {
     'use strict';
 
     assert.expect(3);
@@ -178,7 +178,7 @@ module.exports = {
     });
   },
 
-  test_hash_low_memory_cost: function (assert) {
+  test_hash_low_memory_cost(assert) {
     'use strict';
 
     assert.expect(3);
@@ -193,7 +193,7 @@ module.exports = {
     });
   },
 
-  test_hash_high_memory_cost: function (assert) {
+  test_hash_high_memory_cost(assert) {
     'use strict';
 
     assert.expect(3);
@@ -208,7 +208,7 @@ module.exports = {
     });
   },
 
-  test_hash_parallelism: function (assert) {
+  test_hash_parallelism(assert) {
     'use strict';
 
     assert.expect(3);
@@ -223,7 +223,7 @@ module.exports = {
     });
   },
 
-  test_hash_invalid_parallelism: function (assert) {
+  test_hash_invalid_parallelism(assert) {
     'use strict';
 
     assert.expect(3);
@@ -238,7 +238,7 @@ module.exports = {
     });
   },
 
-  test_hash_low_parallelism: function (assert) {
+  test_hash_low_parallelism(assert) {
     'use strict';
 
     assert.expect(3);
@@ -253,7 +253,7 @@ module.exports = {
     });
   },
 
-  test_hash_high_parallelism: function (assert) {
+  test_hash_high_parallelism(assert) {
     'use strict';
 
     assert.expect(3);
@@ -268,7 +268,7 @@ module.exports = {
     });
   },
 
-  test_hash_all_options: function (assert) {
+  test_hash_all_options(assert) {
     'use strict';
 
     assert.expect(3);
@@ -285,7 +285,7 @@ module.exports = {
     });
   },
 
-  test_hash_sync: function (assert) {
+  test_hash_sync(assert) {
     'use strict';
 
     assert.expect(1);
@@ -295,7 +295,7 @@ module.exports = {
     assert.done();
   },
 
-  test_hash_argon2d_sync: function (assert) {
+  test_hash_argon2d_sync(assert) {
     'use strict';
 
     assert.expect(1);
@@ -307,7 +307,7 @@ module.exports = {
     assert.done();
   },
 
-  test_hash_truthy_argon2d_sync: function (assert) {
+  test_hash_truthy_argon2d_sync(assert) {
     'use strict';
 
     assert.expect(1);
@@ -319,7 +319,7 @@ module.exports = {
     assert.done();
   },
 
-  test_hash_falsy_argon2d_sync: function (assert) {
+  test_hash_falsy_argon2d_sync(assert) {
     'use strict';
 
     assert.expect(1);
@@ -331,7 +331,7 @@ module.exports = {
     assert.done();
   },
 
-  test_hash_sync_time_cost: function (assert) {
+  test_hash_sync_time_cost(assert) {
     'use strict';
 
     assert.expect(1);
@@ -343,7 +343,7 @@ module.exports = {
     assert.done();
   },
 
-  test_hash_sync_invalid_time_cost: function (assert) {
+  test_hash_sync_invalid_time_cost(assert) {
     'use strict';
 
     assert.expect(1);
@@ -356,7 +356,7 @@ module.exports = {
     assert.done();
   },
 
-  test_hash_sync_low_time_cost: function (assert) {
+  test_hash_sync_low_time_cost(assert) {
     'use strict';
 
     assert.expect(1);
@@ -369,7 +369,7 @@ module.exports = {
     assert.done();
   },
 
-  test_hash_sync_high_time_cost: function (assert) {
+  test_hash_sync_high_time_cost(assert) {
     'use strict';
 
     assert.expect(1);
@@ -382,7 +382,7 @@ module.exports = {
     assert.done();
   },
 
-  test_hash_sync_memory_cost: function (assert) {
+  test_hash_sync_memory_cost(assert) {
     'use strict';
 
     assert.expect(1);
@@ -394,7 +394,7 @@ module.exports = {
     assert.done();
   },
 
-  test_hash_sync_invalid_memory_cost: function (assert) {
+  test_hash_sync_invalid_memory_cost(assert) {
     'use strict';
 
     assert.expect(1);
@@ -407,7 +407,7 @@ module.exports = {
     assert.done();
   },
 
-  test_hash_sync_low_memory_cost: function (assert) {
+  test_hash_sync_low_memory_cost(assert) {
     'use strict';
 
     assert.expect(1);
@@ -420,7 +420,7 @@ module.exports = {
     assert.done();
   },
 
-  test_hash_sync_high_memory_cost: function (assert) {
+  test_hash_sync_high_memory_cost(assert) {
     'use strict';
 
     assert.expect(1);
@@ -433,7 +433,7 @@ module.exports = {
     assert.done();
   },
 
-  test_hash_sync_parallelism: function (assert) {
+  test_hash_sync_parallelism(assert) {
     'use strict';
 
     assert.expect(1);
@@ -445,7 +445,7 @@ module.exports = {
     assert.done();
   },
 
-  test_hash_sync_invalid_parallelism: function (assert) {
+  test_hash_sync_invalid_parallelism(assert) {
     'use strict';
 
     assert.expect(1);
@@ -458,7 +458,7 @@ module.exports = {
     assert.done();
   },
 
-  test_hash_sync_low_parallelism: function (assert) {
+  test_hash_sync_low_parallelism(assert) {
     'use strict';
 
     assert.expect(1);
@@ -471,7 +471,7 @@ module.exports = {
     assert.done();
   },
 
-  test_hash_sync_high_parallelism: function (assert) {
+  test_hash_sync_high_parallelism(assert) {
     'use strict';
 
     assert.expect(1);
@@ -484,7 +484,7 @@ module.exports = {
     assert.done();
   },
 
-  test_hash_sync_all_options: function (assert) {
+  test_hash_sync_all_options(assert) {
     'use strict';
 
     assert.expect(1);
@@ -498,7 +498,7 @@ module.exports = {
     assert.done();
   },
 
-  test_hash_sync_long_salt: function (assert) {
+  test_hash_sync_long_salt(assert) {
     'use strict';
 
     assert.expect(1);
@@ -509,7 +509,7 @@ module.exports = {
     assert.done();
   },
 
-  test_generate_salt: function (assert) {
+  test_generate_salt(assert) {
     'use strict';
 
     assert.expect(1);
@@ -520,7 +520,7 @@ module.exports = {
     });
   },
 
-  test_generate_salt_sync: function (assert) {
+  test_generate_salt_sync(assert) {
     'use strict';
 
     assert.expect(1);
@@ -529,7 +529,7 @@ module.exports = {
     assert.done();
   },
 
-  test_verify_ok: function (assert) {
+  test_verify_ok(assert) {
     'use strict';
 
     assert.expect(1);
@@ -541,7 +541,7 @@ module.exports = {
       });
   },
 
-  test_verify_fail: function (assert) {
+  test_verify_fail(assert) {
     'use strict';
 
     assert.expect(1);
@@ -553,7 +553,7 @@ module.exports = {
       });
   },
 
-  test_verify_argon2d_ok: function (assert) {
+  test_verify_argon2d_ok(assert) {
     'use strict';
 
     assert.expect(1);
@@ -568,7 +568,7 @@ module.exports = {
     });
   },
 
-  test_verify_argon2d_fail: function (assert) {
+  test_verify_argon2d_fail(assert) {
     'use strict';
 
     assert.expect(1);
@@ -583,7 +583,7 @@ module.exports = {
     });
   },
 
-  test_verify_sync_ok: function (assert) {
+  test_verify_sync_ok(assert) {
     'use strict';
 
     assert.expect(1);
@@ -593,7 +593,7 @@ module.exports = {
     assert.done();
   },
 
-  test_verify_sync_fail: function (assert) {
+  test_verify_sync_fail(assert) {
     'use strict';
 
     assert.expect(1);
@@ -603,7 +603,7 @@ module.exports = {
     assert.done();
   },
 
-  test_verify_argon2d_sync_ok: function (assert) {
+  test_verify_argon2d_sync_ok(assert) {
     'use strict';
 
     assert.expect(1);
@@ -616,7 +616,7 @@ module.exports = {
     });
   },
 
-  test_verify_argon2d_sync_fail: function (assert) {
+  test_verify_argon2d_sync_fail(assert) {
     'use strict';
 
     assert.expect(1);
