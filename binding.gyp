@@ -15,6 +15,7 @@
         "argon2/src/encoding.c",
         "argon2/src/opt.c"
       ],
+      "include_dirs": ["argon2/include"],
       "type": "static_library"
     }, {
       "target_name": "argon2",
@@ -22,7 +23,8 @@
         "src/argon2_node.cpp"
       ],
       "include_dirs": [
-        "<!(node -e \"require('nan')\")"
+        "<!(node -e \"require('nan')\")",
+        "argon2/include"
       ],
       "dependencies": ["libargon2"],
       "configurations": {

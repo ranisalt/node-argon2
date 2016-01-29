@@ -5,7 +5,7 @@
 #include <cstring>
 #include <string>
 
-#include "../argon2/src/argon2.h"
+#include "../argon2/include/argon2.h"
 
 namespace {
 
@@ -52,7 +52,7 @@ void HashAsyncWorker::Execute()
             plain.c_str(), plain.size(), salt.c_str(), salt.size(), nullptr,
             HASH_LEN, encoded, ENCODED_LEN, type);
     if (result != ARGON2_OK) {
-        SetErrorMessage(error_message(result));
+        SetErrorMessage(argon2_error_message(result));
         return;
     }
 
@@ -133,7 +133,7 @@ NAN_METHOD(HashSync) {
             encoded, ENCODED_LEN, type);
 
     if (result != ARGON2_OK) {
-        Nan::ThrowError(error_message(result));
+        Nan::ThrowError(argon2_error_message(result));
         info.GetReturnValue().Set(Nan::Undefined());
         return;
     }
