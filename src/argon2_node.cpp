@@ -224,6 +224,6 @@ NAN_MODULE_INIT(init) {
     Nan::Export(target, "hashSync", HashSync);
     Nan::Export(target, "verify", Verify);
     Nan::Export(target, "verifySync", VerifySync);
-};
+}
 
-NODE_MODULE(argon2_lib, init);
+NODE_MODULE(argon2_lib, init)

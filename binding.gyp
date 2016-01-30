@@ -27,6 +27,9 @@
         "argon2/include"
       ],
       "dependencies": ["libargon2"],
+      "conditions": [
+        ["OS != 'win'", {"cflags": ["-Wall", "-Wextra", "-Wpedantic"]}]
+      ],
       "configurations": {
         "Debug": {
           "conditions": [
