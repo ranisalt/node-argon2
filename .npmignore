@@ -1,0 +1,11 @@
+argon2/argon2-specs.pdf
+argon2/kats
+argon2/Makefile
+argon2/src/bench.c
+argon2/src/genkat.h
+benchmark.js
+.codeclimate.yml
+.editorconfig
+.git*
+.idea
+.travis.yml
