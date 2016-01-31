@@ -94,7 +94,7 @@ NAN_METHOD(Hash) {
     argon2_type type = info[5]->BooleanValue() ? Argon2_d : Argon2_i;
     Local<Function> callback = Local<Function>::Cast(info[6]);
 
-    auto salt = std::string{*raw_salt};
+    auto salt = std::string{*raw_salt, raw_salt.length()};
     salt.resize(SALT_LEN, 0x0);
 
     auto worker = new HashAsyncWorker(new Nan::Callback(callback), *plain, salt,
@@ -125,7 +125,7 @@ NAN_METHOD(HashSync) {
 
     char encoded[ENCODED_LEN];
 
-    auto salt = std::string{*raw_salt};
+    auto salt = std::string{*raw_salt, raw_salt.length()};
     salt.resize(SALT_LEN, 0x0);
 
     auto result = argon2_hash(time_cost, 1 << memory_cost, parallelism, *plain,

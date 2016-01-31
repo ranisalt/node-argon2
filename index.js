@@ -99,14 +99,14 @@ exports.generateSalt = function (callback) {
   'use strict';
 
   crypto.randomBytes(16, function (err, buffer) {
-    callback(err, buffer.toString());
+    callback(err, buffer.toString('ascii'));
   });
 };
 
 exports.generateSaltSync = function () {
   'use strict';
 
-  return crypto.randomBytes(16).toString();
+  return crypto.randomBytes(16).toString('ascii');
 };
 
 exports.verify = function (hash, plain, callback) {
