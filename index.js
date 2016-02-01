@@ -71,6 +71,10 @@ var validate = function (salt, options, callback) {
 exports.hash = function (plain, salt, options, callback) {
   'use strict';
 
+  if (!Buffer.isBuffer(salt)) {
+    salt = new Buffer(salt);
+  }
+
   if (!callback) {
     callback = options;
     options = defaults;
@@ -87,6 +91,10 @@ exports.hash = function (plain, salt, options, callback) {
 exports.hashSync = function (plain, salt, options) {
   'use strict';
 
+  if (!Buffer.isBuffer(salt)) {
+    salt = new Buffer(salt);
+  }
+
   options = Object.assign({}, options || defaults);
 
   if (validate(salt, options)) {
@@ -99,14 +107,14 @@ exports.generateSalt = function (callback) {
   'use strict';
 
   crypto.randomBytes(16, function (err, buffer) {
-    callback(err, buffer.toString());
+    callback(err, buffer);
   });
 };
 
 exports.generateSaltSync = function () {
   'use strict';
 
-  return crypto.randomBytes(16).toString();
+  return crypto.randomBytes(16);
 };
 
 exports.verify = function (hash, plain, callback) {

@@ -74,6 +74,7 @@ void HashAsyncWorker::HandleOKCallback()
 }
 
 NAN_METHOD(Hash) {
+    using namespace node;
     using v8::Function;
     using v8::Local;
 
@@ -87,14 +88,14 @@ NAN_METHOD(Hash) {
     }
 
     Nan::Utf8String plain{info[0]->ToString()};
-    Nan::Utf8String raw_salt{info[1]->ToString()};
+    auto raw_salt = info[1]->ToObject();
     auto time_cost = info[2]->Uint32Value();
     auto memory_cost = info[3]->Uint32Value();
     auto parallelism = info[4]->Uint32Value();
     argon2_type type = info[5]->BooleanValue() ? Argon2_d : Argon2_i;
     Local<Function> callback = Local<Function>::Cast(info[6]);
 
-    auto salt = std::string{*raw_salt};
+    auto salt = std::string(Buffer::Data(raw_salt), Buffer::Length(raw_salt));
     salt.resize(SALT_LEN, 0x0);
 
     auto worker = new HashAsyncWorker(new Nan::Callback(callback), *plain, salt,
@@ -104,7 +105,7 @@ NAN_METHOD(Hash) {
 }
 
 NAN_METHOD(HashSync) {
-    using std::strlen;
+    using namespace node;
 
     Nan::HandleScope scope;
 
@@ -117,7 +118,7 @@ NAN_METHOD(HashSync) {
     }
 
     Nan::Utf8String plain{info[0]->ToString()};
-    Nan::Utf8String raw_salt{info[1]->ToString()};
+    auto raw_salt = info[1]->ToObject();
     auto time_cost = info[2]->Uint32Value();
     auto memory_cost = info[3]->Uint32Value();
     auto parallelism = info[4]->Uint32Value();
@@ -125,7 +126,7 @@ NAN_METHOD(HashSync) {
 
     char encoded[ENCODED_LEN];
 
-    auto salt = std::string{*raw_salt};
+    auto salt = std::string(Buffer::Data(raw_salt), Buffer::Length(raw_salt));
     salt.resize(SALT_LEN, 0x0);
 
     auto result = argon2_hash(time_cost, 1 << memory_cost, parallelism, *plain,
