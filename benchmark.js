@@ -13,6 +13,34 @@ const fixtures = [{
   name: 'argon2#hashSync',
   func: (done) => { argon2.hashSync(password, salt); done(); }
 }, {
+  name: 'argon2#hashTimeCost',
+  func: function (done) {
+    argon2.hash(password, salt, {
+      timeCost: argon2.defaults.timeCost + 3
+    }, done);
+  }
+}, {
+  name: 'argon2#hashMemoryCost',
+  func: function (done) {
+    argon2.hash(password, salt, {
+      memoryCost: argon2.defaults.memoryCost + 3
+    }, done);
+  }
+}, {
+  name: 'argon2#hashParallelism',
+  func: function (done) {
+    argon2.hash(password, salt, {
+      parallelism: argon2.defaults.parallelism + 3
+    }, done);
+  }
+}, {
+  name: 'argon2#hashArgon2d',
+  func: function (done) {
+    argon2.hash(password, salt, {
+      argon2d: true
+    }, done);
+  }
+}, {
   name: 'argon2#verify',
   func: (done) => argon2.verify(hash, password, done)
 }, {
