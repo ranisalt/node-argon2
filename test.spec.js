@@ -2,6 +2,10 @@ var argon2 = process.env.COVERAGE
   ? require('./index-cov')
   : require('./index');
 
+var password = 'password';
+var salt = new Buffer(16);
+salt.fill(0).write('somesalt');
+
 module.exports = {
   test_defaults(assert) {
     'use strict';
@@ -22,7 +26,7 @@ module.exports = {
 
     assert.expect(3);
 
-    argon2.hash('password', 'somesalt', function (err, hash) {
+    argon2.hash(password, salt, function (err, hash) {
       assert.ok(hash, 'Hash should be defined.');
       assert.equal(hash, '$argon2i$m=4096,t=3,p=1$c29tZXNhbHQAAAAAAAAAAA$FHF/OZ0GJpMRAlBmPTqXxw36Ftp87JllALZPcP9w9gs');
       assert.equal(undefined, err);
@@ -35,7 +39,7 @@ module.exports = {
 
     assert.expect(3);
 
-    argon2.hash('password', 'somesalt', {
+    argon2.hash(password, salt, {
       argon2d: true
     }, function (err, hash) {
       assert.ok(hash, 'Hash should be defined.');
@@ -50,7 +54,7 @@ module.exports = {
 
     assert.expect(3);
 
-    argon2.hash('password', 'somesalt', {
+    argon2.hash(password, salt, {
       argon2d: 'foo'
     }, function (err, hash) {
       assert.ok(hash, 'Hash should be defined.');
@@ -65,7 +69,7 @@ module.exports = {
 
     assert.expect(3);
 
-    argon2.hash('password', 'somesalt', {
+    argon2.hash(password, salt, {
       argon2d: ''
     }, function (err, hash) {
       assert.ok(hash, 'Hash should be defined.');
@@ -80,9 +84,9 @@ module.exports = {
 
     assert.expect(3);
 
-    argon2.hash('password', 'somesaltwaytoobig', function (err, hash) {
+    argon2.hash(password, 'somesaltwaytoobig', function (err, hash) {
       assert.ok(err, 'Error should be defined.');
-      assert.equal(err.message, 'Salt too long, maximum 16 characters.');
+      assert.equal(err.message, 'Invalid salt length, must be 16 bytes.');
       assert.equal(undefined, hash);
       assert.done();
     });
@@ -93,7 +97,7 @@ module.exports = {
 
     assert.expect(3);
 
-    argon2.hash('password', 'somesalt', {
+    argon2.hash(password, salt, {
       timeCost: 4
     }, function (err, hash) {
       assert.ok(hash, 'Hash should be defined.');
@@ -108,7 +112,7 @@ module.exports = {
 
     assert.expect(3);
 
-    argon2.hash('password', 'somesalt', {
+    argon2.hash(password, salt, {
       timeCost: 'foo'
     }, function (err, hash) {
       assert.ok(err, 'Error should be defined.');
@@ -123,7 +127,7 @@ module.exports = {
 
     assert.expect(3);
 
-    argon2.hash('password', 'somesalt', {
+    argon2.hash(password, salt, {
       timeCost: -4294967290
     }, function (err, hash) {
       assert.ok(err, 'Error should be defined.');
@@ -138,7 +142,7 @@ module.exports = {
 
     assert.expect(3);
 
-    argon2.hash('password', 'somesalt', {
+    argon2.hash(password, salt, {
       timeCost: 4294967297
     }, function (err, hash) {
       assert.ok(err, 'Error should be defined.');
@@ -153,7 +157,7 @@ module.exports = {
 
     assert.expect(3);
 
-    argon2.hash('password', 'somesalt', {
+    argon2.hash(password, salt, {
       memoryCost: 13
     }, function (err, hash) {
       assert.ok(hash, 'Hash should be defined.');
@@ -168,7 +172,7 @@ module.exports = {
 
     assert.expect(3);
 
-    argon2.hash('password', 'somesalt', {
+    argon2.hash(password, salt, {
       memoryCost: 'foo'
     }, function (err, hash) {
       assert.ok(err, 'Error should be defined.');
@@ -183,7 +187,7 @@ module.exports = {
 
     assert.expect(3);
 
-    argon2.hash('password', 'somesalt', {
+    argon2.hash(password, salt, {
       memoryCost: -4294967290
     }, function (err, hash) {
       assert.ok(err, 'Error should be defined.');
@@ -198,7 +202,7 @@ module.exports = {
 
     assert.expect(3);
 
-    argon2.hash('password', 'somesalt', {
+    argon2.hash(password, salt, {
       memoryCost: 32
     }, function (err, hash) {
       assert.ok(err, 'Error should be defined.');
@@ -213,7 +217,7 @@ module.exports = {
 
     assert.expect(3);
 
-    argon2.hash('password', 'somesalt', {
+    argon2.hash(password, salt, {
       parallelism: 2
     }, function (err, hash) {
       assert.ok(hash, 'Hash should be defined.');
@@ -228,7 +232,7 @@ module.exports = {
 
     assert.expect(3);
 
-    argon2.hash('password', 'somesalt', {
+    argon2.hash(password, salt, {
       parallelism: 'foo'
     }, function (err, hash) {
       assert.ok(err, 'Error should be defined.');
@@ -243,7 +247,7 @@ module.exports = {
 
     assert.expect(3);
 
-    argon2.hash('password', 'somesalt', {
+    argon2.hash(password, salt, {
       parallelism: -4294967290
     }, function (err, hash) {
       assert.ok(err, 'Error should be defined.');
@@ -258,7 +262,7 @@ module.exports = {
 
     assert.expect(3);
 
-    argon2.hash('password', 'somesalt', {
+    argon2.hash(password, salt, {
       parallelism: 4294967297
     }, function (err, hash) {
       assert.ok(err, 'Error should be defined.');
@@ -273,7 +277,7 @@ module.exports = {
 
     assert.expect(3);
 
-    argon2.hash('password', 'somesalt', {
+    argon2.hash(password, salt, {
       timeCost: 4,
       memoryCost: 13,
       parallelism: 2
@@ -290,7 +294,7 @@ module.exports = {
 
     assert.expect(1);
 
-    var hash = argon2.hashSync('password', 'somesalt');
+    var hash = argon2.hashSync(password, salt);
     assert.equal(hash, '$argon2i$m=4096,t=3,p=1$c29tZXNhbHQAAAAAAAAAAA$FHF/OZ0GJpMRAlBmPTqXxw36Ftp87JllALZPcP9w9gs');
     assert.done();
   },
@@ -300,7 +304,7 @@ module.exports = {
 
     assert.expect(1);
 
-    var hash = argon2.hashSync('password', 'somesalt', {
+    var hash = argon2.hashSync(password, salt, {
       argon2d: true
     });
     assert.ok(/\$argon2d\$/.test(hash), 'Should use argon2d signature.');
@@ -312,7 +316,7 @@ module.exports = {
 
     assert.expect(1);
 
-    var hash = argon2.hashSync('password', 'somesalt', {
+    var hash = argon2.hashSync(password, salt, {
       argon2d: 'foo'
     });
     assert.ok(/\$argon2d\$/.test(hash), 'Should use argon2d signature.');
@@ -324,7 +328,7 @@ module.exports = {
 
     assert.expect(1);
 
-    var hash = argon2.hashSync('password', 'somesalt', {
+    var hash = argon2.hashSync(password, salt, {
       argon2d: ''
     });
     assert.ok(/\$argon2i\$/.test(hash), 'Should not use argon2d signature.');
@@ -336,7 +340,7 @@ module.exports = {
 
     assert.expect(1);
 
-    var hash = argon2.hashSync('password', 'somesalt', {
+    var hash = argon2.hashSync(password, salt, {
       timeCost: 4
     });
     assert.ok(/t=4/.test(hash), 'Should have correct time cost.');
@@ -349,7 +353,7 @@ module.exports = {
     assert.expect(1);
 
     assert.throws(function () {
-      var hash = argon2.hashSync('password', 'somesalt', {
+      var hash = argon2.hashSync(password, salt, {
         timeCost: 'foo'
       });
     }, /invalid/i);
@@ -362,7 +366,7 @@ module.exports = {
     assert.expect(1);
 
     assert.throws(function () {
-      var hash = argon2.hashSync('password', 'somesalt', {
+      var hash = argon2.hashSync(password, salt, {
         timeCost: -4294967290
       });
     }, /too low/);
@@ -375,7 +379,7 @@ module.exports = {
     assert.expect(1);
 
     assert.throws(function () {
-      var hash = argon2.hashSync('password', 'somesalt', {
+      var hash = argon2.hashSync(password, salt, {
         timeCost: 4294967297
       });
     }, /too high/);
@@ -387,7 +391,7 @@ module.exports = {
 
     assert.expect(1);
 
-    var hash = argon2.hashSync('password', 'somesalt', {
+    var hash = argon2.hashSync(password, salt, {
       memoryCost: 13
     });
     assert.ok(/m=8192/.test(hash), 'Should have correct memory cost.');
@@ -400,7 +404,7 @@ module.exports = {
     assert.expect(1);
 
     assert.throws(function () {
-      var hash = argon2.hashSync('password', 'somesalt', {
+      var hash = argon2.hashSync(password, salt, {
         memoryCost: 'foo'
       });
     }, /invalid/i);
@@ -413,7 +417,7 @@ module.exports = {
     assert.expect(1);
 
     assert.throws(function () {
-      var hash = argon2.hashSync('password', 'somesalt', {
+      var hash = argon2.hashSync(password, salt, {
         memoryCost: -4294967290
       });
     }, /too low/);
@@ -426,7 +430,7 @@ module.exports = {
     assert.expect(1);
 
     assert.throws(function () {
-      argon2.hashSync('password', 'somesalt', {
+      argon2.hashSync(password, salt, {
         memoryCost: 32
       });
     }, /too high/);
@@ -438,7 +442,7 @@ module.exports = {
 
     assert.expect(1);
 
-    var hash = argon2.hashSync('password', 'somesalt', {
+    var hash = argon2.hashSync(password, salt, {
       parallelism: 2
     });
     assert.ok(/p=2/.test(hash), 'Should have correct parallelism.');
@@ -451,7 +455,7 @@ module.exports = {
     assert.expect(1);
 
     assert.throws(function () {
-      var hash = argon2.hashSync('password', 'somesalt', {
+      var hash = argon2.hashSync(password, salt, {
         parallelism: 'foo'
       });
     }, /invalid/i);
@@ -464,7 +468,7 @@ module.exports = {
     assert.expect(1);
 
     assert.throws(function () {
-      var hash = argon2.hashSync('password', 'somesalt', {
+      var hash = argon2.hashSync(password, salt, {
         parallelism: -4294967290
       });
     }, /too low/);
@@ -477,7 +481,7 @@ module.exports = {
     assert.expect(1);
 
     assert.throws(function () {
-      var hash = argon2.hashSync('password', 'somesalt', {
+      var hash = argon2.hashSync(password, salt, {
         parallelism: 4294967297
       });
     }, /too high/);
@@ -489,7 +493,7 @@ module.exports = {
 
     assert.expect(1);
 
-    var hash = argon2.hashSync('password', 'somesalt', {
+    var hash = argon2.hashSync(password, salt, {
       timeCost: 4,
       memoryCost: 13,
       parallelism: 2
@@ -504,7 +508,7 @@ module.exports = {
     assert.expect(1);
 
     assert.throws(function () {
-      argon2.hashSync('password', 'somesaltwaytoobig');
+      argon2.hashSync(password, 'somesaltwaytoobig');
     });
     assert.done();
   },
@@ -534,8 +538,8 @@ module.exports = {
 
     assert.expect(1);
 
-    argon2.verify(argon2.hashSync('password', argon2.generateSaltSync()),
-      'password', function (err) {
+    argon2.verify(argon2.hashSync(password, argon2.generateSaltSync()),
+      password, function (err) {
         assert.equal(undefined, err);
         assert.done();
       });
@@ -546,7 +550,7 @@ module.exports = {
 
     assert.expect(1);
 
-    argon2.verify(argon2.hashSync('password', argon2.generateSaltSync()),
+    argon2.verify(argon2.hashSync(password, argon2.generateSaltSync()),
       'passwolrd', function (err) {
         assert.ok(err, 'Error should be defined.');
         assert.done();
@@ -558,10 +562,10 @@ module.exports = {
 
     assert.expect(1);
 
-    argon2.hash('password', argon2.generateSaltSync(), {
+    argon2.hash(password, argon2.generateSaltSync(), {
       argon2d: true
     }, function (err, hash) {
-      argon2.verify(hash, 'password', function (err) {
+      argon2.verify(hash, password, function (err) {
         assert.equal(undefined, err);
         assert.done();
       });
@@ -573,7 +577,7 @@ module.exports = {
 
     assert.expect(1);
 
-    argon2.hash('password', argon2.generateSaltSync(), {
+    argon2.hash(password, argon2.generateSaltSync(), {
       argon2d: true
     }, function (err, hash) {
       argon2.verify(hash, 'passwolrd', function (err) {
@@ -588,8 +592,8 @@ module.exports = {
 
     assert.expect(1);
 
-    assert.equal(true, argon2.verifySync(argon2.hashSync('password',
-      argon2.generateSaltSync()), 'password'));
+    assert.equal(true, argon2.verifySync(argon2.hashSync(password,
+      argon2.generateSaltSync()), password));
     assert.done();
   },
 
@@ -598,7 +602,7 @@ module.exports = {
 
     assert.expect(1);
 
-    assert.equal(false, argon2.verifySync(argon2.hashSync('password',
+    assert.equal(false, argon2.verifySync(argon2.hashSync(password,
       argon2.generateSaltSync()), 'passworld'));
     assert.done();
   },
@@ -608,10 +612,10 @@ module.exports = {
 
     assert.expect(1);
 
-    argon2.hash('password', argon2.generateSaltSync(), {
+    argon2.hash(password, argon2.generateSaltSync(), {
       argon2d: true
     }, function (err, hash) {
-      assert.equal(true, argon2.verifySync(hash, 'password'));
+      assert.equal(true, argon2.verifySync(hash, password));
       assert.done();
     });
   },
@@ -621,7 +625,7 @@ module.exports = {
 
     assert.expect(1);
 
-    argon2.hash('password', argon2.generateSaltSync(), {
+    argon2.hash(password, argon2.generateSaltSync(), {
       argon2d: true
     }, function (err, hash) {
       assert.equal(false, argon2.verifySync(hash, 'passwolrd'));

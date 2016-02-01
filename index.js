@@ -21,8 +21,8 @@ var fail = function (message, callback) {
 };
 
 var validate = function (salt, options, callback) {
-  if (salt.length > 16) {
-    fail('Salt too long, maximum 16 characters.', callback);
+  if (salt.length != 16) {
+    fail('Invalid salt length, must be 16 bytes.', callback);
     return false;
   }
 
