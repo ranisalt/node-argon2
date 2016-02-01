@@ -77,10 +77,26 @@ module.exports = {
 
     options = Object.assign({}, options);
 
-    if (validate(salt, options, callback)) {
-      return bindings.hash(plain, salt, options.timeCost, options.memoryCost,
-        options.parallelism, options.argon2d, callback);
+    const promise = new Promise((resolve, reject) => {
+      if (validate(salt, options, reject)) {
+        bindings.hash(plain, salt, options.timeCost, options.memoryCost,
+          options.parallelism, options.argon2d, (err, hash) => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve(hash);
+            }
+        });
+      }
+    });
+
+    if (typeof callback === 'function') {
+      promise
+        .then((hash) => callback(undefined, hash))
+        .catch((error) => callback(error, null));
     }
+
+    return promise;
   },
 
   hashSync (plain, salt, options) {
@@ -101,7 +117,23 @@ module.exports = {
   generateSalt (callback) {
     'use strict';
 
-    return crypto.randomBytes(16, callback);
+    const promise = new Promise((resolve, reject) => {
+      crypto.randomBytes(16, (err, salt) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(salt);
+        }
+      });
+    });
+
+    if (typeof callback === 'function') {
+      promise
+        .then((hash) => callback(undefined, hash))
+        .catch((error) => callback(error, null));
+    }
+
+    return promise;
   },
 
   generateSaltSync () {
@@ -113,7 +145,23 @@ module.exports = {
   verify (hash, plain, callback) {
     'use strict';
 
-    return bindings.verify(hash, plain, /argon2d/.test(hash), callback);
+    const promise = new Promise((resolve, reject) => {
+      bindings.verify(hash, plain, /argon2d/.test(hash), (err) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve();
+        }
+      });
+    });
+
+    if (typeof callback === 'function') {
+      promise
+        .then((hash) => callback(undefined, hash))
+        .catch((error) => callback(error, null));
+    }
+
+    return promise;
   },
 
   verifySync (hash, plain) {
