@@ -580,11 +580,16 @@ module.exports = {
 
     assert.expect(1);
 
-    argon2.verify(argon2.hashSync(password, argon2.generateSaltSync()),
-      password, (err) => {
-        assert.equal(undefined, err);
-        assert.done();
+    argon2.generateSalt().then((salt) => {
+      argon2.hash(password, salt, {
+        argon2d: true
+      }).then((hash) => {
+        argon2.verify(hash, password, (err) => {
+          assert.equal(undefined, err);
+          assert.done();
+        });
       });
+    });
   },
 
   testVerifyOkPromise (assert) {
@@ -604,11 +609,16 @@ module.exports = {
 
     assert.expect(1);
 
-    argon2.verify(argon2.hashSync(password, argon2.generateSaltSync()),
-      'passwolrd', (err) => {
-        assert.ok(err, 'Error should be defined.');
-        assert.done();
+    argon2.generateSalt().then((salt) => {
+      argon2.hash(password, salt, {
+        argon2d: true
+      }).then((hash) => {
+        argon2.verify(hash, 'passwolrd', (err) => {
+          assert.ok(err, 'Error should be defined.');
+          assert.done();
+        });
       });
+    });
   },
 
   testVerifyFailPromise (assert) {
@@ -629,14 +639,13 @@ module.exports = {
   testVerifyArgon2dOk (assert) {
     'use strict';
 
-    assert.expect(1);
+    assert.expect(0);
 
-    argon2.hash(password, argon2.generateSaltSync(), {
-      argon2d: true
-    }, (err, hash) => {
-      argon2.verify(hash, password, (err) => {
-        assert.equal(undefined, err);
-        assert.done();
+    argon2.generateSalt().then((salt) => {
+      argon2.hash(password, salt, {
+        argon2d: true
+      }).then((hash) => {
+        argon2.verify(hash, password).then(assert.done);
       });
     });
   },
@@ -646,12 +655,14 @@ module.exports = {
 
     assert.expect(1);
 
-    argon2.hash(password, argon2.generateSaltSync(), {
-      argon2d: true
-    }, (err, hash) => {
-      argon2.verify(hash, 'passwolrd', (err) => {
-        assert.ok(err, 'Error should be defined.');
-        assert.done();
+    argon2.generateSalt().then((salt) => {
+      argon2.hash(password, salt, {
+        argon2d: true
+      }).then((hash) => {
+        argon2.verify(hash, 'passwolrd').catch((err) => {
+          assert.ok(err, 'Error should be defined');
+          assert.done();
+        });
       });
     });
   },
@@ -661,9 +672,12 @@ module.exports = {
 
     assert.expect(1);
 
-    assert.equal(true, argon2.verifySync(argon2.hashSync(password,
-      argon2.generateSaltSync()), password));
-    assert.done();
+    argon2.generateSalt().then((salt) => {
+      argon2.hash(password, salt).then((hash) => {
+        assert.equal(true, argon2.verifySync(hash, password));
+        assert.done();
+      });
+    });
   },
 
   testVerifySyncFail (assert) {
@@ -671,9 +685,12 @@ module.exports = {
 
     assert.expect(1);
 
-    assert.equal(false, argon2.verifySync(argon2.hashSync(password,
-      argon2.generateSaltSync()), 'passworld'));
-    assert.done();
+    argon2.generateSalt().then((salt) => {
+      argon2.hash(password, salt).then((hash) => {
+        assert.equal(false, argon2.verifySync(hash, 'passworld'));
+        assert.done();
+      });
+    });
   },
 
   testVerifyArgon2dSyncOk (assert) {
@@ -681,11 +698,13 @@ module.exports = {
 
     assert.expect(1);
 
-    argon2.hash(password, argon2.generateSaltSync(), {
-      argon2d: true
-    }, (err, hash) => {
-      assert.equal(true, argon2.verifySync(hash, password));
-      assert.done();
+    argon2.generateSalt().then((salt) => {
+      argon2.hash(password, salt, {
+        argon2d: true
+      }).then((hash) => {
+        assert.equal(true, argon2.verifySync(hash, password));
+        assert.done();
+      });
     });
   },
 
@@ -694,11 +713,13 @@ module.exports = {
 
     assert.expect(1);
 
-    argon2.hash(password, argon2.generateSaltSync(), {
-      argon2d: true
-    }, (err, hash) => {
-      assert.equal(false, argon2.verifySync(hash, 'passwolrd'));
-      assert.done();
+    argon2.generateSalt().then((salt) => {
+      argon2.hash(password, salt, {
+        argon2d: true
+      }).then((hash) => {
+        assert.equal(false, argon2.verifySync(hash, 'passwolrd'));
+        assert.done();
+      });
     });
   }
 };
