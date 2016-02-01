@@ -23,7 +23,7 @@ module.exports = {
     assert.done();
   },
 
-  testHash  (assert) {
+  testHashCallback (assert) {
     'use strict';
 
     assert.expect(3);
@@ -32,6 +32,17 @@ module.exports = {
       assert.ok(hash, 'Hash should be defined.');
       assert.equal(hash, '$argon2i$m=4096,t=3,p=1$c29tZXNhbHQAAAAAAAAAAA$FHF/OZ0GJpMRAlBmPTqXxw36Ftp87JllALZPcP9w9gs');
       assert.equal(undefined, err);
+      assert.done();
+    });
+  },
+
+  testHashPromise (assert) {
+    'use strict';
+
+    assert.expect(1);
+
+    argon2.hash(password, salt).then((hash) => {
+      assert.equal(hash, '$argon2i$m=4096,t=3,p=1$c29tZXNhbHQAAAAAAAAAAA$FHF/OZ0GJpMRAlBmPTqXxw36Ftp87JllALZPcP9w9gs');
       assert.done();
     });
   },
@@ -90,6 +101,17 @@ module.exports = {
       assert.ok(err, 'Error should be defined.');
       assert.equal(err.message, 'Invalid salt length, must be 16 bytes.');
       assert.equal(undefined, hash);
+      assert.done();
+    });
+  },
+
+  testHashPromiseFail (assert) {
+    'use strict';
+
+    assert.expect(1);
+
+    argon2.hash(password, 'somesaltwaytoobig').catch((err) => {
+      assert.ok(err, 'Error should be defined.');
       assert.done();
     });
   },
@@ -277,6 +299,22 @@ module.exports = {
       assert.ok(hash, 'Hash should be defined.');
       assert.ok(/m=8192,t=4,p=2/.test(hash), 'Should have correct options.');
       assert.equal(undefined, err);
+      assert.done();
+    });
+  },
+
+  testHashOptionsPromise (assert) {
+    'use strict';
+
+    assert.expect(2);
+
+    argon2.hash(password, salt, {
+      timeCost: 4,
+      memoryCost: 13,
+      parallelism: 2
+    }).then((hash) => {
+      assert.ok(hash, 'Hash should be defined.');
+      assert.ok(/m=8192,t=4,p=2/.test(hash), 'Should have correct options.');
       assert.done();
     });
   },
@@ -505,12 +543,24 @@ module.exports = {
     assert.done();
   },
 
-  testGenerateSalt (assert) {
+  testGenerateSaltCallback (assert) {
+    'use strict';
+
+    assert.expect(2);
+
+    argon2.generateSalt((err, salt) => {
+      assert.equal(undefined, err);
+      assert.ok(salt.length <= 16);
+      assert.done();
+    });
+  },
+
+  testGenerateSaltPromise (assert) {
     'use strict';
 
     assert.expect(1);
 
-    argon2.generateSalt((err, salt) => {
+    argon2.generateSalt().then((salt) => {
       assert.ok(salt.length <= 16);
       assert.done();
     });
@@ -525,7 +575,7 @@ module.exports = {
     assert.done();
   },
 
-  testVerifyOk (assert) {
+  testVerifyOkCallback (assert) {
     'use strict';
 
     assert.expect(1);
@@ -537,7 +587,19 @@ module.exports = {
       });
   },
 
-  testVerifyFail (assert) {
+  testVerifyOkPromise (assert) {
+    'use strict';
+
+    assert.expect(0);
+
+    argon2.generateSalt().then((salt) => {
+      argon2.hash(password, salt).then((hash) => {
+        argon2.verify(hash, password).then(assert.done);
+      });
+    });
+  },
+
+  testVerifyFailCallback (assert) {
     'use strict';
 
     assert.expect(1);
@@ -547,6 +609,21 @@ module.exports = {
         assert.ok(err, 'Error should be defined.');
         assert.done();
       });
+  },
+
+  testVerifyFailPromise (assert) {
+    'use strict';
+
+    assert.expect(1);
+
+    argon2.generateSalt().then((salt) => {
+      argon2.hash(password, salt).then((hash) => {
+        argon2.verify(hash, 'passworld').catch((err) => {
+          assert.ok(err, 'Error should be defined');
+          assert.done();
+        });
+      });
+    });
   },
 
   testVerifyArgon2dOk (assert) {

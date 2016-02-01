@@ -70,7 +70,7 @@ module.exports = {
       salt = new Buffer(salt);
     }
 
-    if (!callback) {
+    if (typeof options === 'function') {
       callback = options;
       options = defaults;
     }
@@ -86,7 +86,7 @@ module.exports = {
             } else {
               resolve(hash);
             }
-        });
+          });
       }
     });
 
