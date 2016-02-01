@@ -1,32 +1,36 @@
-var bindings = require('bindings')('argon2'),
-  crypto = require('crypto');
+const bindings = require('bindings')('argon2');
+const crypto = require('crypto');
 
-var defaults = exports.defaults = Object.freeze({
+const defaults = Object.freeze({
   timeCost: 3,
   memoryCost: 12,
   parallelism: 1,
   argon2d: false
 });
 
-var fail = function (message, callback) {
-  var error = new Error(message);
+const fail = (message, callback) => {
+  'use strict';
 
-  if (typeof(callback) === 'undefined') {
+  const error = new Error(message);
+
+  if (typeof callback === 'undefined') {
     throw error;
   } else {
-    process.nextTick(function () {
+    process.nextTick(() => {
       callback(error, null);
     });
   }
 };
 
-var validate = function (salt, options, callback) {
-  if (salt.length != 16) {
+const validate = (salt, options, callback) => {
+  'use strict';
+
+  if (salt.length !== 16) {
     fail('Invalid salt length, must be 16 bytes.', callback);
     return false;
   }
 
-  for (var key in defaults) {
+  for (const key of Object.keys(defaults)) {
     options[key] = options[key] || defaults[key];
   }
 
@@ -68,64 +72,65 @@ var validate = function (salt, options, callback) {
   return true;
 };
 
-exports.hash = function (plain, salt, options, callback) {
-  'use strict';
+module.exports = {
+  defaults: defaults,
 
-  if (!Buffer.isBuffer(salt)) {
-    salt = new Buffer(salt);
+  hash (plain, salt, options, callback) {
+    'use strict';
+
+    if (!Buffer.isBuffer(salt)) {
+      salt = new Buffer(salt);
+    }
+
+    if (!callback) {
+      callback = options;
+      options = defaults;
+    }
+
+    options = Object.assign({}, options);
+
+    if (validate(salt, options, callback)) {
+      return bindings.hash(plain, salt, options.timeCost, options.memoryCost,
+        options.parallelism, options.argon2d, callback);
+    }
+  },
+
+  hashSync (plain, salt, options) {
+    'use strict';
+
+    if (!Buffer.isBuffer(salt)) {
+      salt = new Buffer(salt);
+    }
+
+    options = Object.assign({}, options || defaults);
+
+    if (validate(salt, options)) {
+      return bindings.hashSync(plain, salt, options.timeCost,
+          options.memoryCost, options.parallelism, options.argon2d);
+    }
+  },
+
+  generateSalt (callback) {
+    'use strict';
+
+    return crypto.randomBytes(16, callback);
+  },
+
+  generateSaltSync () {
+    'use strict';
+
+    return crypto.randomBytes(16);
+  },
+
+  verify (hash, plain, callback) {
+    'use strict';
+
+    return bindings.verify(hash, plain, /argon2d/.test(hash), callback);
+  },
+
+  verifySync (hash, plain) {
+    'use strict';
+
+    return bindings.verifySync(hash, plain, /argon2d/.test(hash));
   }
-
-  if (!callback) {
-    callback = options;
-    options = defaults;
-  }
-
-  options = Object.assign({}, options);
-
-  if (validate(salt, options, callback)) {
-    return bindings.hash(plain, salt, options.timeCost, options.memoryCost,
-      options.parallelism, options.argon2d, callback);
-  }
 };
-
-exports.hashSync = function (plain, salt, options) {
-  'use strict';
-
-  if (!Buffer.isBuffer(salt)) {
-    salt = new Buffer(salt);
-  }
-
-  options = Object.assign({}, options || defaults);
-
-  if (validate(salt, options)) {
-    return bindings.hashSync(plain, salt, options.timeCost, options.memoryCost,
-        options.parallelism, options.argon2d);
-  }
-};
-
-exports.generateSalt = function (callback) {
-  'use strict';
-
-  crypto.randomBytes(16, function (err, buffer) {
-    callback(err, buffer);
-  });
-};
-
-exports.generateSaltSync = function () {
-  'use strict';
-
-  return crypto.randomBytes(16);
-};
-
-exports.verify = function (hash, plain, callback) {
-  'use strict';
-
-  return bindings.verify(hash, plain, /argon2d/.test(hash), callback);
-};
-
-exports.verifySync = function (hash, plain) {
-  'use strict';
-
-  return bindings.verifySync(hash, plain, /argon2d/.test(hash));
-};
-
