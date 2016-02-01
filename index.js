@@ -73,7 +73,7 @@ const validate = (salt, options, callback) => {
 };
 
 module.exports = {
-  defaults: defaults,
+  defaults,
 
   hash (plain, salt, options, callback) {
     'use strict';
@@ -106,7 +106,7 @@ module.exports = {
 
     if (validate(salt, options)) {
       return bindings.hashSync(plain, salt, options.timeCost,
-          options.memoryCost, options.parallelism, options.argon2d);
+        options.memoryCost, options.parallelism, options.argon2d);
     }
   },
 
