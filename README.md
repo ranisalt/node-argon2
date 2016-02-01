@@ -9,7 +9,9 @@ You **MUST** have a **node-gyp** global install before proceeding with install.
 ### Usage
 It's possible to hash a password using both Argon2i (default) and Argon2d, sync
 and async, and to verify if a password matches a hash, and also generate random
-cryptographically-safe salts.
+cryptographically-safe salts. Salts **must** be exactly 16-byte long buffers
+but strings will automatically be converted (this is **deprecated** and should
+NOT be relied upon).
 
 To hash a password:
 ```js
@@ -25,7 +27,7 @@ argon2.hash('password', 'somesalt', function (err, hash) {
 // OR
 
 try {
-  var hash = argon2.hashSync('password', 'somesalt');
+  var hash = argon2.hashSync('password', 'somesaltwith16ch');
 } catch (err) {
   console.log(err);
 }
@@ -45,7 +47,7 @@ argon2.hash('password', 'somesalt', {
 // OR
 
 try {
-  var hash = argon2.hashSync('password', 'somesalt', {
+  var hash = argon2.hashSync('password', 'somesaltwith16ch', {
     argon2d: true
   });
 } catch (err) {
