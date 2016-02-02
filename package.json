@@ -5,9 +5,7 @@
   "main": "index.js",
   "scripts": {
     "benchmark": "node benchmark.js",
-    "build": "node-gyp configure rebuild",
     "clean": "node-gyp clean",
-    "postinstall": "npm run build",
     "test": "nodeunit test.spec.js"
   },
   "repository": {
