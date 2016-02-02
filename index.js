@@ -94,9 +94,9 @@ module.exports = {
       promise
         .then((hash) => callback(undefined, hash))
         .catch((error) => callback(error, null));
+    } else {
+      return promise;
     }
-
-    return promise;
   },
 
   hashSync (plain, salt, options) {
@@ -131,9 +131,9 @@ module.exports = {
       promise
         .then((hash) => callback(undefined, hash))
         .catch((error) => callback(error, null));
+    } else {
+      return promise;
     }
-
-    return promise;
   },
 
   generateSaltSync () {
@@ -159,9 +159,9 @@ module.exports = {
       promise
         .then((hash) => callback(undefined, hash))
         .catch((error) => callback(error, null));
+    } else {
+      return promise;
     }
-
-    return promise;
   },
 
   verifySync (hash, plain) {
