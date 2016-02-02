@@ -4,6 +4,9 @@ const t = require('tap');
 const password = 'password';
 const salt = new Buffer('somesalt');
 
+const saltWithNull = new Buffer('\0abcdefghijklmno');
+const saltWithNullBase64 = 'AGFiY2RlZmdoaWprbG1ubw';
+
 const limits = argon2.limits;
 console.warn = () => {};
 
@@ -36,6 +39,17 @@ t.test('async hash with null in password', t => {
 
   return argon2.hash('pass\0word', salt).then(hash => {
     t.equal(hash, '$argon2i$m=4096,t=3,p=1$c29tZXNhbHQ$tcauj48oAe6NE/VLzTawLTQtmX848wkNs1d7z53ahNE');
+  });
+}).catch(t.threw);
+
+t.test('async hash with null in salt', t => {
+  'use strict';
+
+  t.plan(1);
+
+  return argon2.hash(password, saltWithNull).then(hash => {
+    const saltBase64 = hash.substring(24, 46);
+    t.equal(saltBase64, saltWithNullBase64);
   });
 }).catch(t.threw);
 
@@ -266,6 +280,15 @@ t.test('sync hash with null in password', t => {
 
   const hash = argon2.hashSync('pass\0word', salt);
   t.equal(hash, '$argon2i$m=4096,t=3,p=1$c29tZXNhbHQ$tcauj48oAe6NE/VLzTawLTQtmX848wkNs1d7z53ahNE');
+  t.end();
+});
+
+t.test('sync hash with null in salt', t => {
+  'use strict';
+
+  const hash = argon2.hashSync(password, saltWithNull);
+  const saltBase64 = hash.substring(24, 46);
+  t.equal(saltBase64, saltWithNullBase64);
   t.end();
 });
 
