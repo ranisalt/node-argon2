@@ -40,7 +40,10 @@ const validateInteger = (value, limits) => {
 const validate = (salt, options, reject) => {
   'use strict';
 
-  if (salt.length !== 16) {
+  if (!Buffer.isBuffer(salt)) {
+    fail('Invalid salt, must be a buffer.', reject);
+    return false;
+  } else if (salt.length !== 16) {
     fail('Invalid salt length, must be 16 bytes.', reject);
     return false;
   }
@@ -67,10 +70,6 @@ module.exports = {
   hash (plain, salt, options) {
     'use strict';
 
-    if (!Buffer.isBuffer(salt)) {
-      salt = new Buffer(salt);
-    }
-
     options = Object.assign({}, options);
 
     const promise = new Promise((resolve, reject) => {
@@ -91,10 +90,6 @@ module.exports = {
 
   hashSync (plain, salt, options) {
     'use strict';
-
-    if (!Buffer.isBuffer(salt)) {
-      salt = new Buffer(salt);
-    }
 
     options = Object.assign({}, options || defaults);
 

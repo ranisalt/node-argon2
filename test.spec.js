@@ -76,12 +76,24 @@ module.exports = {
     });
   },
 
+  testHashInvalidSalt (assert) {
+    'use strict';
+
+    assert.expect(2);
+
+    argon2.hash(password, 'stringsalt').catch((err) => {
+      assert.ok(err, 'Error should be defined.');
+      assert.equal(err.message, 'Invalid salt, must be a buffer.');
+      assert.done();
+    });
+  },
+
   testHashLongSalt (assert) {
     'use strict';
 
     assert.expect(2);
 
-    argon2.hash(password, 'somesaltwaytoobig').catch((err) => {
+    argon2.hash(password, new Buffer('somesaltwaytoobig')).catch((err) => {
       assert.ok(err, 'Error should be defined.');
       assert.equal(err.message, 'Invalid salt length, must be 16 bytes.');
       assert.done();
@@ -93,7 +105,7 @@ module.exports = {
 
     assert.expect(1);
 
-    argon2.hash(password, 'somesaltwaytoobig').catch((err) => {
+    argon2.hash(password, new Buffer('somesaltwaytoobig')).catch((err) => {
       assert.ok(err, 'Error should be defined.');
       assert.done();
     });
