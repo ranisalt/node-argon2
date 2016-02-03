@@ -9,8 +9,6 @@
 
 namespace {
 
-using std::uint32_t;
-
 const auto ENCODED_LEN = 108u;
 const auto HASH_LEN = 32u;
 const auto SALT_LEN = 16u;
@@ -31,7 +29,6 @@ private:
     uint32_t time_cost;
     uint32_t memory_cost;
     uint32_t parallelism;
-    std::string error;
     Argon2_type type;
     std::string output;
 };
@@ -40,8 +37,7 @@ HashAsyncWorker::HashAsyncWorker(Nan::Callback* callback,
         const std::string& plain, const std::string& salt, uint32_t time_cost,
         uint32_t memory_cost, uint32_t parallelism, Argon2_type type):
     Nan::AsyncWorker(callback), plain{plain}, salt{salt}, time_cost{time_cost},
-    memory_cost{memory_cost}, parallelism{parallelism}, error{}, type{type},
-    output{}
+    memory_cost{memory_cost}, parallelism{parallelism}, type{type}, output{}
 { }
 
 void HashAsyncWorker::Execute()
@@ -151,15 +147,12 @@ public:
 private:
     std::string hash;
     std::string plain;
-    std::string error;
     argon2_type type;
-    bool output;
 };
 
 VerifyAsyncWorker::VerifyAsyncWorker(Nan::Callback* callback,
         const std::string& hash, const std::string& plain, argon2_type type):
-    Nan::AsyncWorker(callback), hash{hash}, plain{plain}, error{}, type{type},
-    output{}
+    Nan::AsyncWorker(callback), hash{hash}, plain{plain}, type{type}
 { }
 
 void VerifyAsyncWorker::Execute()
