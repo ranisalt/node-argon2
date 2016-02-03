@@ -1,15 +1,14 @@
 #include <nan.h>
 #include <node.h>
 
-#include <cstdint>
+#include <stdint.h>
+
 #include <cstring>
 #include <string>
 
 #include "../argon2/include/argon2.h"
 
 namespace {
-
-using std::uint32_t;
 
 const auto ENCODED_LEN = 108u;
 const auto HASH_LEN = 32u;
