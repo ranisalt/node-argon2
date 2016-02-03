@@ -23,20 +23,7 @@ module.exports = {
     assert.done();
   },
 
-  testHashCallback (assert) {
-    'use strict';
-
-    assert.expect(3);
-
-    argon2.hash(password, salt, (err, hash) => {
-      assert.ok(hash, 'Hash should be defined.');
-      assert.equal(hash, '$argon2i$m=4096,t=3,p=1$c29tZXNhbHQAAAAAAAAAAA$FHF/OZ0GJpMRAlBmPTqXxw36Ftp87JllALZPcP9w9gs');
-      assert.equal(undefined, err);
-      assert.done();
-    });
-  },
-
-  testHashPromise (assert) {
+  testHash (assert) {
     'use strict';
 
     assert.expect(1);
@@ -50,14 +37,13 @@ module.exports = {
   testHashArgon2d (assert) {
     'use strict';
 
-    assert.expect(3);
+    assert.expect(2);
 
     argon2.hash(password, salt, {
       argon2d: true
-    }, (err, hash) => {
+    }).then((hash) => {
       assert.ok(hash, 'Hash should be defined.');
       assert.ok(/\$argon2d\$/.test(hash), 'Should have argon2d signature.');
-      assert.equal(undefined, err);
       assert.done();
     });
   },
@@ -65,14 +51,13 @@ module.exports = {
   testHashTruthyArgon2d (assert) {
     'use strict';
 
-    assert.expect(3);
+    assert.expect(2);
 
     argon2.hash(password, salt, {
       argon2d: 'foo'
-    }, (err, hash) => {
+    }).then((hash) => {
       assert.ok(hash, 'Hash should be defined.');
       assert.ok(/\$argon2d\$/.test(hash), 'Should have argon2d signature.');
-      assert.equal(undefined, err);
       assert.done();
     });
   },
@@ -80,14 +65,13 @@ module.exports = {
   testHashFalsyArgon2d (assert) {
     'use strict';
 
-    assert.expect(3);
+    assert.expect(2);
 
     argon2.hash(password, salt, {
       argon2d: ''
-    }, (err, hash) => {
+    }).then((hash) => {
       assert.ok(hash, 'Hash should be defined.');
       assert.ok(/\$argon2i\$/.test(hash), 'Should not have argon2d signature.');
-      assert.equal(undefined, err);
       assert.done();
     });
   },
@@ -95,17 +79,16 @@ module.exports = {
   testHashLongSalt (assert) {
     'use strict';
 
-    assert.expect(3);
+    assert.expect(2);
 
-    argon2.hash(password, 'somesaltwaytoobig', (err, hash) => {
+    argon2.hash(password, 'somesaltwaytoobig').catch((err) => {
       assert.ok(err, 'Error should be defined.');
       assert.equal(err.message, 'Invalid salt length, must be 16 bytes.');
-      assert.equal(undefined, hash);
       assert.done();
     });
   },
 
-  testHashPromiseFail (assert) {
+  testHashFail (assert) {
     'use strict';
 
     assert.expect(1);
@@ -119,14 +102,13 @@ module.exports = {
   testHashTimeCost (assert) {
     'use strict';
 
-    assert.expect(3);
+    assert.expect(2);
 
     argon2.hash(password, salt, {
       timeCost: 4
-    }, (err, hash) => {
+    }).then((hash) => {
       assert.ok(hash, 'Hash should be defined.');
       assert.ok(/t=4/.test(hash), 'Should have correct time cost.');
-      assert.equal(undefined, err);
       assert.done();
     });
   },
@@ -134,13 +116,12 @@ module.exports = {
   testHashInvalidTimeCost (assert) {
     'use strict';
 
-    assert.expect(2);
+    assert.expect(1);
 
     argon2.hash(password, salt, {
       timeCost: 'foo'
-    }, (err, hash) => {
+    }).catch((err) => {
       assert.ok(/invalid time cost, must be an integer/i.test(err.message));
-      assert.equal(undefined, hash);
       assert.done();
     });
   },
@@ -148,13 +129,12 @@ module.exports = {
   testHashLowTimeCost (assert) {
     'use strict';
 
-    assert.expect(2);
+    assert.expect(1);
 
     argon2.hash(password, salt, {
       timeCost: limits.timeCost.min - 1
-    }, (err, hash) => {
+    }).catch((err) => {
       assert.ok(/invalid time cost.+between \d+ and \d+/i.test(err.message));
-      assert.equal(undefined, hash);
       assert.done();
     });
   },
@@ -162,13 +142,12 @@ module.exports = {
   testHashHighTimeCost (assert) {
     'use strict';
 
-    assert.expect(2);
+    assert.expect(1);
 
     argon2.hash(password, salt, {
       timeCost: limits.timeCost.max + 1
-    }, (err, hash) => {
+    }).catch((err) => {
       assert.ok(/invalid time cost.+between \d+ and \d+/i.test(err.message));
-      assert.equal(undefined, hash);
       assert.done();
     });
   },
@@ -176,13 +155,12 @@ module.exports = {
   testHashMemoryCost (assert) {
     'use strict';
 
-    assert.expect(2);
+    assert.expect(1);
 
     argon2.hash(password, salt, {
       memoryCost: 13
-    }, (err, hash) => {
+    }).then((hash) => {
       assert.ok(/m=8192/.test(hash), 'Should have correct memory cost.');
-      assert.equal(undefined, err);
       assert.done();
     });
   },
@@ -190,13 +168,12 @@ module.exports = {
   testHashInvalidMemoryCost (assert) {
     'use strict';
 
-    assert.expect(2);
+    assert.expect(1);
 
     argon2.hash(password, salt, {
       memoryCost: 'foo'
-    }, (err, hash) => {
+    }).catch((err) => {
       assert.ok(/invalid memory cost, must be an integer/i.test(err.message));
-      assert.equal(undefined, hash);
       assert.done();
     });
   },
@@ -204,13 +181,12 @@ module.exports = {
   testHashLowMemoryCost (assert) {
     'use strict';
 
-    assert.expect(2);
+    assert.expect(1);
 
     argon2.hash(password, salt, {
       memoryCost: limits.memoryCost.min - 1
-    }, (err, hash) => {
+    }).catch((err) => {
       assert.ok(/invalid memory cost.+between \d+ and \d+/i.test(err.message));
-      assert.equal(undefined, hash);
       assert.done();
     });
   },
@@ -218,13 +194,12 @@ module.exports = {
   testHashHighMemoryCost (assert) {
     'use strict';
 
-    assert.expect(2);
+    assert.expect(1);
 
     argon2.hash(password, salt, {
       memoryCost: limits.memoryCost.max + 1
-    }, (err, hash) => {
+    }).catch((err) => {
       assert.ok(/invalid memory cost.+between \d+ and \d+/i.test(err.message));
-      assert.equal(undefined, hash);
       assert.done();
     });
   },
@@ -232,14 +207,12 @@ module.exports = {
   testHashParallelism (assert) {
     'use strict';
 
-    assert.expect(3);
+    assert.expect(1);
 
     argon2.hash(password, salt, {
       parallelism: 2
-    }, (err, hash) => {
-      assert.ok(hash, 'Hash should be defined.');
+    }).then((hash) => {
       assert.ok(/p=2/.test(hash), 'Should have correct parallelism.');
-      assert.equal(undefined, err);
       assert.done();
     });
   },
@@ -247,13 +220,12 @@ module.exports = {
   testHashInvalidParallelism (assert) {
     'use strict';
 
-    assert.expect(2);
+    assert.expect(1);
 
     argon2.hash(password, salt, {
       parallelism: 'foo'
-    }, (err, hash) => {
+    }).catch((err) => {
       assert.ok(/invalid parallelism, must be an integer/i.test(err.message));
-      assert.equal(undefined, hash);
       assert.done();
     });
   },
@@ -261,13 +233,12 @@ module.exports = {
   testHashLowParallelism (assert) {
     'use strict';
 
-    assert.expect(2);
+    assert.expect(1);
 
     argon2.hash(password, salt, {
       parallelism: limits.parallelism.min - 1
-    }, (err, hash) => {
+    }).catch((err) => {
       assert.ok(/invalid parallelism.+between \d+ and \d+/i.test(err.message));
-      assert.equal(undefined, hash);
       assert.done();
     });
   },
@@ -275,35 +246,17 @@ module.exports = {
   testHashHighParallelism (assert) {
     'use strict';
 
-    assert.expect(2);
+    assert.expect(1);
 
     argon2.hash(password, salt, {
       parallelism: limits.parallelism.max + 1
-    }, (err, hash) => {
+    }).catch((err) => {
       assert.ok(/invalid parallelism.+between \d+ and \d+/i.test(err.message));
-      assert.equal(undefined, hash);
       assert.done();
     });
   },
 
   testHashAllOptions (assert) {
-    'use strict';
-
-    assert.expect(3);
-
-    argon2.hash(password, salt, {
-      timeCost: 4,
-      memoryCost: 13,
-      parallelism: 2
-    }, (err, hash) => {
-      assert.ok(hash, 'Hash should be defined.');
-      assert.ok(/m=8192,t=4,p=2/.test(hash), 'Should have correct options.');
-      assert.equal(undefined, err);
-      assert.done();
-    });
-  },
-
-  testHashOptionsPromise (assert) {
     'use strict';
 
     assert.expect(2);
@@ -543,19 +496,7 @@ module.exports = {
     assert.done();
   },
 
-  testGenerateSaltCallback (assert) {
-    'use strict';
-
-    assert.expect(2);
-
-    argon2.generateSalt((err, salt) => {
-      assert.equal(undefined, err);
-      assert.ok(salt.length <= 16);
-      assert.done();
-    });
-  },
-
-  testGenerateSaltPromise (assert) {
+  testGenerateSalt (assert) {
     'use strict';
 
     assert.expect(1);
@@ -575,24 +516,7 @@ module.exports = {
     assert.done();
   },
 
-  testVerifyOkCallback (assert) {
-    'use strict';
-
-    assert.expect(1);
-
-    argon2.generateSalt().then((salt) => {
-      argon2.hash(password, salt, {
-        argon2d: true
-      }).then((hash) => {
-        argon2.verify(hash, password, (err) => {
-          assert.equal(undefined, err);
-          assert.done();
-        });
-      });
-    });
-  },
-
-  testVerifyOkPromise (assert) {
+  testVerifyOk (assert) {
     'use strict';
 
     assert.expect(0);
@@ -604,24 +528,7 @@ module.exports = {
     });
   },
 
-  testVerifyFailCallback (assert) {
-    'use strict';
-
-    assert.expect(1);
-
-    argon2.generateSalt().then((salt) => {
-      argon2.hash(password, salt, {
-        argon2d: true
-      }).then((hash) => {
-        argon2.verify(hash, 'passwolrd', (err) => {
-          assert.ok(err, 'Error should be defined.');
-          assert.done();
-        });
-      });
-    });
-  },
-
-  testVerifyFailPromise (assert) {
+  testVerifyFail (assert) {
     'use strict';
 
     assert.expect(1);

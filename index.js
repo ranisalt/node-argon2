@@ -16,17 +16,17 @@ const defineValue = (value, def) => {
   return (typeof value === 'undefined') ? def : value;
 };
 
-const fail = (message, callback) => {
+const fail = (message, reject) => {
   'use strict';
 
   const error = new Error(message);
 
-  if (typeof callback === 'undefined') {
-    throw error;
-  } else {
+  if (typeof reject === 'function') {
     process.nextTick(() => {
-      callback(error, null);
+      reject(error);
     });
+  } else {
+    throw error;
   }
 };
 
@@ -36,11 +36,12 @@ const validateInteger = (value, limits) => {
   return Number.isInteger(value) && value <= limits.max && value >= limits.min;
 };
 
-const validate = (salt, options, callback) => {
+
+const validate = (salt, options, reject) => {
   'use strict';
 
   if (salt.length !== 16) {
-    fail('Invalid salt length, must be 16 bytes.', callback);
+    fail('Invalid salt length, must be 16 bytes.', reject);
     return false;
   }
 
@@ -63,16 +64,11 @@ const validate = (salt, options, callback) => {
 module.exports = {
   defaults, limits,
 
-  hash (plain, salt, options, callback) {
+  hash (plain, salt, options) {
     'use strict';
 
     if (!Buffer.isBuffer(salt)) {
       salt = new Buffer(salt);
-    }
-
-    if (typeof options === 'function') {
-      callback = options;
-      options = defaults;
     }
 
     options = Object.assign({}, options);
@@ -90,13 +86,7 @@ module.exports = {
       }
     });
 
-    if (typeof callback === 'function') {
-      promise
-        .then((hash) => callback(undefined, hash))
-        .catch((error) => callback(error, null));
-    } else {
-      return promise;
-    }
+    return promise;
   },
 
   hashSync (plain, salt, options) {
@@ -114,7 +104,7 @@ module.exports = {
     }
   },
 
-  generateSalt (callback) {
+  generateSalt () {
     'use strict';
 
     const promise = new Promise((resolve, reject) => {
@@ -127,13 +117,7 @@ module.exports = {
       });
     });
 
-    if (typeof callback === 'function') {
-      promise
-        .then((hash) => callback(undefined, hash))
-        .catch((error) => callback(error, null));
-    } else {
-      return promise;
-    }
+    return promise;
   },
 
   generateSaltSync () {
@@ -142,7 +126,7 @@ module.exports = {
     return crypto.randomBytes(16);
   },
 
-  verify (hash, plain, callback) {
+  verify (hash, plain) {
     'use strict';
 
     const promise = new Promise((resolve, reject) => {
@@ -155,13 +139,7 @@ module.exports = {
       });
     });
 
-    if (typeof callback === 'function') {
-      promise
-        .then((hash) => callback(undefined, hash))
-        .catch((error) => callback(error, null));
-    } else {
-      return promise;
-    }
+    return promise;
   },
 
   verifySync (hash, plain) {
