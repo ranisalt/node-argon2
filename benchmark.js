@@ -1,6 +1,6 @@
-const argon2 = require('./'),
-  async = require('async'),
-  benchmark = require('async-benchmark');
+const argon2 = require('./');
+const async = require('async');
+const benchmark = require('async-benchmark');
 
 const password = 'password';
 const salt = argon2.generateSaltSync();
@@ -14,32 +14,24 @@ const fixtures = [{
   func: (done) => { argon2.hashSync(password, salt); done(); }
 }, {
   name: 'argon2#hashTimeCost',
-  func: function (done) {
-    argon2.hash(password, salt, {
+  func: (done) => { argon2.hash(password, salt, {
       timeCost: argon2.defaults.timeCost + 3
-    }, done);
-  }
+    }, done); }
 }, {
   name: 'argon2#hashMemoryCost',
-  func: function (done) {
-    argon2.hash(password, salt, {
+  func: (done) => { argon2.hash(password, salt, {
       memoryCost: argon2.defaults.memoryCost + 3
-    }, done);
-  }
+    }, done); }
 }, {
   name: 'argon2#hashParallelism',
-  func: function (done) {
-    argon2.hash(password, salt, {
+  func: (done) => { argon2.hash(password, salt, {
       parallelism: argon2.defaults.parallelism + 3
-    }, done);
-  }
+    }, done); }
 }, {
   name: 'argon2#hashArgon2d',
-  func: function (done) {
-    argon2.hash(password, salt, {
+  func: (done) => { argon2.hash(password, salt, {
       argon2d: true
-    }, done);
-  }
+    }, done); }
 }, {
   name: 'argon2#verify',
   func: (done) => argon2.verify(hash, password, done)
@@ -55,8 +47,8 @@ const fixtures = [{
 }];
 
 async.eachSeries(fixtures, (item, callback) => {
-  benchmark(item.name, (done) => item.func(done), (err, event) => {
-    console.log(event.target.toString());
+  benchmark(item.name, (done) => item.func(done), (err, ev) => {
+    console.log(ev.target.toString());
     callback(err);
   });
 }, (err) => {
