@@ -83,6 +83,7 @@ module.exports = {
   hashSync (plain, salt, options) {
     'use strict';
 
+    console.warn('The synchronous API is deprecated, use ES6 await instead.');
     options = Object.assign({}, options || defaults);
 
     if (validate(salt, options)) {
@@ -110,6 +111,7 @@ module.exports = {
   generateSaltSync () {
     'use strict';
 
+    console.warn('The synchronous API is deprecated, use ES6 await instead.');
     return crypto.randomBytes(16);
   },
 
@@ -122,6 +124,7 @@ module.exports = {
   verifySync (hash, plain) {
     'use strict';
 
+    console.warn('The synchronous API is deprecated, use ES6 await instead.');
     return bindings.verifySync(hash, plain, /argon2d/.test(hash));
   }
 };
