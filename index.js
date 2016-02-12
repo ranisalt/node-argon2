@@ -8,6 +8,14 @@ const defaults = Object.freeze({
   argon2d: false
 });
 
+const limits = Object.freeze(bindings.limits);
+
+const defineValue = (value, def) => {
+  'use strict';
+
+  return (typeof value === 'undefined') ? def : value;
+};
+
 const fail = (message, callback) => {
   'use strict';
 
@@ -22,6 +30,12 @@ const fail = (message, callback) => {
   }
 };
 
+const validateInteger = (value, limits) => {
+  'use strict';
+
+  return Number.isInteger(value) && value <= limits.max && value >= limits.min;
+};
+
 const validate = (salt, options, callback) => {
   'use strict';
 
@@ -30,41 +44,15 @@ const validate = (salt, options, callback) => {
     return false;
   }
 
-  for (const key of Object.keys(defaults)) {
-    options[key] = options[key] || defaults[key];
-  }
+  for (const key of Object.keys(limits)) {
+    options[key] = defineValue(options[key], defaults[key]);
 
-  if (isNaN(options.timeCost)) {
-    fail('Invalid time cost, must be a number.', callback);
-    return false;
-  } else if (options.timeCost <= 0) {
-    fail('Time cost too low, minimum of 1.', callback);
-    return false;
-  } else if (options.timeCost >= 4294967296) {
-    fail('Time cost too high, maximum of 4294967295.', callback);
-    return false;
-  }
-
-  if (isNaN(options.memoryCost)) {
-    fail('Invalid memory cost, must be a number.', callback);
-    return false;
-  } else if (options.memoryCost <= 0) {
-    fail('Memory cost too low, minimum of 1.', callback);
-    return false;
-  } else if (options.memoryCost >= 32) {
-    fail('Memory cost too high, maximum of 31.', callback);
-    return false;
-  }
-
-  if (isNaN(options.parallelism)) {
-    fail('Invalid parallelism, must be a number.', callback);
-    return false;
-  } else if (options.parallelism <= 0) {
-    fail('Parallelism too low, minimum of 1.', callback);
-    return false;
-  } else if (options.parallelism >= 4294967296) {
-    fail('Parallelism too high, maximum of 4294967295.', callback);
-    return false;
+    const current = limits[key];
+    if (!validateInteger(options[key], current)) {
+      fail(`Invalid ${current.description}, must be an integer between `
+        + `${current.min} and ${current.max}.`, callback);
+      return false;
+    }
   }
 
   options.argon2d = !!options.argon2d;
@@ -73,7 +61,7 @@ const validate = (salt, options, callback) => {
 };
 
 module.exports = {
-  defaults,
+  defaults, limits,
 
   hash (plain, salt, options, callback) {
     'use strict';

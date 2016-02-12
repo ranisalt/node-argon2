@@ -6,6 +6,8 @@ const password = 'password';
 const salt = new Buffer(16);
 salt.fill(0).write('somesalt');
 
+const limits = argon2.limits;
+
 module.exports = {
   testDefaults  (assert) {
     'use strict';
@@ -110,13 +112,12 @@ module.exports = {
   testHashInvalidTimeCost (assert) {
     'use strict';
 
-    assert.expect(3);
+    assert.expect(2);
 
     argon2.hash(password, salt, {
       timeCost: 'foo'
     }, (err, hash) => {
-      assert.ok(err, 'Error should be defined.');
-      assert.equal(err.message, 'Invalid time cost, must be a number.');
+      assert.ok(/invalid time cost, must be an integer/i.test(err.message));
       assert.equal(undefined, hash);
       assert.done();
     });
@@ -125,13 +126,12 @@ module.exports = {
   testHashLowTimeCost (assert) {
     'use strict';
 
-    assert.expect(3);
+    assert.expect(2);
 
     argon2.hash(password, salt, {
-      timeCost: -4294967290
+      timeCost: limits.timeCost.min - 1
     }, (err, hash) => {
-      assert.ok(err, 'Error should be defined.');
-      assert.equal(err.message, 'Time cost too low, minimum of 1.');
+      assert.ok(/invalid time cost.+between \d+ and \d+/i.test(err.message));
       assert.equal(undefined, hash);
       assert.done();
     });
@@ -140,13 +140,12 @@ module.exports = {
   testHashHighTimeCost (assert) {
     'use strict';
 
-    assert.expect(3);
+    assert.expect(2);
 
     argon2.hash(password, salt, {
-      timeCost: 4294967297
+      timeCost: limits.timeCost.max + 1
     }, (err, hash) => {
-      assert.ok(err, 'Error should be defined.');
-      assert.equal(err.message, 'Time cost too high, maximum of 4294967295.');
+      assert.ok(/invalid time cost.+between \d+ and \d+/i.test(err.message));
       assert.equal(undefined, hash);
       assert.done();
     });
@@ -155,12 +154,11 @@ module.exports = {
   testHashMemoryCost (assert) {
     'use strict';
 
-    assert.expect(3);
+    assert.expect(2);
 
     argon2.hash(password, salt, {
       memoryCost: 13
     }, (err, hash) => {
-      assert.ok(hash, 'Hash should be defined.');
       assert.ok(/m=8192/.test(hash), 'Should have correct memory cost.');
       assert.equal(undefined, err);
       assert.done();
@@ -170,13 +168,12 @@ module.exports = {
   testHashInvalidMemoryCost (assert) {
     'use strict';
 
-    assert.expect(3);
+    assert.expect(2);
 
     argon2.hash(password, salt, {
       memoryCost: 'foo'
     }, (err, hash) => {
-      assert.ok(err, 'Error should be defined.');
-      assert.equal(err.message, 'Invalid memory cost, must be a number.');
+      assert.ok(/invalid memory cost, must be an integer/i.test(err.message));
       assert.equal(undefined, hash);
       assert.done();
     });
@@ -185,13 +182,12 @@ module.exports = {
   testHashLowMemoryCost (assert) {
     'use strict';
 
-    assert.expect(3);
+    assert.expect(2);
 
     argon2.hash(password, salt, {
-      memoryCost: -4294967290
+      memoryCost: limits.memoryCost.min - 1
     }, (err, hash) => {
-      assert.ok(err, 'Error should be defined.');
-      assert.equal(err.message, 'Memory cost too low, minimum of 1.');
+      assert.ok(/invalid memory cost.+between \d+ and \d+/i.test(err.message));
       assert.equal(undefined, hash);
       assert.done();
     });
@@ -200,13 +196,12 @@ module.exports = {
   testHashHighMemoryCost (assert) {
     'use strict';
 
-    assert.expect(3);
+    assert.expect(2);
 
     argon2.hash(password, salt, {
-      memoryCost: 32
+      memoryCost: limits.memoryCost.max + 1
     }, (err, hash) => {
-      assert.ok(err, 'Error should be defined.');
-      assert.equal(err.message, 'Memory cost too high, maximum of 31.');
+      assert.ok(/invalid memory cost.+between \d+ and \d+/i.test(err.message));
       assert.equal(undefined, hash);
       assert.done();
     });
@@ -230,13 +225,12 @@ module.exports = {
   testHashInvalidParallelism (assert) {
     'use strict';
 
-    assert.expect(3);
+    assert.expect(2);
 
     argon2.hash(password, salt, {
       parallelism: 'foo'
     }, (err, hash) => {
-      assert.ok(err, 'Error should be defined.');
-      assert.equal(err.message, 'Invalid parallelism, must be a number.');
+      assert.ok(/invalid parallelism, must be an integer/i.test(err.message));
       assert.equal(undefined, hash);
       assert.done();
     });
@@ -245,13 +239,12 @@ module.exports = {
   testHashLowParallelism (assert) {
     'use strict';
 
-    assert.expect(3);
+    assert.expect(2);
 
     argon2.hash(password, salt, {
-      parallelism: -4294967290
+      parallelism: limits.parallelism.min - 1
     }, (err, hash) => {
-      assert.ok(err, 'Error should be defined.');
-      assert.equal(err.message, 'Parallelism too low, minimum of 1.');
+      assert.ok(/invalid parallelism.+between \d+ and \d+/i.test(err.message));
       assert.equal(undefined, hash);
       assert.done();
     });
@@ -260,13 +253,12 @@ module.exports = {
   testHashHighParallelism (assert) {
     'use strict';
 
-    assert.expect(3);
+    assert.expect(2);
 
     argon2.hash(password, salt, {
-      parallelism: 4294967297
+      parallelism: limits.parallelism.max + 1
     }, (err, hash) => {
-      assert.ok(err, 'Error should be defined.');
-      assert.equal(err.message, 'Parallelism too high, maximum of 4294967295.');
+      assert.ok(/invalid parallelism.+between \d+ and \d+/i.test(err.message));
       assert.equal(undefined, hash);
       assert.done();
     });
@@ -356,7 +348,7 @@ module.exports = {
       argon2.hashSync(password, salt, {
         timeCost: 'foo'
       });
-    }, /invalid/i);
+    }, /invalid time cost.+must be an integer/i);
     assert.done();
   },
 
@@ -367,9 +359,9 @@ module.exports = {
 
     assert.throws(() => {
       argon2.hashSync(password, salt, {
-        timeCost: -4294967290
+        timeCost: limits.timeCost.min - 1
       });
-    }, /too low/);
+    }, /invalid time cost.+between \d+ and \d+/i);
     assert.done();
   },
 
@@ -380,9 +372,9 @@ module.exports = {
 
     assert.throws(() => {
       argon2.hashSync(password, salt, {
-        timeCost: 4294967297
+        timeCost: limits.timeCost.max + 1
       });
-    }, /too high/);
+    }, /invalid time cost.+between \d+ and \d+/i);
     assert.done();
   },
 
@@ -407,7 +399,7 @@ module.exports = {
       argon2.hashSync(password, salt, {
         memoryCost: 'foo'
       });
-    }, /invalid/i);
+    }, /invalid memory cost, must be an integer/i);
     assert.done();
   },
 
@@ -418,9 +410,9 @@ module.exports = {
 
     assert.throws(() => {
       argon2.hashSync(password, salt, {
-        memoryCost: -4294967290
+        memoryCost: limits.memoryCost.min - 1
       });
-    }, /too low/);
+    }, /invalid memory cost.+between \d+ and \d+/i);
     assert.done();
   },
 
@@ -431,9 +423,9 @@ module.exports = {
 
     assert.throws(() => {
       argon2.hashSync(password, salt, {
-        memoryCost: 32
+        memoryCost: limits.memoryCost.max + 1
       });
-    }, /too high/);
+    }, /invalid memory cost.+between \d+ and \d+/i);
     assert.done();
   },
 
@@ -458,7 +450,7 @@ module.exports = {
       argon2.hashSync(password, salt, {
         parallelism: 'foo'
       });
-    }, /invalid/i);
+    }, /invalid parallelism, must be an integer/i);
     assert.done();
   },
 
@@ -469,9 +461,9 @@ module.exports = {
 
     assert.throws(() => {
       argon2.hashSync(password, salt, {
-        parallelism: -4294967290
+        parallelism: limits.parallelism.min - 1
       });
-    }, /too low/);
+    }, /invalid parallelism.+between \d+ and \d+/i);
     assert.done();
   },
 
@@ -482,9 +474,9 @@ module.exports = {
 
     assert.throws(() => {
       argon2.hashSync(password, salt, {
-        parallelism: 4294967297
+        parallelism: limits.parallelism.max + 1
       });
-    }, /too high/);
+    }, /invalid parallelism.+between \d+ and \d+/i);
     assert.done();
   },
 

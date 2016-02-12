@@ -209,9 +209,62 @@ NAN_METHOD(VerifySync) {
     info.GetReturnValue().Set(result == ARGON2_OK);
 }
 
+template<std::size_t Number, std::size_t Base = 2u>
+struct Logarithm {
+    enum { value = 1u + Logarithm<Number / Base, Base>::value };
+};
+
+template<std::size_t Base>
+struct Logarithm<1u, Base> {
+    enum { value = 0u };
+};
+
 }
 
 NAN_MODULE_INIT(init) {
+    using v8::Number;
+    using v8::Object;
+    using v8::String;
+
+    auto limits = Nan::New<Object>();
+
+    {
+        auto memoryCost = Nan::New<Object>();
+        Nan::Set(memoryCost, Nan::New<String>("description").ToLocalChecked(),
+                Nan::New<String>("memory cost").ToLocalChecked());
+        Nan::Set(memoryCost, Nan::New<String>("max").ToLocalChecked(),
+                Nan::New<Number>(Logarithm<ARGON2_MAX_MEMORY>::value));
+        Nan::Set(memoryCost, Nan::New<String>("min").ToLocalChecked(),
+                Nan::New<Number>(Logarithm<ARGON2_MIN_MEMORY>::value));
+        Nan::Set(limits, Nan::New<String>("memoryCost").ToLocalChecked(),
+                memoryCost);
+    }
+
+    {
+        auto timeCost = Nan::New<Object>();
+        Nan::Set(timeCost, Nan::New<String>("description").ToLocalChecked(),
+                Nan::New<String>("time cost").ToLocalChecked());
+        Nan::Set(timeCost, Nan::New<String>("max").ToLocalChecked(),
+                Nan::New<Number>(ARGON2_MAX_TIME));
+        Nan::Set(timeCost, Nan::New<String>("min").ToLocalChecked(),
+                Nan::New<Number>(ARGON2_MIN_TIME));
+        Nan::Set(limits, Nan::New<String>("timeCost").ToLocalChecked(),
+                timeCost);
+    }
+
+    {
+        auto parallelism = Nan::New<Object>();
+        Nan::Set(parallelism, Nan::New<String>("description").ToLocalChecked(),
+                Nan::New<String>("parallelism").ToLocalChecked());
+        Nan::Set(parallelism, Nan::New<String>("max").ToLocalChecked(),
+                Nan::New<Number>(ARGON2_MAX_LANES));
+        Nan::Set(parallelism, Nan::New<String>("min").ToLocalChecked(),
+                Nan::New<Number>(ARGON2_MIN_LANES));
+        Nan::Set(limits, Nan::New<String>("parallelism").ToLocalChecked(),
+                parallelism);
+    }
+
+    Nan::Set(target, Nan::New<String>("limits").ToLocalChecked(), limits);
     Nan::Export(target, "hash", Hash);
     Nan::Export(target, "hashSync", HashSync);
     Nan::Export(target, "verify", Verify);
