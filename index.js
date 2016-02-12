@@ -36,8 +36,7 @@ const validateInteger = (value, limits) => {
   return Number.isInteger(value) && value <= limits.max && value >= limits.min;
 };
 
-
-const validate = (salt, options, reject) => {
+const validate = (salt, options, resolve, reject) => {
   'use strict';
 
   if (!Buffer.isBuffer(salt)) {
@@ -53,13 +52,17 @@ const validate = (salt, options, reject) => {
 
     const current = limits[key];
     if (!validateInteger(options[key], current)) {
-      fail(`Invalid ${current.description}, must be an integer between `
-        + `${current.min} and ${current.max}.`, callback);
+      fail(`Invalid ${current.description}, must be an integer between ` +
+        `${current.min} and ${current.max}.`, reject);
       return false;
     }
   }
 
   options.argon2d = !!options.argon2d;
+
+  if (typeof resolve === 'function') {
+    resolve();
+  }
 
   return true;
 };
@@ -70,22 +73,11 @@ module.exports = {
   hash (plain, salt, options) {
     'use strict';
 
-    options = Object.assign({}, options);
+    options = Object.assign({}, options || defaults);
 
-    const promise = new Promise((resolve, reject) => {
-      if (validate(salt, options, reject)) {
-        bindings.hash(plain, salt, options.timeCost, options.memoryCost,
-          options.parallelism, options.argon2d, (err, hash) => {
-            if (err) {
-              reject(err);
-            } else {
-              resolve(hash);
-            }
-          });
-      }
-    });
-
-    return promise;
+    return new Promise(validate.bind(this, salt, options))
+      .then(() => bindings.hash(plain, salt, options.timeCost,
+          options.memoryCost, options.parallelism, options.argon2d));
   },
 
   hashSync (plain, salt, options) {
@@ -124,17 +116,7 @@ module.exports = {
   verify (hash, plain) {
     'use strict';
 
-    const promise = new Promise((resolve, reject) => {
-      bindings.verify(hash, plain, /argon2d/.test(hash), (err) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve();
-        }
-      });
-    });
-
-    return promise;
+    return bindings.verify(hash, plain, /argon2d/.test(hash));
   },
 
   verifySync (hash, plain) {

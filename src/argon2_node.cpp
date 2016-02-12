@@ -13,15 +13,17 @@ const auto ENCODED_LEN = 108u;
 const auto HASH_LEN = 32u;
 const auto SALT_LEN = 16u;
 
-class HashAsyncWorker : public Nan::AsyncWorker {
+class HashAsyncWorker final : public Nan::AsyncWorker {
 public:
-    HashAsyncWorker(Nan::Callback* callback, const std::string& plain,
-            const std::string& salt, uint32_t time_cost, uint32_t memory_cost,
-            uint32_t parallelism, argon2_type type);
+    HashAsyncWorker(const std::string& plain, const std::string& salt,
+            uint32_t time_cost, uint32_t memory_cost, uint32_t parallelism,
+            Argon2_type type);
 
-    void Execute();
+    void Execute() override;
 
-    void HandleOKCallback();
+    void HandleOKCallback() override;
+
+    void HandleErrorCallback() override;
 
 private:
     std::string plain;
@@ -33,10 +35,10 @@ private:
     std::string output;
 };
 
-HashAsyncWorker::HashAsyncWorker(Nan::Callback* callback,
-        const std::string& plain, const std::string& salt, uint32_t time_cost,
-        uint32_t memory_cost, uint32_t parallelism, Argon2_type type):
-    Nan::AsyncWorker(callback), plain{plain}, salt{salt}, time_cost{time_cost},
+HashAsyncWorker::HashAsyncWorker(const std::string& plain,
+        const std::string& salt, uint32_t time_cost, uint32_t memory_cost,
+        uint32_t parallelism, Argon2_type type):
+    Nan::AsyncWorker{nullptr}, plain{plain}, salt{salt}, time_cost{time_cost},
     memory_cost{memory_cost}, parallelism{parallelism}, type{type}, output{}
 { }
 
@@ -57,28 +59,35 @@ void HashAsyncWorker::Execute()
 
 void HashAsyncWorker::HandleOKCallback()
 {
-    using v8::Local;
-    using v8::Value;
+    using v8::Promise;
 
     Nan::HandleScope scope;
 
-    Local <Value> argv[] = {
-        Nan::Undefined(), Nan::Encode(output.c_str(), output.size(), Nan::BINARY)
-    };
+    auto promise = GetFromPersistent("resolver").As<Promise::Resolver>();
+    promise->Resolve(Nan::Encode(output.c_str(), output.size()));
+}
 
-    callback->Call(2, argv);
+void HashAsyncWorker::HandleErrorCallback()
+{
+    using v8::Exception;
+    using v8::Promise;
+    using v8::String;
+
+    Nan::HandleScope scope;
+
+    auto promise = GetFromPersistent("resolver").As<Promise::Resolver>();
+    promise->Reject(Nan::New<String>(ErrorMessage()).ToLocalChecked());
 }
 
 NAN_METHOD(Hash) {
     using namespace node;
-    using v8::Function;
-    using v8::Local;
+    using v8::Promise;
 
     Nan::HandleScope scope;
 
-    if (info.Length() < 7) {
+    if (info.Length() < 6) {
         /* LCOV_EXCL_START */
-        Nan::ThrowTypeError("7 arguments expected");
+        Nan::ThrowTypeError("6 arguments expected");
         return;
         /* LCOV_EXCL_STOP */
     }
@@ -89,14 +98,17 @@ NAN_METHOD(Hash) {
     auto memory_cost = info[3]->Uint32Value();
     auto parallelism = info[4]->Uint32Value();
     argon2_type type = info[5]->BooleanValue() ? Argon2_d : Argon2_i;
-    Local<Function> callback = Local<Function>::Cast(info[6]);
 
     auto salt = std::string(Buffer::Data(raw_salt), SALT_LEN);
 
-    auto worker = new HashAsyncWorker(new Nan::Callback(callback), *plain, salt,
-            time_cost, 1 << memory_cost, parallelism, type);
+    auto worker = new HashAsyncWorker{*plain, salt, time_cost,
+        1u << memory_cost, parallelism, type};
+
+    auto resolver = Promise::Resolver::New(info.GetIsolate());
+    worker->SaveToPersistent("resolver", resolver);
 
     Nan::AsyncQueueWorker(worker);
+    info.GetReturnValue().Set(resolver->GetPromise());
 }
 
 NAN_METHOD(HashSync) {
@@ -137,12 +149,16 @@ NAN_METHOD(HashSync) {
             Nan::BINARY));
 }
 
-class VerifyAsyncWorker : public Nan::AsyncWorker {
+class VerifyAsyncWorker final : public Nan::AsyncWorker {
 public:
-    VerifyAsyncWorker(Nan::Callback* callback, const std::string& hash,
-            const std::string& plain, argon2_type type);
+    VerifyAsyncWorker(const std::string& hash, const std::string& plain,
+            argon2_type type);
 
-    void Execute();
+    void Execute() override;
+
+    void HandleOKCallback() override;
+
+    void HandleErrorCallback() override;
 
 private:
     std::string hash;
@@ -150,9 +166,9 @@ private:
     argon2_type type;
 };
 
-VerifyAsyncWorker::VerifyAsyncWorker(Nan::Callback* callback,
-        const std::string& hash, const std::string& plain, argon2_type type):
-    Nan::AsyncWorker(callback), hash{hash}, plain{plain}, type{type}
+VerifyAsyncWorker::VerifyAsyncWorker(const std::string& hash,
+        const std::string& plain, argon2_type type):
+    Nan::AsyncWorker{nullptr}, hash{hash}, plain{plain}, type{type}
 { }
 
 void VerifyAsyncWorker::Execute()
@@ -160,13 +176,34 @@ void VerifyAsyncWorker::Execute()
     auto result = argon2_verify(hash.c_str(), plain.c_str(), plain.size(), type);
 
     if (result != ARGON2_OK) {
-        SetErrorMessage("The password did not match.");
+        SetErrorMessage(argon2_error_message(result));
     }
 }
 
+void VerifyAsyncWorker::HandleOKCallback()
+{
+    using v8::Promise;
+
+    Nan::HandleScope scope;
+
+    auto promise = GetFromPersistent("resolver").As<Promise::Resolver>();
+    promise->Resolve(Nan::Undefined());
+}
+
+void VerifyAsyncWorker::HandleErrorCallback()
+{
+    using v8::Exception;
+    using v8::Promise;
+    using v8::String;
+
+    Nan::HandleScope scope;
+
+    auto promise = GetFromPersistent("resolver").As<Promise::Resolver>();
+    promise->Reject(Nan::New<String>(ErrorMessage()).ToLocalChecked());
+}
+
 NAN_METHOD(Verify) {
-    using v8::Function;
-    using v8::Local;
+    using v8::Promise;
 
     Nan::HandleScope scope;
 
@@ -180,12 +217,14 @@ NAN_METHOD(Verify) {
     Nan::Utf8String hash{info[0]->ToString()};
     Nan::Utf8String plain{info[1]->ToString()};
     argon2_type type = info[2]->BooleanValue() ? Argon2_d : Argon2_i;
-    Local<Function> callback = Local<Function>::Cast(info[3]);
 
-    auto worker = new VerifyAsyncWorker(new Nan::Callback(callback), *hash,
-            *plain, type);
+    auto worker = new VerifyAsyncWorker(*hash, *plain, type);
+
+    auto resolver = Promise::Resolver::New(info.GetIsolate());
+    worker->SaveToPersistent("resolver", resolver);
 
     Nan::AsyncQueueWorker(worker);
+    info.GetReturnValue().Set(resolver->GetPromise());
 }
 
 NAN_METHOD(VerifySync) {
