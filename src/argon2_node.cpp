@@ -76,7 +76,8 @@ void HashAsyncWorker::HandleErrorCallback()
     Nan::HandleScope scope;
 
     auto promise = GetFromPersistent("resolver").As<Promise::Resolver>();
-    promise->Reject(Nan::New<String>(ErrorMessage()).ToLocalChecked());
+    auto reason = Nan::New<String>(ErrorMessage()).ToLocalChecked();
+    promise->Reject(Exception::Error(reason));
 }
 
 NAN_METHOD(Hash) {
