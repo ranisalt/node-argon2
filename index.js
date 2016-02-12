@@ -106,11 +106,12 @@ module.exports = {
     return promise;
   },
 
-  generateSaltSync () {
+  generateSaltSync (length) {
     'use strict';
 
     console.warn('The synchronous API is deprecated, use ES6 await instead.');
-    return crypto.randomBytes(16);
+    length = typeof length === 'undefined' ? 16 : length;
+    return crypto.randomBytes(length);
   },
 
   verify (hash, plain) {

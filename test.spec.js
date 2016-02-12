@@ -489,7 +489,18 @@ module.exports = {
     assert.expect(1);
 
     argon2.generateSalt().then((salt) => {
-      assert.ok(salt.length <= 16);
+      assert.equal(salt.length, 16);
+      assert.done();
+    });
+  },
+
+  testGenerateSaltLength (assert) {
+    'use strict';
+
+    assert.expect(1);
+
+    argon2.generateSalt(32).then((salt) => {
+      assert.equal(salt.length, 32);
       assert.done();
     });
   },
@@ -499,7 +510,16 @@ module.exports = {
 
     assert.expect(1);
 
-    assert.ok(argon2.generateSaltSync().length <= 16);
+    assert.equal(argon2.generateSaltSync().length, 16);
+    assert.done();
+  },
+
+  testGenerateSaltSyncLength (assert) {
+    'use strict';
+
+    assert.expect(1);
+
+    assert.equal(argon2.generateSaltSync(32).length, 32);
     assert.done();
   },
 
