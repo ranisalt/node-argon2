@@ -1,5 +1,5 @@
 # node-argon2 [![NPM package][npm-image]][npm-url] [![Build status][travis-image]][travis-url] [![Coverage status][coverage-image]][coverage-url] [![Code Quality][codequality-image]][codequality-url] [![Dependencies][david-dm-image]][david-dm-url]
-Bindings to the  reference [Argon2](https://github.com/P-H-C/phc-winner-argon2)
+Bindings to the reference [Argon2](https://github.com/P-H-C/phc-winner-argon2)
 implementation.
 
 ### Before installing
@@ -13,8 +13,8 @@ cryptographically-safe salts. Salts **must** be exactly 16-byte long buffers.
 
 To hash a password:
 ```js
-var argon2 = require('argon2');
-var salt = new Buffer('somesaltwith16ch');
+const argon2 = require('argon2');
+const salt = new Buffer('somesalt');
 
 argon2.hash('password', salt).then(hash => {
   // ...
@@ -25,9 +25,17 @@ argon2.hash('password', salt).then(hash => {
 // OR
 
 try {
-  var hash = argon2.hashSync('password', salt);
+  const hash = argon2.hashSync('password', salt);
 } catch (err) {
-  console.log(err);
+  //...
+}
+
+// ES6
+
+try {
+  const hash = await argon2.hash('password', salt);
+} catch (err) {
+  //...
 }
 ```
 Resultant hashes will be 90 characters long. You can choose between Argon2i and
@@ -43,7 +51,17 @@ argon2.hash('password', salt, {
 // OR
 
 try {
-  var hash = argon2.hashSync('password', salt, {
+  const hash = argon2.hashSync('password', salt, {
+    argon2d: true
+  });
+} catch (err) {
+  // ...
+}
+
+// ES6
+
+try {
+  const hash = await argon2.hash('password', salt, {
     argon2d: true
   });
 } catch (err) {
@@ -63,7 +81,27 @@ argon2.generateSalt().then(salt => {
 // OR
 
 var salt = argon2.generateSaltSync();
+
+// ES6
+
+const salt = await argon2.generateSalt();
 ```
+You can also pass a desired salt length as parameter. Although the default of 16
+is enough and very safe, Argon2 will use all salt bytes.
+```js
+argon2.generateSalt(32).then(salt => {
+  // ...
+});
+
+// OR
+
+var salt = argon2.generateSaltSync(32);
+
+// ES6
+
+const salt = await argon2.generateSalt(32);
+```
+
 Please keep in mind synchronous salt generation is blocking, since it waits for
 entropy when enough is not available, so please refrain from using sync version.
 
@@ -71,19 +109,23 @@ You can also modify time, memory and parallelism constraints passing the object
 as the third parameter, with keys `timeCost`, `memoryCost` and `parallelism`,
 respectively defaulted to 3, 12 (meaning 2^12 KB) and 1 (threads):
 ```js
+const options = {
+  timeCost: 4, memoryCost: 13, parallelism: 2, argon2d: true
+};
+
 argon2.generateSalt().then(salt => {
-  argon2.hash('password', salt, {
-    timeCost: 4, memoryCost: 13, parallelism: 2
-  }.then(hash => {
+  argon2.hash('password', salt, options).then(hash => {
     // ...
   });
 });
 
 // OR
 
-var hash = argon2.hashSync('password', argon2.generateSaltSync(), {
-  timeCost: 4, memoryCost: 13, parallelism: 2
-});
+var hash = argon2.hashSync('password', argon2.generateSaltSync(), options);
+
+// ES6
+
+var hash = await argon2.hash('password', await argon2.generateSalt(), options);
 ```
 
 The default parameters for Argon2 can be accessed with `defaults`:
@@ -105,6 +147,15 @@ argon2.verify('<big long hash>', 'password').then(() => {
 if (argon2.verifySync('<big long hash>', 'password')) {
   // password match
 } else {
+  // password did not match
+}
+
+// ES6
+
+try {
+  await argon2.verify('<big long hash>', 'password');
+  // password match
+} catch (err) {
   // password did not match
 }
 ```
