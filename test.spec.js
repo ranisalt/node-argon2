@@ -3,8 +3,7 @@ const argon2 = process.env.COVERAGE
   : require('./index');
 
 const password = 'password';
-const salt = new Buffer(16);
-salt.fill(0).write('somesalt');
+const salt = new Buffer('somesalt');
 
 const limits = argon2.limits;
 
@@ -29,7 +28,7 @@ module.exports = {
     assert.expect(1);
 
     argon2.hash(password, salt).then((hash) => {
-      assert.equal(hash, '$argon2i$m=4096,t=3,p=1$c29tZXNhbHQAAAAAAAAAAA$FHF/OZ0GJpMRAlBmPTqXxw36Ftp87JllALZPcP9w9gs');
+      assert.equal(hash, '$argon2i$m=4096,t=3,p=1$c29tZXNhbHQ$vpOd0mbc3AzXEHMgcTb1CrZt5XuoRQuz1kQtGBv7ejk');
       assert.done();
     });
   },
@@ -79,34 +78,21 @@ module.exports = {
   testHashInvalidSalt (assert) {
     'use strict';
 
-    assert.expect(2);
+    assert.expect(1);
 
     argon2.hash(password, 'stringsalt').catch((err) => {
-      assert.ok(err, 'Error should be defined.');
-      assert.equal(err.message, 'Invalid salt, must be a buffer.');
+      assert.ok(/invalid salt, must be a buffer/i.test(err.message));
       assert.done();
     });
   },
 
-  testHashLongSalt (assert) {
-    'use strict';
-
-    assert.expect(2);
-
-    argon2.hash(password, new Buffer('somesaltwaytoobig')).catch((err) => {
-      assert.ok(err, 'Error should be defined.');
-      assert.equal(err.message, 'Invalid salt length, must be 16 bytes.');
-      assert.done();
-    });
-  },
-
-  testHashFail (assert) {
+  testHashShortSalt (assert) {
     'use strict';
 
     assert.expect(1);
 
-    argon2.hash(password, new Buffer('somesaltwaytoobig')).catch((err) => {
-      assert.ok(err, 'Error should be defined.');
+    argon2.hash(password, new Buffer('salt')).catch((err) => {
+      assert.ok(/invalid salt.+with 8 or more bytes/i.test(err.message));
       assert.done();
     });
   },
@@ -290,7 +276,7 @@ module.exports = {
     assert.expect(1);
 
     const hash = argon2.hashSync(password, salt);
-    assert.equal(hash, '$argon2i$m=4096,t=3,p=1$c29tZXNhbHQAAAAAAAAAAA$FHF/OZ0GJpMRAlBmPTqXxw36Ftp87JllALZPcP9w9gs');
+    assert.equal(hash, '$argon2i$m=4096,t=3,p=1$c29tZXNhbHQ$vpOd0mbc3AzXEHMgcTb1CrZt5XuoRQuz1kQtGBv7ejk');
     assert.done();
   },
 
@@ -494,17 +480,6 @@ module.exports = {
       parallelism: 2
     });
     assert.ok(/m=8192,t=4,p=2/.test(hash), 'Should have correct options.');
-    assert.done();
-  },
-
-  testHashSyncLongSalt (assert) {
-    'use strict';
-
-    assert.expect(1);
-
-    assert.throws(() => {
-      argon2.hashSync(password, 'somesaltwaytoobig');
-    });
     assert.done();
   },
 

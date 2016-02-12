@@ -11,7 +11,6 @@ namespace {
 
 const auto ENCODED_LEN = 108u;
 const auto HASH_LEN = 32u;
-const auto SALT_LEN = 16u;
 
 class HashAsyncWorker final : public Nan::AsyncWorker {
 public:
@@ -100,7 +99,7 @@ NAN_METHOD(Hash) {
     auto parallelism = info[4]->Uint32Value();
     argon2_type type = info[5]->BooleanValue() ? Argon2_d : Argon2_i;
 
-    auto salt = std::string(Buffer::Data(raw_salt), SALT_LEN);
+    auto salt = std::string(Buffer::Data(raw_salt), Buffer::Length(raw_salt));
 
     auto worker = new HashAsyncWorker{*plain, salt, time_cost,
         1u << memory_cost, parallelism, type};
@@ -134,7 +133,7 @@ NAN_METHOD(HashSync) {
 
     char encoded[ENCODED_LEN];
 
-    auto salt = std::string(Buffer::Data(raw_salt), SALT_LEN);
+    auto salt = std::string(Buffer::Data(raw_salt), Buffer::Length(raw_salt));
 
     auto result = argon2_hash(time_cost, 1 << memory_cost, parallelism, *plain,
             strlen(*plain), salt.c_str(), salt.size(), nullptr, HASH_LEN,

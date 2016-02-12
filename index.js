@@ -39,11 +39,8 @@ const validateInteger = (value, limits) => {
 const validate = (salt, options, resolve, reject) => {
   'use strict';
 
-  if (!Buffer.isBuffer(salt)) {
-    fail('Invalid salt, must be a buffer.', reject);
-    return false;
-  } else if (salt.length !== 16) {
-    fail('Invalid salt length, must be 16 bytes.', reject);
+  if (!Buffer.isBuffer(salt) || salt.length < 8) {
+    fail('Invalid salt, must be a buffer with 8 or more bytes.', reject);
     return false;
   }
 
@@ -92,11 +89,12 @@ module.exports = {
     }
   },
 
-  generateSalt () {
+  generateSalt (length) {
     'use strict';
 
+    length = typeof length === 'undefined' ? 16 : length;
     const promise = new Promise((resolve, reject) => {
-      crypto.randomBytes(16, (err, salt) => {
+      crypto.randomBytes(length, (err, salt) => {
         if (err) {
           reject(err);
         } else {
