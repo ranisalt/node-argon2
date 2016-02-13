@@ -232,9 +232,9 @@ NAN_METHOD(VerifySync) {
 
     Nan::HandleScope scope;
 
-    if (info.Length() < 2) {
+    if (info.Length() < 3) {
         /* LCOV_EXCL_START */
-        Nan::ThrowTypeError("2 arguments expected");
+        Nan::ThrowTypeError("3 arguments expected");
         return;
         /* LCOV_EXCL_STOP */
     }
