@@ -3,10 +3,8 @@
 
 #include <nan.h>
 
-namespace {
+namespace NodeArgon2 {
 
-const auto ENCODED_LEN = 108u;
-const auto HASH_LEN = 32u;
 
 class HashAsyncWorker final : public Nan::AsyncWorker {
 public:

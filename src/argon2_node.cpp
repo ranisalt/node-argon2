@@ -7,7 +7,10 @@
 #include "../argon2/include/argon2.h"
 #include "argon2_node.h"
 
-namespace {
+namespace NodeArgon2 {
+
+const auto ENCODED_LEN = 108u;
+const auto HASH_LEN = 32u;
 
 HashAsyncWorker::HashAsyncWorker(const std::string& plain,
         const std::string& salt, uint32_t time_cost, uint32_t memory_cost,
@@ -219,6 +222,7 @@ struct Logarithm<1u, Base> {
 }
 
 NAN_MODULE_INIT(init) {
+    using namespace NodeArgon2;
     using v8::Number;
     using v8::Object;
     using v8::String;
