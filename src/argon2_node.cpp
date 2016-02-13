@@ -209,20 +209,16 @@ NAN_METHOD(VerifySync) {
     info.GetReturnValue().Set(result == ARGON2_OK);
 }
 
-template<std::size_t Number, std::size_t Base = 2u>
-struct Logarithm {
-    enum { value = 1u + Logarithm<Number / Base, Base>::value };
-};
-
-template<std::size_t Base>
-struct Logarithm<1u, Base> {
-    enum { value = 0u };
-};
+constexpr uint32_t log(uint32_t number, uint32_t base = 2u)
+{
+    return (number > 1) ? 1u + log(number / base, base) : 0u;
+}
 
 }
 
 NAN_MODULE_INIT(init) {
     using namespace NodeArgon2;
+    using NodeArgon2::log;
     using v8::Number;
     using v8::Object;
     using v8::String;
@@ -234,9 +230,9 @@ NAN_MODULE_INIT(init) {
         Nan::Set(memoryCost, Nan::New<String>("description").ToLocalChecked(),
                 Nan::New<String>("memory cost").ToLocalChecked());
         Nan::Set(memoryCost, Nan::New<String>("max").ToLocalChecked(),
-                Nan::New<Number>(Logarithm<ARGON2_MAX_MEMORY>::value));
+                Nan::New<Number>(log(ARGON2_MAX_MEMORY)));
         Nan::Set(memoryCost, Nan::New<String>("min").ToLocalChecked(),
-                Nan::New<Number>(Logarithm<ARGON2_MIN_MEMORY>::value));
+                Nan::New<Number>(log(ARGON2_MIN_MEMORY)));
         Nan::Set(limits, Nan::New<String>("memoryCost").ToLocalChecked(),
                 memoryCost);
     }
