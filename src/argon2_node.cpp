@@ -1,4 +1,3 @@
-#include <nan.h>
 #include <node.h>
 
 #include <stdint.h>
@@ -6,33 +5,9 @@
 #include <string>
 
 #include "../argon2/include/argon2.h"
+#include "argon2_node.h"
 
 namespace {
-
-const auto ENCODED_LEN = 108u;
-const auto HASH_LEN = 32u;
-
-class HashAsyncWorker final : public Nan::AsyncWorker {
-public:
-    HashAsyncWorker(const std::string& plain, const std::string& salt,
-            uint32_t time_cost, uint32_t memory_cost, uint32_t parallelism,
-            Argon2_type type);
-
-    void Execute() override;
-
-    void HandleOKCallback() override;
-
-    void HandleErrorCallback() override;
-
-private:
-    std::string plain;
-    std::string salt;
-    uint32_t time_cost;
-    uint32_t memory_cost;
-    uint32_t parallelism;
-    Argon2_type type;
-    std::string output;
-};
 
 HashAsyncWorker::HashAsyncWorker(const std::string& plain,
         const std::string& salt, uint32_t time_cost, uint32_t memory_cost,
@@ -148,23 +123,6 @@ NAN_METHOD(HashSync) {
     info.GetReturnValue().Set(Nan::Encode(encoded, strlen(encoded),
             Nan::BINARY));
 }
-
-class VerifyAsyncWorker final : public Nan::AsyncWorker {
-public:
-    VerifyAsyncWorker(const std::string& hash, const std::string& plain,
-            argon2_type type);
-
-    void Execute() override;
-
-    void HandleOKCallback() override;
-
-    void HandleErrorCallback() override;
-
-private:
-    std::string hash;
-    std::string plain;
-    argon2_type type;
-};
 
 VerifyAsyncWorker::VerifyAsyncWorker(const std::string& hash,
         const std::string& plain, argon2_type type):
