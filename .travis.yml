@@ -10,7 +10,8 @@ node_js:
   - "5.2"
   - "5.3"
   - "5.4"
-  - stable
+  - "5.5"
+  - node
 cache: apt
 before_install: sudo apt-get update && sudo apt-get install lcov -y
 before_script: npm install -g coveralls jscoverage node-gyp
