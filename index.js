@@ -54,7 +54,7 @@ module.exports = {
   hash (plain, salt, options) {
     'use strict';
 
-    options = Object.assign({}, options || defaults);
+    options = Object.assign({}, defaults, options);
 
     return new Promise(validate.bind(this, salt, options))
       .then(() => bindings.hash(plain, salt, options.timeCost,
@@ -65,7 +65,7 @@ module.exports = {
     'use strict';
 
     console.warn('The synchronous API is deprecated, use ES6 await instead.');
-    options = Object.assign({}, options || defaults);
+    options = Object.assign({}, defaults, options);
 
     if (validate(salt, options)) {
       return bindings.hashSync(plain, salt, options.timeCost,
