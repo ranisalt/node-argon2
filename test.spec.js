@@ -5,6 +5,7 @@ const password = 'password';
 const salt = new Buffer('somesalt');
 
 const limits = argon2.limits;
+console.warn = () => {};
 
 t.test('defaults', t => {
   'use strict';

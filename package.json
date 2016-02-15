@@ -6,7 +6,7 @@
   "scripts": {
     "benchmark": "node benchmark.js",
     "clean": "node-gyp clean",
-    "test": "tap test.spec.js"
+    "test": "tap test.spec.js --reporter=nyan"
   },
   "repository": {
     "type": "git",
