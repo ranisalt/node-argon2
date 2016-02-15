@@ -14,11 +14,11 @@ node_js:
   - node
 cache: apt
 before_install: sudo apt-get update && sudo apt-get install lcov -y
-before_script: npm install -g coveralls jscoverage node-gyp
+before_script: npm install -g coveralls node-gyp
 after_success:
-  - jscoverage index.js && node-gyp --debug rebuild
-  - COVERAGE=ON nodeunit --reporter=lcov test.spec.js > lcov-js.info
+  - node-gyp --debug rebuild
+  - npm test -- --coverage --coverage-report=lcov
   - lcov -c -d . --no-external -o lcov-cpp.info
   - lcov -r lcov-cpp.info "*/node_modules/*" -o lcov-cpp.info
-  - lcov -a lcov-cpp.info -a lcov-js.info -o lcov.info
+  - lcov -a lcov-cpp.info -a coverage/lcov.info -o lcov.info
   - coveralls < lcov.info
