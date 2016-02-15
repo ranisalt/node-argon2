@@ -10,12 +10,6 @@ const defaults = Object.freeze({
 
 const limits = Object.freeze(bindings.limits);
 
-const defineValue = (value, def) => {
-  'use strict';
-
-  return (typeof value === 'undefined') ? def : value;
-};
-
 const fail = (message, reject) => {
   'use strict';
 
@@ -30,12 +24,6 @@ const fail = (message, reject) => {
   }
 };
 
-const validateInteger = (value, limits) => {
-  'use strict';
-
-  return Number.isInteger(value) && value <= limits.max && value >= limits.min;
-};
-
 const validate = (salt, options, resolve, reject) => {
   'use strict';
 
@@ -44,18 +32,14 @@ const validate = (salt, options, resolve, reject) => {
     return false;
   }
 
-  for (const key of Object.keys(limits)) {
-    options[key] = defineValue(options[key], defaults[key]);
-
-    const current = limits[key];
-    if (!validateInteger(options[key], current)) {
-      fail(`Invalid ${current.description}, must be an integer between ` +
-        `${current.min} and ${current.max}.`, reject);
+  // TODO: replace var with const https://github.com/tapjs/node-tap/issues/236
+  for (var key of Object.keys(limits)) {
+    var max = limits[key].max, min = limits[key].min, value = options[key];
+    if (!Number.isInteger(value) || value > max || value < min) {
+      fail(`Invalid ${key}, must be an integer between ${min} and ${max}.`, reject);
       return false;
     }
   }
-
-  options.argon2d = !!options.argon2d;
 
   if (typeof resolve === 'function') {
     resolve();
@@ -93,17 +77,15 @@ module.exports = {
     'use strict';
 
     length = typeof length === 'undefined' ? 16 : length;
-    const promise = new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       crypto.randomBytes(length, (err, salt) => {
+        /* istanbul ignore if */
         if (err) {
-          reject(err);
-        } else {
-          resolve(salt);
+          return reject(err);
         }
+        return resolve(salt);
       });
     });
-
-    return promise;
   },
 
   generateSaltSync (length) {

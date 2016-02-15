@@ -227,8 +227,6 @@ NAN_MODULE_INIT(init) {
 
     {
         auto memoryCost = Nan::New<Object>();
-        Nan::Set(memoryCost, Nan::New<String>("description").ToLocalChecked(),
-                Nan::New<String>("memory cost").ToLocalChecked());
         Nan::Set(memoryCost, Nan::New<String>("max").ToLocalChecked(),
                 Nan::New<Number>(log(ARGON2_MAX_MEMORY)));
         Nan::Set(memoryCost, Nan::New<String>("min").ToLocalChecked(),
@@ -239,8 +237,6 @@ NAN_MODULE_INIT(init) {
 
     {
         auto timeCost = Nan::New<Object>();
-        Nan::Set(timeCost, Nan::New<String>("description").ToLocalChecked(),
-                Nan::New<String>("time cost").ToLocalChecked());
         Nan::Set(timeCost, Nan::New<String>("max").ToLocalChecked(),
                 Nan::New<Number>(ARGON2_MAX_TIME));
         Nan::Set(timeCost, Nan::New<String>("min").ToLocalChecked(),
@@ -251,8 +247,6 @@ NAN_MODULE_INIT(init) {
 
     {
         auto parallelism = Nan::New<Object>();
-        Nan::Set(parallelism, Nan::New<String>("description").ToLocalChecked(),
-                Nan::New<String>("parallelism").ToLocalChecked());
         Nan::Set(parallelism, Nan::New<String>("max").ToLocalChecked(),
                 Nan::New<Number>(ARGON2_MAX_LANES));
         Nan::Set(parallelism, Nan::New<String>("min").ToLocalChecked(),
