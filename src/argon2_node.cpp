@@ -27,8 +27,10 @@ void HashAsyncWorker::Execute()
             plain.c_str(), plain.size(), salt.c_str(), salt.size(), nullptr,
             HASH_LEN, encoded, ENCODED_LEN, type);
     if (result != ARGON2_OK) {
+        /* LCOV_EXCL_START */
         SetErrorMessage(argon2_error_message(result));
         return;
+        /* LCOV_EXCL_STOP */
     }
 
     output = std::string{encoded};
@@ -44,6 +46,7 @@ void HashAsyncWorker::HandleOKCallback()
     promise->Resolve(Nan::Encode(output.c_str(), output.size()));
 }
 
+/* LCOV_EXCL_START */
 void HashAsyncWorker::HandleErrorCallback()
 {
     using v8::Exception;
@@ -56,6 +59,7 @@ void HashAsyncWorker::HandleErrorCallback()
     auto reason = Nan::New<String>(ErrorMessage()).ToLocalChecked();
     promise->Reject(Exception::Error(reason));
 }
+/* LCOV_EXCL_STOP */
 
 NAN_METHOD(Hash) {
     using namespace node;
@@ -118,9 +122,10 @@ NAN_METHOD(HashSync) {
             encoded, ENCODED_LEN, type);
 
     if (result != ARGON2_OK) {
+        /* LCOV_EXCL_START */
         Nan::ThrowError(argon2_error_message(result));
-        info.GetReturnValue().Set(Nan::Undefined());
         return;
+        /* LCOV_EXCL_STOP */
     }
 
     info.GetReturnValue().Set(Nan::Encode(encoded, strlen(encoded),
