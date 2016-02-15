@@ -1,639 +1,570 @@
-const argon2 = process.env.COVERAGE
-  ? require('./index-cov')
-  : require('./index');
+const argon2 = require('./index');
+const t = require('tap');
 
 const password = 'password';
 const salt = new Buffer('somesalt');
 
 const limits = argon2.limits;
 
-module.exports = {
-  testDefaults  (assert) {
-    'use strict';
+t.test('defaults', t => {
+  'use strict';
 
-    assert.expect(1);
+  t.equivalent(argon2.defaults, {
+    timeCost: 3,
+    memoryCost: 12,
+    parallelism: 1,
+    argon2d: false
+  });
+  t.end();
+});
 
-    assert.deepEqual(argon2.defaults, {
-      timeCost: 3,
-      memoryCost: 12,
-      parallelism: 1,
-      argon2d: false
-    });
-    assert.done();
-  },
+t.test('basic async hash', t => {
+  'use strict';
 
-  testHash (assert) {
-    'use strict';
+  t.plan(1);
 
-    assert.expect(1);
+  return argon2.hash(password, salt).then(hash => {
+    t.equal(hash, '$argon2i$m=4096,t=3,p=1$c29tZXNhbHQ$vpOd0mbc3AzXEHMgcTb1CrZt5XuoRQuz1kQtGBv7ejk');
+  });
+}).catch(t.threw);
 
-    argon2.hash(password, salt).then((hash) => {
-      assert.equal(hash, '$argon2i$m=4096,t=3,p=1$c29tZXNhbHQ$vpOd0mbc3AzXEHMgcTb1CrZt5XuoRQuz1kQtGBv7ejk');
-      assert.done();
-    });
-  },
+t.test('async hash with argon2d', t => {
+  'use strict';
 
-  testHashArgon2d (assert) {
-    'use strict';
+  t.plan(1);
 
-    assert.expect(2);
+  return argon2.hash(password, salt, {
+    argon2d: true
+  }).then(hash => {
+    t.match(hash, /\$argon2d\$/, 'Should have argon2d signature.');
+  });
+}).catch(t.threw);
 
-    argon2.hash(password, salt, {
-      argon2d: true
-    }).then((hash) => {
-      assert.ok(hash, 'Hash should be defined.');
-      assert.ok(/\$argon2d\$/.test(hash), 'Should have argon2d signature.');
-      assert.done();
-    });
-  },
+t.test('async hash with truthy argon2d', t => {
+  'use strict';
 
-  testHashTruthyArgon2d (assert) {
-    'use strict';
+  t.plan(1);
 
-    assert.expect(2);
+  return argon2.hash(password, salt, {
+    argon2d: 'foo'
+  }).then(hash => {
+    t.match(hash, /\$argon2d\$/, 'Should have argon2d signature.');
+  });
+}).catch(t.threw);
 
-    argon2.hash(password, salt, {
-      argon2d: 'foo'
-    }).then((hash) => {
-      assert.ok(hash, 'Hash should be defined.');
-      assert.ok(/\$argon2d\$/.test(hash), 'Should have argon2d signature.');
-      assert.done();
-    });
-  },
+t.test('async hash with falsy argon2d', t => {
+  'use strict';
 
-  testHashFalsyArgon2d (assert) {
-    'use strict';
+  t.plan(1);
 
-    assert.expect(2);
+  return argon2.hash(password, salt, {
+    argon2d: ''
+  }).then(hash => {
+    t.notMatch(hash, /\$argon2d\$/, 'Should not have argon2d signature.');
+  });
+}).catch(t.threw);
 
-    argon2.hash(password, salt, {
-      argon2d: ''
-    }).then((hash) => {
-      assert.ok(hash, 'Hash should be defined.');
-      assert.ok(/\$argon2i\$/.test(hash), 'Should not have argon2d signature.');
-      assert.done();
-    });
-  },
+t.test('async hash with invalid salt', t => {
+  'use strict';
 
-  testHashInvalidSalt (assert) {
-    'use strict';
+  t.plan(1);
 
-    assert.expect(1);
+  return argon2.hash(password, 'stringsalt').catch(err => {
+    t.match(err.message, /invalid salt.+must be a buffer/i);
+  });
+});
 
-    argon2.hash(password, 'stringsalt').catch((err) => {
-      assert.ok(/invalid salt, must be a buffer/i.test(err.message));
-      assert.done();
-    });
-  },
+t.test('async hash with short salt', t => {
+  'use strict';
 
-  testHashShortSalt (assert) {
-    'use strict';
+  t.plan(1);
 
-    assert.expect(1);
+  return argon2.hash(password, salt.slice(0, 7)).catch(err => {
+    t.match(err.message, /invalid salt.+with 8 or more bytes/i);
+  });
+});
 
-    argon2.hash(password, new Buffer('salt')).catch((err) => {
-      assert.ok(/invalid salt.+with 8 or more bytes/i.test(err.message));
-      assert.done();
-    });
-  },
+t.test('async hash with time cost', t => {
+  'use strict';
 
-  testHashTimeCost (assert) {
-    'use strict';
+  t.plan(1);
 
-    assert.expect(2);
+  return argon2.hash(password, salt, {
+    timeCost: 4
+  }).then(hash => {
+    t.match(hash, /t=4/, 'Should have correct time cost.');
+  });
+}).catch(t.threw);
 
-    argon2.hash(password, salt, {
-      timeCost: 4
-    }).then((hash) => {
-      assert.ok(hash, 'Hash should be defined.');
-      assert.ok(/t=4/.test(hash), 'Should have correct time cost.');
-      assert.done();
-    });
-  },
+t.test('async hash with invalid time cost', t => {
+  'use strict';
 
-  testHashInvalidTimeCost (assert) {
-    'use strict';
+  t.plan(1);
 
-    assert.expect(1);
+  return argon2.hash(password, salt, {
+    timeCost: 'foo'
+  }).catch(err => {
+    t.match(err.message, /invalid timeCost.+must be an integer/i);
+  });
+});
 
-    argon2.hash(password, salt, {
+t.test('async hash with low time cost', t => {
+  'use strict';
+
+  t.plan(1);
+
+  return argon2.hash(password, salt, {
+    timeCost: limits.timeCost.min - 1
+  }).catch(err => {
+    t.match(err.message, /invalid timeCost.+between \d+ and \d+/i);
+  });
+});
+
+t.test('async hash with high time cost', t => {
+  'use strict';
+
+  t.plan(1);
+
+  return argon2.hash(password, salt, {
+    timeCost: limits.timeCost.max + 1
+  }).catch(err => {
+    t.match(err.message, /invalid timeCost.+between \d+ and \d+/i);
+  });
+});
+
+t.test('async hash with memory cost', t => {
+  'use strict';
+
+  t.plan(1);
+
+  return argon2.hash(password, salt, {
+    memoryCost: 13
+  }).then(hash => {
+    t.match(hash, /m=8192/, 'Should have correct memory cost.');
+  });
+}).catch(t.threw);
+
+t.test('async hash with invalid time cost', t => {
+  'use strict';
+
+  t.plan(1);
+
+  return argon2.hash(password, salt, {
+    memoryCost: 'foo'
+  }).catch(err => {
+    t.match(err.message, /invalid memoryCost.+must be an integer/i);
+  });
+});
+
+t.test('async hash with low time cost', t => {
+  'use strict';
+
+  t.plan(1);
+
+  return argon2.hash(password, salt, {
+    memoryCost: limits.memoryCost.min - 1
+  }).catch(err => {
+    t.match(err.message, /invalid memoryCost.+between \d+ and \d+/i);
+  });
+});
+
+t.test('async hash with high time cost', t => {
+  'use strict';
+
+  t.plan(1);
+
+  return argon2.hash(password, salt, {
+    memoryCost: limits.memoryCost.max + 1
+  }).catch(err => {
+    t.match(err.message, /invalid memoryCost.+between \d+ and \d+/i);
+  });
+});
+
+t.test('async hash with parallelism', t => {
+  'use strict';
+
+  t.plan(1);
+
+  return argon2.hash(password, salt, {
+    parallelism: 2
+  }).then(hash => {
+    t.match(hash, /p=2/,  'Should have correct parallelism.');
+  });
+}).catch(t.threw);
+
+t.test('async hash with invalid parallelism', t => {
+  'use strict';
+
+  t.plan(1);
+
+  return argon2.hash(password, salt, {
+    parallelism: 'foo'
+  }).catch(err => {
+    t.match(err.message, /invalid parallelism, must be an integer/i);
+  });
+});
+
+t.test('async hash with low parallelism', t => {
+  'use strict';
+
+  t.plan(1);
+
+  return argon2.hash(password, salt, {
+    parallelism: limits.parallelism.min - 1
+  }).catch(err => {
+    t.match(err.message, /invalid parallelism.+between \d+ and \d+/i);
+  });
+});
+
+t.test('async hash with high parallelism', t => {
+  'use strict';
+
+  t.plan(1);
+
+  return argon2.hash(password, salt, {
+    parallelism: limits.parallelism.max + 1
+  }).catch(err => {
+    t.match(err.message, /invalid parallelism.+between \d+ and \d+/i);
+  });
+});
+
+t.test('async hash with all options', t => {
+  'use strict';
+
+  t.plan(1);
+
+  return argon2.hash(password, salt, {
+    timeCost: 4,
+    memoryCost: 13,
+    parallelism: 2
+  }).then(hash => {
+    t.match(hash, /m=8192,t=4,p=2/,  'Should have correct options.');
+  });
+}).catch(t.threw);
+
+t.test('basic sync hash', t => {
+  'use strict';
+
+  const hash = argon2.hashSync(password, salt);
+  t.equal(hash, '$argon2i$m=4096,t=3,p=1$c29tZXNhbHQ$vpOd0mbc3AzXEHMgcTb1CrZt5XuoRQuz1kQtGBv7ejk');
+  t.end();
+});
+
+t.test('sync hash with argon2d', t => {
+  'use strict';
+
+  const hash = argon2.hashSync(password, salt, {
+    argon2d: true
+  });
+  t.match(hash, /\$argon2d\$/,  'Should use argon2d signature.');
+  t.end();
+});
+
+t.test('sync hash with truthy argon2d', t => {
+  'use strict';
+
+  const hash = argon2.hashSync(password, salt, {
+    argon2d: 'foo'
+  });
+  t.match(hash, /\$argon2d\$/,  'Should use argon2d signature.');
+  t.end();
+});
+
+t.test('sync hash with falsy argon2d', t => {
+  'use strict';
+
+  const hash = argon2.hashSync(password, salt, {
+    argon2d: ''
+  });
+  t.match(hash, /\$argon2i\$/,  'Should not use argon2d signature.');
+  t.end();
+});
+
+t.test('sync hash with invalid salt', t => {
+  'use strict';
+
+  t.throws(() => {
+    argon2.hashSync(password, 'stringsalt');
+  }, /invalid salt.+must be a buffer/i);
+  t.end();
+});
+
+t.test('sync hash with short salt', t => {
+  'use strict';
+
+  t.throws(() => {
+    argon2.hashSync(password, salt.slice(0, 7));
+  }, /invalid salt.+with 8 or more bytes/i);
+  t.end();
+});
+
+t.test('sync hash with time cost', t => {
+  'use strict';
+
+  const hash = argon2.hashSync(password, salt, {
+    timeCost: 4
+  });
+  t.match(hash, /t=4/,  'Should have correct time cost.');
+  t.end();
+});
+
+t.test('sync hash with invalid time cost', t => {
+  'use strict';
+
+  t.throws(() => {
+    argon2.hashSync(password, salt, {
       timeCost: 'foo'
-    }).catch((err) => {
-      assert.ok(/invalid time cost, must be an integer/i.test(err.message));
-      assert.done();
     });
-  },
+  }, /invalid timeCost.+must be an integer/i);
+  t.end();
+});
 
-  testHashLowTimeCost (assert) {
-    'use strict';
+t.test('sync hash with low time cost', t => {
+  'use strict';
 
-    assert.expect(1);
-
-    argon2.hash(password, salt, {
+  t.throws(() => {
+    argon2.hashSync(password, salt, {
       timeCost: limits.timeCost.min - 1
-    }).catch((err) => {
-      assert.ok(/invalid time cost.+between \d+ and \d+/i.test(err.message));
-      assert.done();
     });
-  },
+  }, /invalid timeCost.+between \d+ and \d+/i);
+  t.end();
+});
 
-  testHashHighTimeCost (assert) {
-    'use strict';
+t.test('sync hash with high time cost', t => {
+  'use strict';
 
-    assert.expect(1);
-
-    argon2.hash(password, salt, {
+  t.throws(() => {
+    argon2.hashSync(password, salt, {
       timeCost: limits.timeCost.max + 1
-    }).catch((err) => {
-      assert.ok(/invalid time cost.+between \d+ and \d+/i.test(err.message));
-      assert.done();
     });
-  },
+  }, /invalid timeCost.+between \d+ and \d+/i);
+  t.end();
+});
 
-  testHashMemoryCost (assert) {
-    'use strict';
+t.test('sync hash with memory cost', t => {
+  'use strict';
 
-    assert.expect(1);
+  const hash = argon2.hashSync(password, salt, {
+    memoryCost: 13
+  });
+  t.match(hash, /m=8192/,  'Should have correct memory cost.');
+  t.end();
+});
 
-    argon2.hash(password, salt, {
-      memoryCost: 13
-    }).then((hash) => {
-      assert.ok(/m=8192/.test(hash), 'Should have correct memory cost.');
-      assert.done();
-    });
-  },
+t.test('sync hash with invalid memory cost', t => {
+  'use strict';
 
-  testHashInvalidMemoryCost (assert) {
-    'use strict';
-
-    assert.expect(1);
-
-    argon2.hash(password, salt, {
+  t.throws(() => {
+    argon2.hashSync(password, salt, {
       memoryCost: 'foo'
-    }).catch((err) => {
-      assert.ok(/invalid memory cost, must be an integer/i.test(err.message));
-      assert.done();
     });
-  },
+  }, /invalid memoryCost.+must be an integer/i);
+  t.end();
+});
 
-  testHashLowMemoryCost (assert) {
-    'use strict';
+t.test('sync hash with low memory cost', t => {
+  'use strict';
 
-    assert.expect(1);
-
-    argon2.hash(password, salt, {
+  t.throws(() => {
+    argon2.hashSync(password, salt, {
       memoryCost: limits.memoryCost.min - 1
-    }).catch((err) => {
-      assert.ok(/invalid memory cost.+between \d+ and \d+/i.test(err.message));
-      assert.done();
     });
-  },
+  }, /invalid memoryCost.+between \d+ and \d+/i);
+  t.end();
+});
 
-  testHashHighMemoryCost (assert) {
-    'use strict';
+t.test('sync hash with high memory cost', t => {
+  'use strict';
 
-    assert.expect(1);
-
-    argon2.hash(password, salt, {
+  t.throws(() => {
+    argon2.hashSync(password, salt, {
       memoryCost: limits.memoryCost.max + 1
-    }).catch((err) => {
-      assert.ok(/invalid memory cost.+between \d+ and \d+/i.test(err.message));
-      assert.done();
     });
-  },
+  }, /invalid memoryCost.+between \d+ and \d+/i);
+  t.end();
+});
 
-  testHashParallelism (assert) {
-    'use strict';
+t.test('sync hash with parallelism', t => {
+  'use strict';
 
-    assert.expect(1);
+  const hash = argon2.hashSync(password, salt, {
+    parallelism: 2
+  });
+  t.match(hash, /p=2/,  'Should have correct parallelism.');
+  t.end();
+});
 
-    argon2.hash(password, salt, {
-      parallelism: 2
-    }).then((hash) => {
-      assert.ok(/p=2/.test(hash), 'Should have correct parallelism.');
-      assert.done();
-    });
-  },
+t.test('sync hash with invalid parallelism', t => {
+  'use strict';
 
-  testHashInvalidParallelism (assert) {
-    'use strict';
-
-    assert.expect(1);
-
-    argon2.hash(password, salt, {
+  t.throws(() => {
+    argon2.hashSync(password, salt, {
       parallelism: 'foo'
-    }).catch((err) => {
-      assert.ok(/invalid parallelism, must be an integer/i.test(err.message));
-      assert.done();
     });
-  },
+  }, /invalid parallelism, must be an integer/i);
+  t.end();
+});
 
-  testHashLowParallelism (assert) {
-    'use strict';
+t.test('sync hash with low parallelism', t => {
+  'use strict';
 
-    assert.expect(1);
-
-    argon2.hash(password, salt, {
+  t.throws(() => {
+    argon2.hashSync(password, salt, {
       parallelism: limits.parallelism.min - 1
-    }).catch((err) => {
-      assert.ok(/invalid parallelism.+between \d+ and \d+/i.test(err.message));
-      assert.done();
     });
-  },
+  }, /invalid parallelism.+between \d+ and \d+/i);
+  t.end();
+});
 
-  testHashHighParallelism (assert) {
-    'use strict';
+t.test('sync hash with high parallelism', t => {
+  'use strict';
 
-    assert.expect(1);
-
-    argon2.hash(password, salt, {
+  t.throws(() => {
+    argon2.hashSync(password, salt, {
       parallelism: limits.parallelism.max + 1
-    }).catch((err) => {
-      assert.ok(/invalid parallelism.+between \d+ and \d+/i.test(err.message));
-      assert.done();
     });
-  },
+  }, /invalid parallelism.+between \d+ and \d+/i);
+  t.end();
+});
 
-  testHashAllOptions (assert) {
-    'use strict';
+t.test('sync hash with all options', t => {
+  'use strict';
 
-    assert.expect(2);
+  const hash = argon2.hashSync(password, salt, {
+    timeCost: 4,
+    memoryCost: 13,
+    parallelism: 2
+  });
+  t.match(hash, /m=8192,t=4,p=2/,  'Should have correct options.');
+  t.end();
+});
 
-    argon2.hash(password, salt, {
-      timeCost: 4,
-      memoryCost: 13,
-      parallelism: 2
-    }).then((hash) => {
-      assert.ok(hash, 'Hash should be defined.');
-      assert.ok(/m=8192,t=4,p=2/.test(hash), 'Should have correct options.');
-      assert.done();
+t.test('async generate salt with default length', t => {
+  'use strict';
+
+  t.plan(1);
+
+  return argon2.generateSalt().then(salt => {
+    t.equal(salt.length, 16);
+  });
+}).catch(t.threw);
+
+t.test('async generate salt with specified length', t => {
+  'use strict';
+
+  t.plan(1);
+
+  return argon2.generateSalt(32).then(salt => {
+    t.equal(salt.length, 32);
+  });
+}).catch(t.threw);
+
+t.test('sync generate salt with default length', t => {
+  'use strict';
+
+  t.equal(argon2.generateSaltSync().length, 16);
+  t.end();
+});
+
+t.test('sync generate salt with specified length', t => {
+  'use strict';
+
+  t.equal(argon2.generateSaltSync(32).length, 32);
+  t.end();
+});
+
+t.test('async verify correct password', t => {
+  'use strict';
+
+  return argon2.generateSalt().then(salt => {
+    return argon2.hash(password, salt).then(hash => {
+      return argon2.verify(hash, password).then(t.pass);
     });
-  },
+  });
+}).catch(t.threw);
 
-  testHashSync (assert) {
-    'use strict';
+t.test('async verify wrong password', t => {
+  'use strict';
 
-    assert.expect(1);
+  return argon2.generateSalt().then(salt => {
+    return argon2.hash(password, salt).then(hash => {
+      return argon2.verify(hash, 'passworld').catch(t.pass);
+    });
+  });
+}).catch(t.threw);
 
-    const hash = argon2.hashSync(password, salt);
-    assert.equal(hash, '$argon2i$m=4096,t=3,p=1$c29tZXNhbHQ$vpOd0mbc3AzXEHMgcTb1CrZt5XuoRQuz1kQtGBv7ejk');
-    assert.done();
-  },
+t.test('async verify argon2d correct password', t => {
+  'use strict';
 
-  testHashArgon2dSync (assert) {
-    'use strict';
-
-    assert.expect(1);
-
-    const hash = argon2.hashSync(password, salt, {
+  return argon2.generateSalt().then(salt => {
+    return argon2.hash(password, salt, {
       argon2d: true
+    }).then(hash => {
+      return argon2.verify(hash, password).then(t.pass);
     });
-    assert.ok(/\$argon2d\$/.test(hash), 'Should use argon2d signature.');
-    assert.done();
-  },
+  });
+}).catch(t.threw);
 
-  testHashTruthyArgon2dSync (assert) {
-    'use strict';
+t.test('async verify argon2d wrong password', t => {
+  'use strict';
 
-    assert.expect(1);
-
-    const hash = argon2.hashSync(password, salt, {
-      argon2d: 'foo'
+  return argon2.generateSalt().then(salt => {
+    return argon2.hash(password, salt, {
+      argon2d: true
+    }).then(hash => {
+      return argon2.verify(hash, 'passwolrd').catch(t.pass);
     });
-    assert.ok(/\$argon2d\$/.test(hash), 'Should use argon2d signature.');
-    assert.done();
-  },
+  });
+}).catch(t.threw);
 
-  testHashFalsyArgon2dSync (assert) {
-    'use strict';
+t.test('sync verify correct password', t => {
+  'use strict';
 
-    assert.expect(1);
+  t.plan(1);
 
-    const hash = argon2.hashSync(password, salt, {
-      argon2d: ''
+  return argon2.generateSalt().then(salt => {
+    return argon2.hash(password, salt).then(hash => {
+      t.true(argon2.verifySync(hash, password));
     });
-    assert.ok(/\$argon2i\$/.test(hash), 'Should not use argon2d signature.');
-    assert.done();
-  },
+  });
+}).catch(t.threw);
 
-  testHashSyncTimeCost (assert) {
-    'use strict';
+t.test('sync verify wrong password', t => {
+  'use strict';
 
-    assert.expect(1);
+  t.plan(1);
 
-    const hash = argon2.hashSync(password, salt, {
-      timeCost: 4
+  return argon2.generateSalt().then(salt => {
+    return argon2.hash(password, salt).then(hash => {
+      t.false(argon2.verifySync(hash, 'passworld'));
     });
-    assert.ok(/t=4/.test(hash), 'Should have correct time cost.');
-    assert.done();
-  },
+  });
+}).catch(t.threw);
 
-  testHashSyncInvalidTimeCost (assert) {
-    'use strict';
+t.test('sync verify argon2d correct password', t => {
+  'use strict';
 
-    assert.expect(1);
+  t.plan(1);
 
-    assert.throws(() => {
-      argon2.hashSync(password, salt, {
-        timeCost: 'foo'
-      });
-    }, /invalid time cost.+must be an integer/i);
-    assert.done();
-  },
-
-  testHashSyncLowTimeCost (assert) {
-    'use strict';
-
-    assert.expect(1);
-
-    assert.throws(() => {
-      argon2.hashSync(password, salt, {
-        timeCost: limits.timeCost.min - 1
-      });
-    }, /invalid time cost.+between \d+ and \d+/i);
-    assert.done();
-  },
-
-  testHashSyncHighTimeCost (assert) {
-    'use strict';
-
-    assert.expect(1);
-
-    assert.throws(() => {
-      argon2.hashSync(password, salt, {
-        timeCost: limits.timeCost.max + 1
-      });
-    }, /invalid time cost.+between \d+ and \d+/i);
-    assert.done();
-  },
-
-  testHashSyncMemoryCost (assert) {
-    'use strict';
-
-    assert.expect(1);
-
-    const hash = argon2.hashSync(password, salt, {
-      memoryCost: 13
+  return argon2.generateSalt().then(salt => {
+    return argon2.hash(password, salt, {
+      argon2d: true
+    }).then(hash => {
+      t.true(argon2.verifySync(hash, password));
     });
-    assert.ok(/m=8192/.test(hash), 'Should have correct memory cost.');
-    assert.done();
-  },
+  });
+}).catch(t.threw);
 
-  testHashSyncInvalidMemoryCost (assert) {
-    'use strict';
+t.test('sync verify argon2d wrong password', t => {
+  'use strict';
 
-    assert.expect(1);
+  t.plan(1);
 
-    assert.throws(() => {
-      argon2.hashSync(password, salt, {
-        memoryCost: 'foo'
-      });
-    }, /invalid memory cost, must be an integer/i);
-    assert.done();
-  },
-
-  testHashSyncLowMemoryCost (assert) {
-    'use strict';
-
-    assert.expect(1);
-
-    assert.throws(() => {
-      argon2.hashSync(password, salt, {
-        memoryCost: limits.memoryCost.min - 1
-      });
-    }, /invalid memory cost.+between \d+ and \d+/i);
-    assert.done();
-  },
-
-  testHashSyncHighMemoryCost (assert) {
-    'use strict';
-
-    assert.expect(1);
-
-    assert.throws(() => {
-      argon2.hashSync(password, salt, {
-        memoryCost: limits.memoryCost.max + 1
-      });
-    }, /invalid memory cost.+between \d+ and \d+/i);
-    assert.done();
-  },
-
-  testHashSyncParallelism (assert) {
-    'use strict';
-
-    assert.expect(1);
-
-    const hash = argon2.hashSync(password, salt, {
-      parallelism: 2
+  return argon2.generateSalt().then(salt => {
+    return argon2.hash(password, salt, {
+      argon2d: true
+    }).then(hash => {
+      t.false(argon2.verifySync(hash, 'passwolrd'));
     });
-    assert.ok(/p=2/.test(hash), 'Should have correct parallelism.');
-    assert.done();
-  },
-
-  testHashSyncInvalidParallelism (assert) {
-    'use strict';
-
-    assert.expect(1);
-
-    assert.throws(() => {
-      argon2.hashSync(password, salt, {
-        parallelism: 'foo'
-      });
-    }, /invalid parallelism, must be an integer/i);
-    assert.done();
-  },
-
-  testHashSyncLowParallelism (assert) {
-    'use strict';
-
-    assert.expect(1);
-
-    assert.throws(() => {
-      argon2.hashSync(password, salt, {
-        parallelism: limits.parallelism.min - 1
-      });
-    }, /invalid parallelism.+between \d+ and \d+/i);
-    assert.done();
-  },
-
-  testHashSyncHighParallelism (assert) {
-    'use strict';
-
-    assert.expect(1);
-
-    assert.throws(() => {
-      argon2.hashSync(password, salt, {
-        parallelism: limits.parallelism.max + 1
-      });
-    }, /invalid parallelism.+between \d+ and \d+/i);
-    assert.done();
-  },
-
-  testHashSyncAllOptions (assert) {
-    'use strict';
-
-    assert.expect(1);
-
-    const hash = argon2.hashSync(password, salt, {
-      timeCost: 4,
-      memoryCost: 13,
-      parallelism: 2
-    });
-    assert.ok(/m=8192,t=4,p=2/.test(hash), 'Should have correct options.');
-    assert.done();
-  },
-
-  testGenerateSalt (assert) {
-    'use strict';
-
-    assert.expect(1);
-
-    argon2.generateSalt().then((salt) => {
-      assert.equal(salt.length, 16);
-      assert.done();
-    });
-  },
-
-  testGenerateSaltLength (assert) {
-    'use strict';
-
-    assert.expect(1);
-
-    argon2.generateSalt(32).then((salt) => {
-      assert.equal(salt.length, 32);
-      assert.done();
-    });
-  },
-
-  testGenerateSaltSync (assert) {
-    'use strict';
-
-    assert.expect(1);
-
-    assert.equal(argon2.generateSaltSync().length, 16);
-    assert.done();
-  },
-
-  testGenerateSaltSyncLength (assert) {
-    'use strict';
-
-    assert.expect(1);
-
-    assert.equal(argon2.generateSaltSync(32).length, 32);
-    assert.done();
-  },
-
-  testVerifyOk (assert) {
-    'use strict';
-
-    assert.expect(0);
-
-    argon2.generateSalt().then((salt) => {
-      argon2.hash(password, salt).then((hash) => {
-        argon2.verify(hash, password).then(assert.done);
-      });
-    });
-  },
-
-  testVerifyFail (assert) {
-    'use strict';
-
-    assert.expect(1);
-
-    argon2.generateSalt().then((salt) => {
-      argon2.hash(password, salt).then((hash) => {
-        argon2.verify(hash, 'passworld').catch((err) => {
-          assert.ok(err, 'Error should be defined');
-          assert.done();
-        });
-      });
-    });
-  },
-
-  testVerifyArgon2dOk (assert) {
-    'use strict';
-
-    assert.expect(0);
-
-    argon2.generateSalt().then((salt) => {
-      argon2.hash(password, salt, {
-        argon2d: true
-      }).then((hash) => {
-        argon2.verify(hash, password).then(assert.done);
-      });
-    });
-  },
-
-  testVerifyArgon2dFail (assert) {
-    'use strict';
-
-    assert.expect(1);
-
-    argon2.generateSalt().then((salt) => {
-      argon2.hash(password, salt, {
-        argon2d: true
-      }).then((hash) => {
-        argon2.verify(hash, 'passwolrd').catch((err) => {
-          assert.ok(err, 'Error should be defined');
-          assert.done();
-        });
-      });
-    });
-  },
-
-  testVerifySyncOk (assert) {
-    'use strict';
-
-    assert.expect(1);
-
-    argon2.generateSalt().then((salt) => {
-      argon2.hash(password, salt).then((hash) => {
-        assert.equal(true, argon2.verifySync(hash, password));
-        assert.done();
-      });
-    });
-  },
-
-  testVerifySyncFail (assert) {
-    'use strict';
-
-    assert.expect(1);
-
-    argon2.generateSalt().then((salt) => {
-      argon2.hash(password, salt).then((hash) => {
-        assert.equal(false, argon2.verifySync(hash, 'passworld'));
-        assert.done();
-      });
-    });
-  },
-
-  testVerifyArgon2dSyncOk (assert) {
-    'use strict';
-
-    assert.expect(1);
-
-    argon2.generateSalt().then((salt) => {
-      argon2.hash(password, salt, {
-        argon2d: true
-      }).then((hash) => {
-        assert.equal(true, argon2.verifySync(hash, password));
-        assert.done();
-      });
-    });
-  },
-
-  testVerifyArgon2dSyncFail (assert) {
-    'use strict';
-
-    assert.expect(1);
-
-    argon2.generateSalt().then((salt) => {
-      argon2.hash(password, salt, {
-        argon2d: true
-      }).then((hash) => {
-        assert.equal(false, argon2.verifySync(hash, 'passwolrd'));
-        assert.done();
-      });
-    });
-  }
-};
+  });
+}).catch(t.threw);
