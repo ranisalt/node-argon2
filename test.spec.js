@@ -3,9 +3,13 @@ const t = require('tap');
 
 const password = 'password';
 const salt = new Buffer('somesalt');
-
 const saltWithNull = new Buffer('\0abcdefghijklmno');
-const saltWithNullBase64 = 'AGFiY2RlZmdoaWprbG1ubw';
+
+// Like argon2's modified base64 implementation, this function truncates any
+// trailing '=' characters for a more compact representation.
+const truncatedBase64 = (buffer) => {
+  return buffer.toString('base64').replace(/=?=?$/,'');
+}
 
 const limits = argon2.limits;
 console.warn = () => {};
@@ -49,7 +53,7 @@ t.test('async hash with null in salt', t => {
 
   return argon2.hash(password, saltWithNull).then(hash => {
     const saltBase64 = hash.substring(24, 46);
-    t.equal(saltBase64, saltWithNullBase64);
+    t.equal(saltBase64, truncatedBase64(saltWithNull));
   });
 }).catch(t.threw);
 
@@ -288,7 +292,7 @@ t.test('sync hash with null in salt', t => {
 
   const hash = argon2.hashSync(password, saltWithNull);
   const saltBase64 = hash.substring(24, 46);
-  t.equal(saltBase64, saltWithNullBase64);
+  t.equal(saltBase64, truncatedBase64(saltWithNull));
   t.end();
 });
 
