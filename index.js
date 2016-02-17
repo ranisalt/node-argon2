@@ -56,6 +56,10 @@ module.exports = {
 
     options = Object.assign({}, defaults, options);
 
+    if (!Buffer.isBuffer(plain)) {
+      plain = new Buffer(plain);
+    }
+
     return new Promise(validate.bind(this, salt, options))
       .then(() => bindings.hash(plain, salt, options.timeCost,
           options.memoryCost, options.parallelism, options.argon2d));
@@ -66,6 +70,10 @@ module.exports = {
 
     console.warn('The synchronous API is deprecated, use ES6 await instead.');
     options = Object.assign({}, defaults, options);
+
+    if (!Buffer.isBuffer(plain)) {
+      plain = new Buffer(plain);
+    }
 
     if (validate(salt, options)) {
       return bindings.hashSync(plain, salt, options.timeCost,
@@ -99,6 +107,10 @@ module.exports = {
   verify (hash, plain) {
     'use strict';
 
+    if (!Buffer.isBuffer(plain)) {
+      plain = new Buffer(plain);
+    }
+
     return bindings.verify(hash, plain, /argon2d/.test(hash));
   },
 
@@ -106,6 +118,11 @@ module.exports = {
     'use strict';
 
     console.warn('The synchronous API is deprecated, use ES6 await instead.');
+
+    if (!Buffer.isBuffer(plain)) {
+      plain = new Buffer(plain);
+    }
+
     return bindings.verifySync(hash, plain, /argon2d/.test(hash));
   }
 };

@@ -3,6 +3,13 @@ const t = require('tap');
 
 const password = 'password';
 const salt = new Buffer('somesalt');
+const saltWithNull = new Buffer('\0abcdefghijklmno');
+
+// Like argon2's modified base64 implementation, this function truncates any
+// trailing '=' characters for a more compact representation.
+const truncatedBase64 = (buffer) => {
+  return buffer.toString('base64').replace(/=?=?$/,'');
+}
 
 const limits = argon2.limits;
 console.warn = () => {};
@@ -26,6 +33,27 @@ t.test('basic async hash', t => {
 
   return argon2.hash(password, salt).then(hash => {
     t.equal(hash, '$argon2i$m=4096,t=3,p=1$c29tZXNhbHQ$vpOd0mbc3AzXEHMgcTb1CrZt5XuoRQuz1kQtGBv7ejk');
+  });
+}).catch(t.threw);
+
+t.test('async hash with null in password', t => {
+  'use strict';
+
+  t.plan(1);
+
+  return argon2.hash('pass\0word', salt).then(hash => {
+    t.equal(hash, '$argon2i$m=4096,t=3,p=1$c29tZXNhbHQ$tcauj48oAe6NE/VLzTawLTQtmX848wkNs1d7z53ahNE');
+  });
+}).catch(t.threw);
+
+t.test('async hash with null in salt', t => {
+  'use strict';
+
+  t.plan(1);
+
+  return argon2.hash(password, saltWithNull).then(hash => {
+    const saltBase64 = hash.substring(24, 46);
+    t.equal(saltBase64, truncatedBase64(saltWithNull));
   });
 }).catch(t.threw);
 
@@ -248,6 +276,23 @@ t.test('basic sync hash', t => {
 
   const hash = argon2.hashSync(password, salt);
   t.equal(hash, '$argon2i$m=4096,t=3,p=1$c29tZXNhbHQ$vpOd0mbc3AzXEHMgcTb1CrZt5XuoRQuz1kQtGBv7ejk');
+  t.end();
+});
+
+t.test('sync hash with null in password', t => {
+  'use strict';
+
+  const hash = argon2.hashSync('pass\0word', salt);
+  t.equal(hash, '$argon2i$m=4096,t=3,p=1$c29tZXNhbHQ$tcauj48oAe6NE/VLzTawLTQtmX848wkNs1d7z53ahNE');
+  t.end();
+});
+
+t.test('sync hash with null in salt', t => {
+  'use strict';
+
+  const hash = argon2.hashSync(password, saltWithNull);
+  const saltBase64 = hash.substring(24, 46);
+  t.equal(saltBase64, truncatedBase64(saltWithNull));
   t.end();
 });
 
@@ -494,6 +539,16 @@ t.test('async verify wrong password', t => {
   });
 }).catch(t.threw);
 
+t.test('async verify with null in password', t => {
+  'use strict';
+
+  return argon2.generateSalt().then(salt => {
+    return argon2.hash('pass\0word', salt).then(hash => {
+      return argon2.verify(hash, 'pass\0word').then(t.pass);
+    });
+  });
+}).catch(t.threw);
+
 t.test('async verify argon2d correct password', t => {
   'use strict';
 
@@ -538,6 +593,18 @@ t.test('sync verify wrong password', t => {
   return argon2.generateSalt().then(salt => {
     return argon2.hash(password, salt).then(hash => {
       t.false(argon2.verifySync(hash, 'passworld'));
+    });
+  });
+}).catch(t.threw);
+
+t.test('sync verify with null in password', t => {
+  'use strict';
+
+  t.plan(1);
+
+  return argon2.generateSalt().then(salt => {
+    return argon2.hash('pass\0word', salt).then(hash => {
+      t.true(argon2.verifySync(hash, 'pass\0word'));
     });
   });
 }).catch(t.threw);
