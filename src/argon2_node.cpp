@@ -221,35 +221,26 @@ NAN_MODULE_INIT(init) {
 
     auto limits = Nan::New<Object>();
 
-    {
-        auto memoryCost = Nan::New<Object>();
-        Nan::Set(memoryCost, Nan::New("max").ToLocalChecked(),
-                Nan::New<Number>(log(ARGON2_MAX_MEMORY)));
-        Nan::Set(memoryCost, Nan::New("min").ToLocalChecked(),
-                Nan::New<Number>(log(ARGON2_MIN_MEMORY)));
-        Nan::Set(limits, Nan::New("memoryCost").ToLocalChecked(),
-                memoryCost);
-    }
+    auto memoryCost = Nan::New<Object>();
+    Nan::Set(memoryCost, Nan::New("max").ToLocalChecked(),
+            Nan::New<Number>(log(ARGON2_MAX_MEMORY)));
+    Nan::Set(memoryCost, Nan::New("min").ToLocalChecked(),
+            Nan::New<Number>(log(ARGON2_MIN_MEMORY)));
+    Nan::Set(limits, Nan::New("memoryCost").ToLocalChecked(), memoryCost);
 
-    {
-        auto timeCost = Nan::New<Object>();
-        Nan::Set(timeCost, Nan::New("max").ToLocalChecked(),
-                Nan::New<Number>(ARGON2_MAX_TIME));
-        Nan::Set(timeCost, Nan::New("min").ToLocalChecked(),
-                Nan::New<Number>(ARGON2_MIN_TIME));
-        Nan::Set(limits, Nan::New("timeCost").ToLocalChecked(),
-                timeCost);
-    }
+    auto timeCost = Nan::New<Object>();
+    Nan::Set(timeCost, Nan::New("max").ToLocalChecked(),
+            Nan::New<Number>(ARGON2_MAX_TIME));
+    Nan::Set(timeCost, Nan::New("min").ToLocalChecked(),
+            Nan::New<Number>(ARGON2_MIN_TIME));
+    Nan::Set(limits, Nan::New("timeCost").ToLocalChecked(), timeCost);
 
-    {
-        auto parallelism = Nan::New<Object>();
-        Nan::Set(parallelism, Nan::New("max").ToLocalChecked(),
-                Nan::New<Number>(ARGON2_MAX_LANES));
-        Nan::Set(parallelism, Nan::New("min").ToLocalChecked(),
-                Nan::New<Number>(ARGON2_MIN_LANES));
-        Nan::Set(limits, Nan::New("parallelism").ToLocalChecked(),
-                parallelism);
-    }
+    auto parallelism = Nan::New<Object>();
+    Nan::Set(parallelism, Nan::New("max").ToLocalChecked(),
+            Nan::New<Number>(ARGON2_MAX_LANES));
+    Nan::Set(parallelism, Nan::New("min").ToLocalChecked(),
+            Nan::New<Number>(ARGON2_MIN_LANES));
+    Nan::Set(limits, Nan::New("parallelism").ToLocalChecked(), parallelism);
 
     Nan::Set(target, Nan::New("limits").ToLocalChecked(), limits);
     Nan::Export(target, "hash", Hash);
