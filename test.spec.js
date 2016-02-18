@@ -11,6 +11,12 @@ const truncatedBase64 = (buffer) => {
   return buffer.toString('base64').replace(/=?=?$/,'');
 }
 
+// hashes for argon2i and argon2d with default options
+const hashes = Object.freeze({
+  argon2i: '$argon2i$m=4096,t=3,p=1$c29tZXNhbHQ$vpOd0mbc3AzXEHMgcTb1CrZt5XuoRQuz1kQtGBv7ejk',
+  argon2d: '$argon2d$m=4096,t=3,p=1$c29tZXNhbHQ$/rwrGjZ1NrS+TEgQxricD7B57yJMKGQ/uov96abC6ko'
+});
+
 const limits = argon2.limits;
 console.warn = () => {};
 
@@ -32,7 +38,7 @@ t.test('basic async hash', t => {
   t.plan(1);
 
   return argon2.hash(password, salt).then(hash => {
-    t.equal(hash, '$argon2i$m=4096,t=3,p=1$c29tZXNhbHQ$vpOd0mbc3AzXEHMgcTb1CrZt5XuoRQuz1kQtGBv7ejk');
+    t.equal(hash, hashes.argon2i);
   });
 }).catch(t.threw);
 
@@ -60,12 +66,13 @@ t.test('async hash with null in salt', t => {
 t.test('async hash with argon2d', t => {
   'use strict';
 
-  t.plan(1);
+  t.plan(2);
 
   return argon2.hash(password, salt, {
     argon2d: true
   }).then(hash => {
     t.match(hash, /\$argon2d\$/, 'Should have argon2d signature.');
+    t.equal(hash, hashes.argon2d);
   });
 }).catch(t.threw);
 
@@ -275,7 +282,7 @@ t.test('basic sync hash', t => {
   'use strict';
 
   const hash = argon2.hashSync(password, salt);
-  t.equal(hash, '$argon2i$m=4096,t=3,p=1$c29tZXNhbHQ$vpOd0mbc3AzXEHMgcTb1CrZt5XuoRQuz1kQtGBv7ejk');
+  t.equal(hash, hashes.argon2i);
   t.end();
 });
 
@@ -303,6 +310,7 @@ t.test('sync hash with argon2d', t => {
     argon2d: true
   });
   t.match(hash, /\$argon2d\$/,  'Should use argon2d signature.');
+  t.equal(hash, hashes.argon2d);
   t.end();
 });
 
