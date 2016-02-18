@@ -76,10 +76,10 @@ NAN_METHOD(Hash) {
     auto time_cost = info[2]->Uint32Value();
     auto memory_cost = info[3]->Uint32Value();
     auto parallelism = info[4]->Uint32Value();
-    argon2_type type = info[5]->BooleanValue() ? Argon2_d : Argon2_i;
+    auto type = info[5]->BooleanValue() ? Argon2_d : Argon2_i;
 
-    std::string salt{Buffer::Data(raw_salt), Buffer::Length(raw_salt)};
-    std::string plain{Buffer::Data(raw_plain), Buffer::Length(raw_plain)};
+    auto plain = std::string{Buffer::Data(raw_plain), Buffer::Length(raw_plain)};
+    auto salt = std::string{Buffer::Data(raw_salt), Buffer::Length(raw_salt)};
 
     auto worker = new HashAsyncWorker{plain, salt, time_cost,
         1u << memory_cost, parallelism, type};
@@ -106,15 +106,14 @@ NAN_METHOD(HashSync) {
     auto time_cost = info[2]->Uint32Value();
     auto memory_cost = info[3]->Uint32Value();
     auto parallelism = info[4]->Uint32Value();
-    argon2_type type = info[5]->BooleanValue() ? Argon2_d : Argon2_i;
+    auto type = info[5]->BooleanValue() ? Argon2_d : Argon2_i;
 
     char encoded[ENCODED_LEN];
 
-    auto salt = std::string{Buffer::Data(raw_salt), Buffer::Length(raw_salt)};
-
     auto result = argon2_hash(time_cost, 1 << memory_cost, parallelism,
-            Buffer::Data(raw_plain), Buffer::Length(raw_plain), salt.c_str(),
-            salt.size(), nullptr, HASH_LEN, encoded, ENCODED_LEN, type);
+            Buffer::Data(raw_plain), Buffer::Length(raw_plain),
+            Buffer::Data(raw_salt), Buffer::Length(raw_salt), nullptr, HASH_LEN,
+            encoded, ENCODED_LEN, type);
 
     if (result != ARGON2_OK) {
         /* LCOV_EXCL_START */
@@ -174,9 +173,9 @@ NAN_METHOD(Verify) {
 
     Nan::Utf8String hash{info[0]->ToString()};
     auto raw_plain = info[1]->ToObject();
-    argon2_type type = info[2]->BooleanValue() ? Argon2_d : Argon2_i;
+    auto type = info[2]->BooleanValue() ? Argon2_d : Argon2_i;
 
-    std::string plain{Buffer::Data(raw_plain), Buffer::Length(raw_plain)};
+    auto plain = std::string{Buffer::Data(raw_plain), Buffer::Length(raw_plain)};
 
     auto worker = new VerifyAsyncWorker(*hash, plain, type);
 
@@ -199,7 +198,7 @@ NAN_METHOD(VerifySync) {
 
     Nan::Utf8String hash{info[0]->ToString()};
     auto raw_plain = info[1]->ToObject();
-    argon2_type type = info[2]->BooleanValue() ? Argon2_d : Argon2_i;
+    auto type = info[2]->BooleanValue() ? Argon2_d : Argon2_i;
 
     auto result = argon2_verify(*hash, Buffer::Data(raw_plain),
             Buffer::Length(raw_plain), type);
