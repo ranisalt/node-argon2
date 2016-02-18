@@ -14,7 +14,7 @@ const auto HASH_LEN = 32u;
 
 HashAsyncWorker::HashAsyncWorker(const std::string& plain,
         const std::string& salt, uint32_t time_cost, uint32_t memory_cost,
-        uint32_t parallelism, Argon2_type type):
+        uint32_t parallelism, argon2_type type):
     Nan::AsyncWorker{nullptr}, plain{plain}, salt{salt}, time_cost{time_cost},
     memory_cost{memory_cost}, parallelism{parallelism}, type{type}, output{}
 { }
@@ -51,12 +51,11 @@ void HashAsyncWorker::HandleErrorCallback()
 {
     using v8::Exception;
     using v8::Promise;
-    using v8::String;
 
     Nan::HandleScope scope;
 
     auto promise = GetFromPersistent("resolver").As<Promise::Resolver>();
-    auto reason = Nan::New<String>(ErrorMessage()).ToLocalChecked();
+    auto reason = Nan::New(ErrorMessage()).ToLocalChecked();
     promise->Reject(Exception::Error(reason));
 }
 /* LCOV_EXCL_STOP */
@@ -64,8 +63,6 @@ void HashAsyncWorker::HandleErrorCallback()
 NAN_METHOD(Hash) {
     using namespace node;
     using v8::Promise;
-
-    Nan::HandleScope scope;
 
     if (info.Length() < 6) {
         /* LCOV_EXCL_START */
@@ -97,12 +94,9 @@ NAN_METHOD(Hash) {
 NAN_METHOD(HashSync) {
     using namespace node;
 
-    Nan::HandleScope scope;
-
     if (info.Length() < 6) {
         /* LCOV_EXCL_START */
         Nan::ThrowTypeError("6 arguments expected");
-        info.GetReturnValue().Set(Nan::Undefined());
         return;
         /* LCOV_EXCL_STOP */
     }
@@ -116,12 +110,11 @@ NAN_METHOD(HashSync) {
 
     char encoded[ENCODED_LEN];
 
-    auto salt = std::string(Buffer::Data(raw_salt), Buffer::Length(raw_salt));
+    auto salt = std::string{Buffer::Data(raw_salt), Buffer::Length(raw_salt)};
 
     auto result = argon2_hash(time_cost, 1 << memory_cost, parallelism,
-            Buffer::Data(raw_plain), Buffer::Length(raw_plain),
-            salt.c_str(), salt.size(), nullptr, HASH_LEN,
-            encoded, ENCODED_LEN, type);
+            Buffer::Data(raw_plain), Buffer::Length(raw_plain), salt.c_str(),
+            salt.size(), nullptr, HASH_LEN, encoded, ENCODED_LEN, type);
 
     if (result != ARGON2_OK) {
         /* LCOV_EXCL_START */
@@ -130,8 +123,7 @@ NAN_METHOD(HashSync) {
         /* LCOV_EXCL_STOP */
     }
 
-    info.GetReturnValue().Set(Nan::Encode(encoded, std::strlen(encoded),
-            Nan::BINARY));
+    info.GetReturnValue().Set(Nan::Encode(encoded, std::strlen(encoded)));
 }
 
 VerifyAsyncWorker::VerifyAsyncWorker(const std::string& hash,
@@ -162,19 +154,16 @@ void VerifyAsyncWorker::HandleErrorCallback()
 {
     using v8::Exception;
     using v8::Promise;
-    using v8::String;
 
     Nan::HandleScope scope;
 
     auto promise = GetFromPersistent("resolver").As<Promise::Resolver>();
-    promise->Reject(Nan::New<String>(ErrorMessage()).ToLocalChecked());
+    promise->Reject(Nan::New(ErrorMessage()).ToLocalChecked());
 }
 
 NAN_METHOD(Verify) {
     using v8::Promise;
     using namespace node;
-
-    Nan::HandleScope scope;
 
     if (info.Length() < 3) {
         /* LCOV_EXCL_START */
@@ -200,8 +189,6 @@ NAN_METHOD(Verify) {
 
 NAN_METHOD(VerifySync) {
     using namespace node;
-
-    Nan::HandleScope scope;
 
     if (info.Length() < 3) {
         /* LCOV_EXCL_START */
@@ -232,41 +219,40 @@ NAN_MODULE_INIT(init) {
     using NodeArgon2::log;
     using v8::Number;
     using v8::Object;
-    using v8::String;
 
     auto limits = Nan::New<Object>();
 
     {
         auto memoryCost = Nan::New<Object>();
-        Nan::Set(memoryCost, Nan::New<String>("max").ToLocalChecked(),
+        Nan::Set(memoryCost, Nan::New("max").ToLocalChecked(),
                 Nan::New<Number>(log(ARGON2_MAX_MEMORY)));
-        Nan::Set(memoryCost, Nan::New<String>("min").ToLocalChecked(),
+        Nan::Set(memoryCost, Nan::New("min").ToLocalChecked(),
                 Nan::New<Number>(log(ARGON2_MIN_MEMORY)));
-        Nan::Set(limits, Nan::New<String>("memoryCost").ToLocalChecked(),
+        Nan::Set(limits, Nan::New("memoryCost").ToLocalChecked(),
                 memoryCost);
     }
 
     {
         auto timeCost = Nan::New<Object>();
-        Nan::Set(timeCost, Nan::New<String>("max").ToLocalChecked(),
+        Nan::Set(timeCost, Nan::New("max").ToLocalChecked(),
                 Nan::New<Number>(ARGON2_MAX_TIME));
-        Nan::Set(timeCost, Nan::New<String>("min").ToLocalChecked(),
+        Nan::Set(timeCost, Nan::New("min").ToLocalChecked(),
                 Nan::New<Number>(ARGON2_MIN_TIME));
-        Nan::Set(limits, Nan::New<String>("timeCost").ToLocalChecked(),
+        Nan::Set(limits, Nan::New("timeCost").ToLocalChecked(),
                 timeCost);
     }
 
     {
         auto parallelism = Nan::New<Object>();
-        Nan::Set(parallelism, Nan::New<String>("max").ToLocalChecked(),
+        Nan::Set(parallelism, Nan::New("max").ToLocalChecked(),
                 Nan::New<Number>(ARGON2_MAX_LANES));
-        Nan::Set(parallelism, Nan::New<String>("min").ToLocalChecked(),
+        Nan::Set(parallelism, Nan::New("min").ToLocalChecked(),
                 Nan::New<Number>(ARGON2_MIN_LANES));
-        Nan::Set(limits, Nan::New<String>("parallelism").ToLocalChecked(),
+        Nan::Set(limits, Nan::New("parallelism").ToLocalChecked(),
                 parallelism);
     }
 
-    Nan::Set(target, Nan::New<String>("limits").ToLocalChecked(), limits);
+    Nan::Set(target, Nan::New("limits").ToLocalChecked(), limits);
     Nan::Export(target, "hash", Hash);
     Nan::Export(target, "hashSync", HashSync);
     Nan::Export(target, "verify", Verify);
