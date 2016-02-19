@@ -67,17 +67,20 @@ void HashAsyncWorker::Execute()
 void HashAsyncWorker::HandleOKCallback()
 {
     using std::strlen;
+    using v8::Context;
     using v8::Promise;
 
     Nan::HandleScope scope;
 
     auto promise = GetFromPersistent("resolver").As<Promise::Resolver>();
-    promise->Resolve(Nan::Encode(output.get(), strlen(output.get())));
+    auto value = Nan::Encode(output.get(), strlen(output.get()));
+    promise->Resolve(Nan::New<Context>(), value);
 }
 
 /* LCOV_EXCL_START */
 void HashAsyncWorker::HandleErrorCallback()
 {
+    using v8::Context;
     using v8::Exception;
     using v8::Promise;
 
@@ -85,12 +88,13 @@ void HashAsyncWorker::HandleErrorCallback()
 
     auto promise = GetFromPersistent("resolver").As<Promise::Resolver>();
     auto reason = Nan::New(ErrorMessage()).ToLocalChecked();
-    promise->Reject(Exception::Error(reason));
+    promise->Reject(Nan::New<Context>(), Exception::Error(reason));
 }
 /* LCOV_EXCL_STOP */
 
 NAN_METHOD(Hash) {
     using namespace node;
+    using v8::Context;
     using v8::Promise;
 
     if (info.Length() < 6) {
@@ -112,7 +116,8 @@ NAN_METHOD(Hash) {
             {Buffer::Data(salt), Buffer::Length(salt)},
             time_cost, 1u << memory_cost, parallelism, type};
 
-    auto resolver = Promise::Resolver::New(info.GetIsolate());
+    auto context = info.GetIsolate()->GetCurrentContext();
+    auto resolver = Promise::Resolver::New(context).ToLocalChecked();
     worker->SaveToPersistent("resolver", resolver);
 
     Nan::AsyncQueueWorker(worker);
@@ -171,23 +176,26 @@ void VerifyAsyncWorker::Execute()
 
 void VerifyAsyncWorker::HandleOKCallback()
 {
+    using v8::Context;
     using v8::Promise;
 
     Nan::HandleScope scope;
 
     auto promise = GetFromPersistent("resolver").As<Promise::Resolver>();
-    promise->Resolve(Nan::Undefined());
+    promise->Resolve(Nan::New<Context>(), Nan::Undefined());
 }
 
 void VerifyAsyncWorker::HandleErrorCallback()
 {
+    using v8::Context;
     using v8::Exception;
     using v8::Promise;
 
     Nan::HandleScope scope;
 
     auto promise = GetFromPersistent("resolver").As<Promise::Resolver>();
-    promise->Reject(Nan::New(ErrorMessage()).ToLocalChecked());
+    auto reason = Nan::New(ErrorMessage()).ToLocalChecked();
+    promise->Reject(Nan::New<Context>(), reason);
 }
 
 NAN_METHOD(Verify) {
