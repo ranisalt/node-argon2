@@ -108,7 +108,7 @@ NAN_METHOD(HashSync) {
 
     char encoded[ENCODED_LEN];
 
-    auto result = argon2_hash(time_cost, 1 << memory_cost, parallelism,
+    auto result = argon2_hash(time_cost, 1u << memory_cost, parallelism,
             Buffer::Data(raw_plain), Buffer::Length(raw_plain),
             Buffer::Data(raw_salt), Buffer::Length(raw_salt), nullptr, HASH_LEN,
             encoded, ENCODED_LEN, type);

@@ -6,11 +6,11 @@
 
 namespace NodeArgon2 {
 
-class HashAsyncWorker final : public Nan::AsyncWorker {
+class HashAsyncWorker final: public Nan::AsyncWorker {
 public:
     HashAsyncWorker(const std::string& plain, const std::string& salt,
             uint32_t time_cost, uint32_t memory_cost, uint32_t parallelism,
-            Argon2_type type);
+            argon2_type type);
 
     void Execute() override;
 
@@ -24,11 +24,11 @@ private:
     uint32_t time_cost;
     uint32_t memory_cost;
     uint32_t parallelism;
-    Argon2_type type;
+    argon2_type type;
     std::unique_ptr<char[]> output;
 };
 
-class VerifyAsyncWorker final : public Nan::AsyncWorker {
+class VerifyAsyncWorker final: public Nan::AsyncWorker {
 public:
     VerifyAsyncWorker(const std::string& hash, const std::string& plain,
             argon2_type type);
