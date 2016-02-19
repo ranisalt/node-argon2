@@ -1,10 +1,10 @@
 #ifndef ARGON2_NODE_H
 #define ARGON2_NODE_H
 
+#include <memory>
 #include <nan.h>
 
 namespace NodeArgon2 {
-
 
 class HashAsyncWorker final : public Nan::AsyncWorker {
 public:
@@ -25,7 +25,7 @@ private:
     uint32_t memory_cost;
     uint32_t parallelism;
     Argon2_type type;
-    std::string output;
+    std::unique_ptr<char[]> output;
 };
 
 class VerifyAsyncWorker final : public Nan::AsyncWorker {

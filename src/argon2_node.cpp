@@ -21,19 +21,17 @@ HashAsyncWorker::HashAsyncWorker(const std::string& plain,
 
 void HashAsyncWorker::Execute()
 {
-    char encoded[ENCODED_LEN];
+    output.reset(new char[ENCODED_LEN]);
 
     auto result = argon2_hash(time_cost, memory_cost, parallelism,
             plain.c_str(), plain.size(), salt.c_str(), salt.size(), nullptr,
-            HASH_LEN, encoded, ENCODED_LEN, type);
+            HASH_LEN, output.get(), ENCODED_LEN, type);
     if (result != ARGON2_OK) {
         /* LCOV_EXCL_START */
         SetErrorMessage(argon2_error_message(result));
         return;
         /* LCOV_EXCL_STOP */
     }
-
-    output = std::string{encoded};
 }
 
 void HashAsyncWorker::HandleOKCallback()
@@ -43,7 +41,7 @@ void HashAsyncWorker::HandleOKCallback()
     Nan::HandleScope scope;
 
     auto promise = GetFromPersistent("resolver").As<Promise::Resolver>();
-    promise->Resolve(Nan::Encode(output.c_str(), output.size()));
+    promise->Resolve(Nan::Encode(output.get(), std::strlen(output.get())));
 }
 
 /* LCOV_EXCL_START */
