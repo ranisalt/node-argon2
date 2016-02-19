@@ -63,6 +63,20 @@ t.test('async hash with null in salt', t => {
   });
 }).catch(t.threw);
 
+t.test('async hash with longer salt', t => {
+  'use strict';
+
+  t.plan(1);
+
+  /* intentionally using a length that is not multiple of 3 */
+  return argon2.generateSalt(500).then(salt => {
+    return argon2.hash('password', salt).then(hash => {
+      t.match(hash, /.*\$.{667}\$/, 'Hash should use the entire salt');
+      return argon2.verify(hash, 'password').then(t.end);
+    });
+  });
+}).catch(t.threw);
+
 t.test('async hash with argon2d', t => {
   'use strict';
 
@@ -302,6 +316,17 @@ t.test('sync hash with null in salt', t => {
   t.equal(saltBase64, truncatedBase64(saltWithNull));
   t.end();
 });
+
+t.test('sync hash with longer salt', t => {
+  'use strict';
+
+  t.plan(1);
+
+  return argon2.generateSalt(32).then(salt => {
+    const hash = argon2.hashSync('password', salt);
+    return argon2.verify(hash, 'password').then(t.pass);
+  });
+}).catch(t.threw);
 
 t.test('sync hash with argon2d', t => {
   'use strict';
