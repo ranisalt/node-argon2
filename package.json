@@ -32,7 +32,7 @@
   "devDependencies": {
     "async": "^1.5.2",
     "async-benchmark": "^1.0.1",
-    "tap": "^5.4.4"
+    "tap": "^5.7.0"
   },
   "engines": {
     "node": ">=4.0.0"
