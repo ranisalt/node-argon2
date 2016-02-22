@@ -162,16 +162,19 @@ NAN_METHOD(HashSync) {
 
 VerifyAsyncWorker::VerifyAsyncWorker(std::string&& hash, std::string&& plain,
         argon2_type type):
-    Nan::AsyncWorker{nullptr}, hash{hash}, plain{plain}, type{type}
+    Nan::AsyncWorker{nullptr}, hash{hash}, plain{plain}, type{type}, output{}
 { }
 
 void VerifyAsyncWorker::Execute()
 {
     auto result = argon2_verify(hash.c_str(), plain.c_str(), plain.size(), type);
 
-    if (result != ARGON2_OK) {
+    if (result != ARGON2_OK && result != ARGON2_VERIFY_MISMATCH) {
         SetErrorMessage(argon2_error_message(result));
+        return;
     }
+
+    output = result == ARGON2_OK;
 }
 
 void VerifyAsyncWorker::HandleOKCallback()
@@ -182,7 +185,7 @@ void VerifyAsyncWorker::HandleOKCallback()
     Nan::HandleScope scope;
 
     auto promise = GetFromPersistent("resolver").As<Promise::Resolver>();
-    promise->Resolve(Nan::New<Context>(), Nan::Undefined());
+    promise->Resolve(Nan::New<Context>(), Nan::New(output));
 }
 
 void VerifyAsyncWorker::HandleErrorCallback()
@@ -239,6 +242,13 @@ NAN_METHOD(VerifySync) {
 
     auto result = argon2_verify(*hash, Buffer::Data(plain),
             Buffer::Length(plain), type);
+
+    if (result != ARGON2_OK && result != ARGON2_VERIFY_MISMATCH) {
+        /* LCOV_EXCL_START */
+        Nan::ThrowError(argon2_error_message(result));
+        return;
+        /* LCOV_EXCL_STOP */
+    }
 
     info.GetReturnValue().Set(result == ARGON2_OK);
 }

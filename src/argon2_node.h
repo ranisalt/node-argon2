@@ -41,6 +41,7 @@ private:
     std::string hash;
     std::string plain;
     argon2_type type;
+    bool output;
 };
 
 NAN_METHOD(Hash);
