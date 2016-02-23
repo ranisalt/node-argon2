@@ -7,9 +7,7 @@ const saltWithNull = new Buffer('\0abcdefghijklmno');
 
 // Like argon2's modified base64 implementation, this function truncates any
 // trailing '=' characters for a more compact representation.
-const truncatedBase64 = (buffer) => {
-  return buffer.toString('base64').replace(/\=*$/, '');
-};
+const truncatedBase64 = buffer => buffer.toString('base64').replace(/\=*$/, '');
 
 // hashes for argon2i and argon2d with default options
 const hashes = Object.freeze({

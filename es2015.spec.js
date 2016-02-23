@@ -6,7 +6,7 @@ const passwordWithNull = 'pass\0word';
 const salt = new Buffer('somesalt');
 const saltWithNull = new Buffer('\0abcdefghijklmno');
 
-const truncatedBase64 = buffer => buffer.toString('base64').replace(/=*$/, '');
+const truncatedBase64 = buffer => buffer.toString('base64').replace(/\=*$/, '');
 
 const hashes = Object.freeze({
   argon2i: '$argon2i$m=4096,t=3,p=1$c29tZXNhbHQ$vpOd0mbc3AzXEHMgcTb1CrZt5XuoRQuz1kQtGBv7ejk',
