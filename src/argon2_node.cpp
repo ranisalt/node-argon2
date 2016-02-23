@@ -59,7 +59,6 @@ void HashAsyncWorker::Execute()
     if (result != ARGON2_OK) {
         /* LCOV_EXCL_START */
         SetErrorMessage(argon2_error_message(result));
-        return;
         /* LCOV_EXCL_STOP */
     }
 }
@@ -94,7 +93,6 @@ void HashAsyncWorker::HandleErrorCallback()
 
 NAN_METHOD(Hash) {
     using namespace node;
-    using v8::Context;
     using v8::Promise;
 
     if (info.Length() < 6) {
@@ -189,6 +187,7 @@ void VerifyAsyncWorker::HandleOKCallback()
     promise->Resolve(Nan::New<Context>(), Nan::New(output));
 }
 
+/* LCOV_EXCL_START */
 void VerifyAsyncWorker::HandleErrorCallback()
 {
     using v8::Context;
@@ -199,12 +198,13 @@ void VerifyAsyncWorker::HandleErrorCallback()
 
     auto promise = GetFromPersistent("resolver").As<Promise::Resolver>();
     auto reason = Nan::New(ErrorMessage()).ToLocalChecked();
-    promise->Reject(Nan::New<Context>(), reason);
+    promise->Reject(Nan::New<Context>(), Exception::Error(reason));
 }
+/* LCOV_EXCL_STOP */
 
 NAN_METHOD(Verify) {
-    using v8::Promise;
     using namespace node;
+    using v8::Promise;
 
     if (info.Length() < 3) {
         /* LCOV_EXCL_START */
