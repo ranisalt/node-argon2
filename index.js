@@ -34,11 +34,11 @@ const validate = (salt, options, resolve, reject) => {
     options.parallelism = require('os').cpus().length;
   }
 
-  // TODO: replace var with const https://github.com/tapjs/node-tap/issues/236
-  for (var key of Object.keys(limits)) {
-    var max = limits[key].max;
-    var min = limits[key].min;
-    var value = options[key];
+  for (const key of Object.keys(limits)) {
+    const max = limits[key].max;
+    const min = limits[key].min;
+    const value = options[key];
+>>>>>>> Add tests for es2015 async/await using babel-tap
     if (!Number.isInteger(value) || value > max || value < min) {
       fail(`Invalid ${key}, must be an integer between ${min} and ${max}.`, reject);
       return false;
