@@ -555,9 +555,13 @@ t.test('sync generate salt with specified length', t => {
 t.test('async verify correct password', t => {
   'use strict';
 
+  t.plan(1);
+
   return argon2.generateSalt().then(salt => {
     return argon2.hash(password, salt).then(hash => {
-      return argon2.verify(hash, password).then(t.pass);
+      return argon2.verify(hash, password).then(result => {
+        t.true(result);
+      });
     });
   });
 }).catch(t.threw);
@@ -565,9 +569,13 @@ t.test('async verify correct password', t => {
 t.test('async verify wrong password', t => {
   'use strict';
 
+  t.plan(1);
+
   return argon2.generateSalt().then(salt => {
     return argon2.hash(password, salt).then(hash => {
-      return argon2.verify(hash, 'passworld').catch(t.pass);
+      return argon2.verify(hash, 'passworld').then(result => {
+        t.false(result);
+      });
     });
   });
 }).catch(t.threw);
@@ -575,9 +583,13 @@ t.test('async verify wrong password', t => {
 t.test('async verify with null in password', t => {
   'use strict';
 
+  t.plan(1);
+
   return argon2.generateSalt().then(salt => {
     return argon2.hash('pass\0word', salt).then(hash => {
-      return argon2.verify(hash, 'pass\0word').then(t.pass);
+      return argon2.verify(hash, 'pass\0word').then(result => {
+        t.true(result);
+      });
     });
   });
 }).catch(t.threw);
@@ -585,11 +597,15 @@ t.test('async verify with null in password', t => {
 t.test('async verify argon2d correct password', t => {
   'use strict';
 
+  t.plan(1);
+
   return argon2.generateSalt().then(salt => {
     return argon2.hash(password, salt, {
       argon2d: true
     }).then(hash => {
-      return argon2.verify(hash, password).then(t.pass);
+      return argon2.verify(hash, password).then(result => {
+        t.true(result);
+      });
     });
   });
 }).catch(t.threw);
@@ -597,11 +613,15 @@ t.test('async verify argon2d correct password', t => {
 t.test('async verify argon2d wrong password', t => {
   'use strict';
 
+  t.plan(1);
+
   return argon2.generateSalt().then(salt => {
     return argon2.hash(password, salt, {
       argon2d: true
     }).then(hash => {
-      return argon2.verify(hash, 'passwolrd').catch(t.pass);
+      return argon2.verify(hash, 'passwolrd').then(result => {
+        t.false(result);
+      });
     });
   });
 }).catch(t.threw);
