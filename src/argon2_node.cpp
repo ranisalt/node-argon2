@@ -9,8 +9,36 @@
 
 namespace NodeArgon2 {
 
-const auto ENCODED_LEN = 108u;
+using size_type = std::string::size_type;
 const auto HASH_LEN = 32u;
+
+constexpr uint32_t log(uint32_t number, uint32_t base = 2u)
+{
+    return (number > 1) ? 1u + log(number / base, base) : 0u;
+}
+
+constexpr size_type base64Length(size_type length)
+{
+    using std::ceil;
+
+    return static_cast<size_type>(ceil(length / 3.0)) * 4;
+}
+
+size_type encodedLength(size_type saltLength)
+{
+    using std::strlen;
+    using std::to_string;
+
+    /* statically calculate maximum encoded hash length, null byte included */
+    static const auto extraLength = strlen("$argon2x$m=,t=,p=$$") + 1u,
+            memoryCostLength = to_string(log(ARGON2_MAX_MEMORY)).size(),
+            timeCostLength = to_string(ARGON2_MAX_TIME).size(),
+            parallelismLength = to_string(ARGON2_MAX_LANES).size();
+
+    /* (number + 3) & ~3 rounds up to the nearest 4-byte boundary */
+    return (extraLength + memoryCostLength + timeCostLength + parallelismLength
+        + base64Length(saltLength) + base64Length(HASH_LEN) + 3) & ~3;
+}
 
 HashAsyncWorker::HashAsyncWorker(const std::string& plain,
         const std::string& salt, uint32_t time_cost, uint32_t memory_cost,
@@ -21,6 +49,7 @@ HashAsyncWorker::HashAsyncWorker(const std::string& plain,
 
 void HashAsyncWorker::Execute()
 {
+    const auto ENCODED_LEN = encodedLength(salt.size());
     output.reset(new char[ENCODED_LEN]);
 
     auto result = argon2_hash(time_cost, memory_cost, parallelism,
@@ -36,12 +65,13 @@ void HashAsyncWorker::Execute()
 
 void HashAsyncWorker::HandleOKCallback()
 {
+    using std::strlen;
     using v8::Promise;
 
     Nan::HandleScope scope;
 
     auto promise = GetFromPersistent("resolver").As<Promise::Resolver>();
-    promise->Resolve(Nan::Encode(output.get(), std::strlen(output.get())));
+    promise->Resolve(Nan::Encode(output.get(), strlen(output.get())));
 }
 
 /* LCOV_EXCL_START */
@@ -91,6 +121,7 @@ NAN_METHOD(Hash) {
 
 NAN_METHOD(HashSync) {
     using namespace node;
+    using std::strlen;
 
     if (info.Length() < 6) {
         /* LCOV_EXCL_START */
@@ -106,12 +137,13 @@ NAN_METHOD(HashSync) {
     auto parallelism = info[4]->Uint32Value();
     auto type = info[5]->BooleanValue() ? Argon2_d : Argon2_i;
 
-    char encoded[ENCODED_LEN];
+    const auto ENCODED_LEN = encodedLength(Buffer::Length(raw_salt));
+    auto output = std::unique_ptr<char[]>{new char[ENCODED_LEN]};
 
     auto result = argon2_hash(time_cost, 1u << memory_cost, parallelism,
             Buffer::Data(raw_plain), Buffer::Length(raw_plain),
             Buffer::Data(raw_salt), Buffer::Length(raw_salt), nullptr, HASH_LEN,
-            encoded, ENCODED_LEN, type);
+            output.get(), ENCODED_LEN, type);
 
     if (result != ARGON2_OK) {
         /* LCOV_EXCL_START */
@@ -120,7 +152,7 @@ NAN_METHOD(HashSync) {
         /* LCOV_EXCL_STOP */
     }
 
-    info.GetReturnValue().Set(Nan::Encode(encoded, std::strlen(encoded)));
+    info.GetReturnValue().Set(Nan::Encode(output.get(), strlen(output.get())));
 }
 
 VerifyAsyncWorker::VerifyAsyncWorker(const std::string& hash,
@@ -202,11 +234,6 @@ NAN_METHOD(VerifySync) {
             Buffer::Length(raw_plain), type);
 
     info.GetReturnValue().Set(result == ARGON2_OK);
-}
-
-constexpr uint32_t log(uint32_t number, uint32_t base = 2u)
-{
-    return (number > 1) ? 1u + log(number / base, base) : 0u;
 }
 
 }
