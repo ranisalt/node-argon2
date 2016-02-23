@@ -38,7 +38,6 @@ const validate = (salt, options, resolve, reject) => {
     const max = limits[key].max;
     const min = limits[key].min;
     const value = options[key];
->>>>>>> Add tests for es2015 async/await using babel-tap
     if (!Number.isInteger(value) || value > max || value < min) {
       fail(`Invalid ${key}, must be an integer between ${min} and ${max}.`, reject);
       return false;
@@ -111,6 +110,10 @@ module.exports = {
   verify(hash, plain) {
     'use strict';
 
+    if (!Buffer.isBuffer(hash)) {
+      hash = new Buffer(hash);
+    }
+
     if (!Buffer.isBuffer(plain)) {
       plain = new Buffer(plain);
     }
@@ -122,6 +125,10 @@ module.exports = {
     'use strict';
 
     console.warn('The synchronous API is deprecated, use ES6 await instead.');
+
+    if (!Buffer.isBuffer(hash)) {
+      hash = new Buffer(hash);
+    }
 
     if (!Buffer.isBuffer(plain)) {
       plain = new Buffer(plain);

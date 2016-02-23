@@ -1,7 +1,7 @@
 {
   "target_defaults": {
     "target_conditions": [
-      ["OS != 'win'", {"cflags": ["-msse","-msse2"]}]
+      ["OS != 'win'", {"cflags": ["-msse", "-msse2"]}]
     ]
   },
   "targets": [

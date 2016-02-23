@@ -104,19 +104,19 @@ NAN_METHOD(Hash) {
         /* LCOV_EXCL_STOP */
     }
 
+    auto context = info.GetIsolate()->GetCurrentContext();
     const auto plain = info[0]->ToObject();
     const auto salt = info[1]->ToObject();
-    auto time_cost = info[2]->Uint32Value();
-    auto memory_cost = info[3]->Uint32Value();
-    auto parallelism = info[4]->Uint32Value();
-    auto type = info[5]->BooleanValue() ? Argon2_d : Argon2_i;
+    auto time_cost = info[2]->Uint32Value(context).FromJust();
+    auto memory_cost = info[3]->Uint32Value(context).FromJust();
+    auto parallelism = info[4]->Uint32Value(context).FromJust();
+    auto type = info[5]->BooleanValue(context).FromJust() ? Argon2_d : Argon2_i;
 
     auto worker = new HashAsyncWorker{
             {Buffer::Data(plain), Buffer::Length(plain)},
             {Buffer::Data(salt), Buffer::Length(salt)},
             time_cost, 1u << memory_cost, parallelism, type};
 
-    auto context = info.GetIsolate()->GetCurrentContext();
     auto resolver = Promise::Resolver::New(context).ToLocalChecked();
     worker->SaveToPersistent("resolver", resolver);
 
@@ -135,12 +135,13 @@ NAN_METHOD(HashSync) {
         /* LCOV_EXCL_STOP */
     }
 
-    const auto plain = info[0]->ToObject();
-    const auto salt = info[1]->ToObject();
-    auto time_cost = info[2]->Uint32Value();
-    auto memory_cost = info[3]->Uint32Value();
-    auto parallelism = info[4]->Uint32Value();
-    auto type = info[5]->BooleanValue() ? Argon2_d : Argon2_i;
+    auto context = info.GetIsolate()->GetCurrentContext();
+    const auto plain = info[0]->ToObject(context).ToLocalChecked();
+    const auto salt = info[1]->ToObject(context).ToLocalChecked();
+    auto time_cost = info[2]->Uint32Value(context).FromJust();
+    auto memory_cost = info[3]->Uint32Value(context).FromJust();
+    auto parallelism = info[4]->Uint32Value(context).FromJust();
+    auto type = info[5]->BooleanValue(context).FromJust() ? Argon2_d : Argon2_i;
 
     const auto ENCODED_LEN = encodedLength(Buffer::Length(salt));
     auto output = std::unique_ptr<char[]>{new char[ENCODED_LEN]};
@@ -212,14 +213,15 @@ NAN_METHOD(Verify) {
         /* LCOV_EXCL_STOP */
     }
 
-    Nan::Utf8String hash{info[0]->ToString()};
-    const auto plain = info[1]->ToObject();
-    auto type = info[2]->BooleanValue() ? Argon2_d : Argon2_i;
+    auto context = info.GetIsolate()->GetCurrentContext();
+    Nan::Utf8String hash{info[0]->ToString(context).ToLocalChecked()};
+    const auto plain = info[1]->ToObject(context).ToLocalChecked();
+    auto type = info[2]->BooleanValue(context).FromJust() ? Argon2_d : Argon2_i;
 
     auto worker = new VerifyAsyncWorker(*hash,
             {Buffer::Data(plain), Buffer::Length(plain)}, type);
 
-    auto resolver = Promise::Resolver::New(info.GetIsolate());
+    auto resolver = Promise::Resolver::New(context).ToLocalChecked();
     worker->SaveToPersistent("resolver", resolver);
 
     Nan::AsyncQueueWorker(worker);
@@ -236,9 +238,10 @@ NAN_METHOD(VerifySync) {
         /* LCOV_EXCL_STOP */
     }
 
-    Nan::Utf8String hash{info[0]->ToString()};
-    const auto plain = info[1]->ToObject();
-    auto type = info[2]->BooleanValue() ? Argon2_d : Argon2_i;
+    auto context = info.GetIsolate()->GetCurrentContext();
+    Nan::Utf8String hash{info[0]->ToString(context).ToLocalChecked()};
+    const auto plain = info[1]->ToObject(context).ToLocalChecked();
+    auto type = info[2]->BooleanValue(context).FromJust() ? Argon2_d : Argon2_i;
 
     auto result = argon2_verify(*hash, Buffer::Data(plain),
             Buffer::Length(plain), type);
