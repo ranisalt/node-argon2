@@ -32,6 +32,10 @@ const validate = (salt, options, resolve, reject) => {
     return false;
   }
 
+  if (options.parallelism === 'auto') {
+    options.parallelism = require('os').cpus().length;
+  }
+
   // TODO: replace var with const https://github.com/tapjs/node-tap/issues/236
   for (var key of Object.keys(limits)) {
     var max = limits[key].max;
