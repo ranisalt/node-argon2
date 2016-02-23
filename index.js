@@ -34,7 +34,9 @@ const validate = (salt, options, resolve, reject) => {
 
   // TODO: replace var with const https://github.com/tapjs/node-tap/issues/236
   for (var key of Object.keys(limits)) {
-    var max = limits[key].max, min = limits[key].min, value = options[key];
+    var max = limits[key].max;
+    var min = limits[key].min;
+    var value = options[key];
     if (!Number.isInteger(value) || value > max || value < min) {
       fail(`Invalid ${key}, must be an integer between ${min} and ${max}.`, reject);
       return false;
@@ -51,7 +53,7 @@ const validate = (salt, options, resolve, reject) => {
 module.exports = {
   defaults, limits,
 
-  hash (plain, salt, options) {
+  hash(plain, salt, options) {
     'use strict';
 
     options = Object.assign({}, defaults, options);
@@ -65,7 +67,7 @@ module.exports = {
           options.memoryCost, options.parallelism, options.argon2d));
   },
 
-  hashSync (plain, salt, options) {
+  hashSync(plain, salt, options) {
     'use strict';
 
     console.warn('The synchronous API is deprecated, use ES6 await instead.');
@@ -81,7 +83,7 @@ module.exports = {
     }
   },
 
-  generateSalt (length) {
+  generateSalt(length) {
     'use strict';
 
     length = typeof length === 'undefined' ? 16 : length;
@@ -96,7 +98,7 @@ module.exports = {
     });
   },
 
-  generateSaltSync (length) {
+  generateSaltSync(length) {
     'use strict';
 
     console.warn('The synchronous API is deprecated, use ES6 await instead.');
@@ -104,7 +106,7 @@ module.exports = {
     return crypto.randomBytes(length);
   },
 
-  verify (hash, plain) {
+  verify(hash, plain) {
     'use strict';
 
     if (!Buffer.isBuffer(plain)) {
@@ -114,7 +116,7 @@ module.exports = {
     return bindings.verify(hash, plain, /argon2d/.test(hash));
   },
 
-  verifySync (hash, plain) {
+  verifySync(hash, plain) {
     'use strict';
 
     console.warn('The synchronous API is deprecated, use ES6 await instead.');

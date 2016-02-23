@@ -6,7 +6,7 @@
   "scripts": {
     "benchmark": "node benchmark.js",
     "clean": "node-gyp clean",
-    "test": "tap test.spec.js --reporter=list"
+    "test": "xo && tap test.spec.js --reporter=list"
   },
   "repository": {
     "type": "git",
@@ -32,9 +32,13 @@
   "devDependencies": {
     "async": "^1.5.2",
     "async-benchmark": "^1.0.1",
-    "tap": "^5.7.0"
+    "tap": "^5.7.0",
+    "xo": "^0.12.1"
   },
   "engines": {
     "node": ">=4.0.0"
+  },
+  "xo": {
+    "space": 2
   }
 }

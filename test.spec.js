@@ -8,8 +8,8 @@ const saltWithNull = new Buffer('\0abcdefghijklmno');
 // Like argon2's modified base64 implementation, this function truncates any
 // trailing '=' characters for a more compact representation.
 const truncatedBase64 = (buffer) => {
-  return buffer.toString('base64').replace(/=?=?$/,'');
-}
+  return buffer.toString('base64').replace(/\=*$/, '');
+};
 
 // hashes for argon2i and argon2d with default options
 const hashes = Object.freeze({
@@ -238,7 +238,7 @@ t.test('async hash with parallelism', t => {
   return argon2.hash(password, salt, {
     parallelism: 2
   }).then(hash => {
-    t.match(hash, /p=2/,  'Should have correct parallelism.');
+    t.match(hash, /p=2/, 'Should have correct parallelism.');
   });
 }).catch(t.threw);
 
@@ -288,7 +288,7 @@ t.test('async hash with all options', t => {
     memoryCost: 13,
     parallelism: 2
   }).then(hash => {
-    t.match(hash, /m=8192,t=4,p=2/,  'Should have correct options.');
+    t.match(hash, /m=8192,t=4,p=2/, 'Should have correct options.');
   });
 }).catch(t.threw);
 
@@ -334,7 +334,7 @@ t.test('sync hash with argon2d', t => {
   const hash = argon2.hashSync(password, salt, {
     argon2d: true
   });
-  t.match(hash, /\$argon2d\$/,  'Should use argon2d signature.');
+  t.match(hash, /\$argon2d\$/, 'Should use argon2d signature.');
   t.equal(hash, hashes.argon2d);
   t.end();
 });
@@ -345,7 +345,7 @@ t.test('sync hash with truthy argon2d', t => {
   const hash = argon2.hashSync(password, salt, {
     argon2d: 'foo'
   });
-  t.match(hash, /\$argon2d\$/,  'Should use argon2d signature.');
+  t.match(hash, /\$argon2d\$/, 'Should use argon2d signature.');
   t.end();
 });
 
@@ -355,7 +355,7 @@ t.test('sync hash with falsy argon2d', t => {
   const hash = argon2.hashSync(password, salt, {
     argon2d: ''
   });
-  t.match(hash, /\$argon2i\$/,  'Should not use argon2d signature.');
+  t.match(hash, /\$argon2i\$/, 'Should not use argon2d signature.');
   t.end();
 });
 
@@ -383,7 +383,7 @@ t.test('sync hash with time cost', t => {
   const hash = argon2.hashSync(password, salt, {
     timeCost: 4
   });
-  t.match(hash, /t=4/,  'Should have correct time cost.');
+  t.match(hash, /t=4/, 'Should have correct time cost.');
   t.end();
 });
 
@@ -426,7 +426,7 @@ t.test('sync hash with memory cost', t => {
   const hash = argon2.hashSync(password, salt, {
     memoryCost: 13
   });
-  t.match(hash, /m=8192/,  'Should have correct memory cost.');
+  t.match(hash, /m=8192/, 'Should have correct memory cost.');
   t.end();
 });
 
@@ -469,7 +469,7 @@ t.test('sync hash with parallelism', t => {
   const hash = argon2.hashSync(password, salt, {
     parallelism: 2
   });
-  t.match(hash, /p=2/,  'Should have correct parallelism.');
+  t.match(hash, /p=2/, 'Should have correct parallelism.');
   t.end();
 });
 
@@ -514,7 +514,7 @@ t.test('sync hash with all options', t => {
     memoryCost: 13,
     parallelism: 2
   });
-  t.match(hash, /m=8192,t=4,p=2/,  'Should have correct options.');
+  t.match(hash, /m=8192,t=4,p=2/, 'Should have correct options.');
   t.end();
 });
 
