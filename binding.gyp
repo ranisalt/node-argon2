@@ -28,7 +28,7 @@
       ],
       "dependencies": ["libargon2"],
       "conditions": [
-        ["OS != 'win'", {"cflags": ["-Wall", "-Wextra", "-Wpedantic"]}]
+        ["OS != 'win'", {"cflags": ["-Wall", "-Wextra"]}]
       ],
       "configurations": {
         "Debug": {
