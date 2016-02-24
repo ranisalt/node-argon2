@@ -71,7 +71,7 @@ void HashAsyncWorker::HandleOKCallback()
 
     Nan::HandleScope scope;
 
-    auto promise = GetFromPersistent("resolver").As<Promise::Resolver>();
+    auto promise = GetFromPersistent(1).As<Promise::Resolver>();
     auto value = Nan::Encode(output.get(), strlen(output.get()));
     promise->Resolve(Nan::New<Context>(), value);
 }
@@ -85,7 +85,7 @@ void HashAsyncWorker::HandleErrorCallback()
 
     Nan::HandleScope scope;
 
-    auto promise = GetFromPersistent("resolver").As<Promise::Resolver>();
+    auto promise = GetFromPersistent(1).As<Promise::Resolver>();
     auto reason = Nan::New(ErrorMessage()).ToLocalChecked();
     promise->Reject(Nan::New<Context>(), Exception::Error(reason));
 }
@@ -116,7 +116,7 @@ NAN_METHOD(Hash) {
             time_cost, 1u << memory_cost, parallelism, type};
 
     auto resolver = Promise::Resolver::New(Nan::GetCurrentContext()).ToLocalChecked();
-    worker->SaveToPersistent("resolver", resolver);
+    worker->SaveToPersistent(1, resolver);
 
     Nan::AsyncQueueWorker(worker);
     info.GetReturnValue().Set(resolver->GetPromise());
@@ -183,7 +183,7 @@ void VerifyAsyncWorker::HandleOKCallback()
 
     Nan::HandleScope scope;
 
-    auto promise = GetFromPersistent("resolver").As<Promise::Resolver>();
+    auto promise = GetFromPersistent(1).As<Promise::Resolver>();
     promise->Resolve(Nan::GetCurrentContext(), Nan::New(output));
 }
 
@@ -196,7 +196,7 @@ void VerifyAsyncWorker::HandleErrorCallback()
 
     Nan::HandleScope scope;
 
-    auto promise = GetFromPersistent("resolver").As<Promise::Resolver>();
+    auto promise = GetFromPersistent(1).As<Promise::Resolver>();
     auto reason = Nan::New(ErrorMessage()).ToLocalChecked();
     promise->Reject(Nan::GetCurrentContext(), Exception::Error(reason));
 }
@@ -223,7 +223,7 @@ NAN_METHOD(Verify) {
             {Buffer::Data(plain), Buffer::Length(plain)}, type);
 
     auto resolver = Promise::Resolver::New(Nan::GetCurrentContext()).ToLocalChecked();
-    worker->SaveToPersistent("resolver", resolver);
+    worker->SaveToPersistent(1, resolver);
 
     Nan::AsyncQueueWorker(worker);
     info.GetReturnValue().Set(resolver->GetPromise());
