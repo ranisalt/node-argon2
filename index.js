@@ -16,9 +16,7 @@ const fail = (message, reject) => {
   const error = new Error(message);
 
   if (typeof reject === 'function') {
-    process.nextTick(() => {
-      reject(error);
-    });
+    process.nextTick(reject.bind(null, error));
   } else {
     throw error;
   }
@@ -66,8 +64,8 @@ module.exports = {
       plain = new Buffer(plain);
     }
 
-    return new Promise(validate.bind(this, salt, options))
-      .then(() => bindings.hash(plain, salt, options.timeCost,
+    return new Promise(validate.bind(null, salt, options))
+      .then(bindings.hash.bind(null, plain, salt, options.timeCost,
           options.memoryCost, options.parallelism, options.argon2d));
   },
 
