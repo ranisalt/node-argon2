@@ -27,14 +27,11 @@
         "argon2/include"
       ],
       "dependencies": ["libargon2"],
-      "conditions": [
-        ["OS != 'win'", {"cflags": ["-Wall", "-Wextra"]}]
-      ],
       "configurations": {
         "Debug": {
           "conditions": [
             ["OS == 'linux'", {
-              "cflags": ["--coverage"],
+              "cflags": ["--coverage", "-Wall", "-Wextra"],
               "ldflags": ["-fprofile-arcs", "-ftest-coverage"],
             }]
           ]
