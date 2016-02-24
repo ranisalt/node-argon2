@@ -93,6 +93,7 @@ void HashAsyncWorker::HandleErrorCallback()
 
 NAN_METHOD(Hash) {
     using namespace node;
+    using v8::Object;
     using v8::Promise;
 
     if (info.Length() < 6) {
@@ -102,20 +103,19 @@ NAN_METHOD(Hash) {
         /* LCOV_EXCL_STOP */
     }
 
-    auto context = info.GetIsolate()->GetCurrentContext();
-    const auto plain = info[0]->ToObject();
-    const auto salt = info[1]->ToObject();
-    auto time_cost = info[2]->Uint32Value(context).FromJust();
-    auto memory_cost = info[3]->Uint32Value(context).FromJust();
-    auto parallelism = info[4]->Uint32Value(context).FromJust();
-    auto type = info[5]->BooleanValue(context).FromJust() ? Argon2_d : Argon2_i;
+    const auto plain = Nan::To<Object>(info[0]).ToLocalChecked();
+    const auto salt = Nan::To<Object>(info[1]).ToLocalChecked();
+    auto time_cost = Nan::To<uint32_t>(info[2]).FromJust();
+    auto memory_cost = Nan::To<uint32_t>(info[3]).FromJust();
+    auto parallelism = Nan::To<uint32_t>(info[4]).FromJust();
+    auto type = Nan::To<bool>(info[5]).FromJust() ? Argon2_d : Argon2_i;
 
     auto worker = new HashAsyncWorker{
             {Buffer::Data(plain), Buffer::Length(plain)},
             {Buffer::Data(salt), Buffer::Length(salt)},
             time_cost, 1u << memory_cost, parallelism, type};
 
-    auto resolver = Promise::Resolver::New(context).ToLocalChecked();
+    auto resolver = Promise::Resolver::New(Nan::GetCurrentContext()).ToLocalChecked();
     worker->SaveToPersistent("resolver", resolver);
 
     Nan::AsyncQueueWorker(worker);
@@ -125,6 +125,7 @@ NAN_METHOD(Hash) {
 NAN_METHOD(HashSync) {
     using namespace node;
     using std::strlen;
+    using v8::Object;
 
     if (info.Length() < 6) {
         /* LCOV_EXCL_START */
@@ -133,13 +134,12 @@ NAN_METHOD(HashSync) {
         /* LCOV_EXCL_STOP */
     }
 
-    auto context = info.GetIsolate()->GetCurrentContext();
-    const auto plain = info[0]->ToObject(context).ToLocalChecked();
-    const auto salt = info[1]->ToObject(context).ToLocalChecked();
-    auto time_cost = info[2]->Uint32Value(context).FromJust();
-    auto memory_cost = info[3]->Uint32Value(context).FromJust();
-    auto parallelism = info[4]->Uint32Value(context).FromJust();
-    auto type = info[5]->BooleanValue(context).FromJust() ? Argon2_d : Argon2_i;
+    const auto plain = Nan::To<Object>(info[0]).ToLocalChecked();
+    const auto salt = Nan::To<Object>(info[1]).ToLocalChecked();
+    auto time_cost = Nan::To<uint32_t>(info[2]).FromJust();
+    auto memory_cost = Nan::To<uint32_t>(info[3]).FromJust();
+    auto parallelism = Nan::To<uint32_t>(info[4]).FromJust();
+    auto type = Nan::To<bool>(info[5]).FromJust() ? Argon2_d : Argon2_i;
 
     const auto ENCODED_LEN = encodedLength(Buffer::Length(salt));
     auto output = std::unique_ptr<char[]>{new char[ENCODED_LEN]};
@@ -184,7 +184,7 @@ void VerifyAsyncWorker::HandleOKCallback()
     Nan::HandleScope scope;
 
     auto promise = GetFromPersistent("resolver").As<Promise::Resolver>();
-    promise->Resolve(Nan::New<Context>(), Nan::New(output));
+    promise->Resolve(Nan::GetCurrentContext(), Nan::New(output));
 }
 
 /* LCOV_EXCL_START */
@@ -198,13 +198,15 @@ void VerifyAsyncWorker::HandleErrorCallback()
 
     auto promise = GetFromPersistent("resolver").As<Promise::Resolver>();
     auto reason = Nan::New(ErrorMessage()).ToLocalChecked();
-    promise->Reject(Nan::New<Context>(), Exception::Error(reason));
+    promise->Reject(Nan::GetCurrentContext(), Exception::Error(reason));
 }
 /* LCOV_EXCL_STOP */
 
 NAN_METHOD(Verify) {
     using namespace node;
+    using v8::Object;
     using v8::Promise;
+    using v8::String;
 
     if (info.Length() < 3) {
         /* LCOV_EXCL_START */
@@ -213,15 +215,14 @@ NAN_METHOD(Verify) {
         /* LCOV_EXCL_STOP */
     }
 
-    auto context = info.GetIsolate()->GetCurrentContext();
-    Nan::Utf8String hash{info[0]->ToString(context).ToLocalChecked()};
-    const auto plain = info[1]->ToObject(context).ToLocalChecked();
-    auto type = info[2]->BooleanValue(context).FromJust() ? Argon2_d : Argon2_i;
+    Nan::Utf8String hash{Nan::To<String>(info[0]).ToLocalChecked()};
+    const auto plain = Nan::To<Object>(info[1]).ToLocalChecked();
+    auto type = Nan::To<bool>(info[2]).FromJust() ? Argon2_d : Argon2_i;
 
     auto worker = new VerifyAsyncWorker(*hash,
             {Buffer::Data(plain), Buffer::Length(plain)}, type);
 
-    auto resolver = Promise::Resolver::New(context).ToLocalChecked();
+    auto resolver = Promise::Resolver::New(Nan::GetCurrentContext()).ToLocalChecked();
     worker->SaveToPersistent("resolver", resolver);
 
     Nan::AsyncQueueWorker(worker);
@@ -230,6 +231,8 @@ NAN_METHOD(Verify) {
 
 NAN_METHOD(VerifySync) {
     using namespace node;
+    using v8::Object;
+    using v8::String;
 
     if (info.Length() < 3) {
         /* LCOV_EXCL_START */
@@ -238,10 +241,9 @@ NAN_METHOD(VerifySync) {
         /* LCOV_EXCL_STOP */
     }
 
-    auto context = info.GetIsolate()->GetCurrentContext();
-    Nan::Utf8String hash{info[0]->ToString(context).ToLocalChecked()};
-    const auto plain = info[1]->ToObject(context).ToLocalChecked();
-    auto type = info[2]->BooleanValue(context).FromJust() ? Argon2_d : Argon2_i;
+    Nan::Utf8String hash{Nan::To<String>(info[0]).ToLocalChecked()};
+    const auto plain = Nan::To<Object>(info[1]).ToLocalChecked();
+    auto type = Nan::To<bool>(info[2]).FromJust() ? Argon2_d : Argon2_i;
 
     auto result = argon2_verify(*hash, Buffer::Data(plain),
             Buffer::Length(plain), type);
