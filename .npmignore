@@ -2,9 +2,12 @@ argon2/argon2-specs.pdf
 argon2/kats
 argon2/Makefile
 argon2/src/bench.c
+argon2/src/genkat.c
 argon2/src/genkat.h
+argon2/src/run.c
+argon2/src/test.c
 benchmark.js
-.codeclimate.yml
+ISSUE_TEMPLATE.md
 .editorconfig
 .git*
 .idea
