@@ -96,12 +96,7 @@ NAN_METHOD(Hash) {
     using v8::Object;
     using v8::Promise;
 
-    if (info.Length() < 6) {
-        /* LCOV_EXCL_START */
-        Nan::ThrowTypeError("6 arguments expected");
-        return;
-        /* LCOV_EXCL_STOP */
-    }
+    assert(info.Length() >= 6);
 
     const auto plain = Nan::To<Object>(info[0]).ToLocalChecked();
     const auto salt = Nan::To<Object>(info[1]).ToLocalChecked();
@@ -127,12 +122,7 @@ NAN_METHOD(HashSync) {
     using std::strlen;
     using v8::Object;
 
-    if (info.Length() < 6) {
-        /* LCOV_EXCL_START */
-        Nan::ThrowTypeError("6 arguments expected");
-        return;
-        /* LCOV_EXCL_STOP */
-    }
+    assert(info.Length() >= 6);
 
     const auto plain = Nan::To<Object>(info[0]).ToLocalChecked();
     const auto salt = Nan::To<Object>(info[1]).ToLocalChecked();
@@ -168,12 +158,17 @@ void VerifyAsyncWorker::Execute()
 {
     auto result = argon2_verify(hash.c_str(), plain.c_str(), plain.size(), type);
 
-    if (result != ARGON2_OK && result != ARGON2_VERIFY_MISMATCH) {
-        SetErrorMessage(argon2_error_message(result));
-        return;
+    switch (result) {
+        case ARGON2_OK:
+        case ARGON2_VERIFY_MISMATCH:
+            output = result == ARGON2_OK;
+            break;
+        default:
+            /* LCOV_EXCL_START */
+            SetErrorMessage(argon2_error_message(result));
+            break;
+            /* LCOV_EXCL_STOP */
     }
-
-    output = result == ARGON2_OK;
 }
 
 void VerifyAsyncWorker::HandleOKCallback()
@@ -208,12 +203,7 @@ NAN_METHOD(Verify) {
     using v8::Promise;
     using v8::String;
 
-    if (info.Length() < 3) {
-        /* LCOV_EXCL_START */
-        Nan::ThrowTypeError("3 arguments expected");
-        return;
-        /* LCOV_EXCL_STOP */
-    }
+    assert(info.Length() >= 3);
 
     Nan::Utf8String hash{Nan::To<String>(info[0]).ToLocalChecked()};
     const auto plain = Nan::To<Object>(info[1]).ToLocalChecked();
@@ -234,12 +224,7 @@ NAN_METHOD(VerifySync) {
     using v8::Object;
     using v8::String;
 
-    if (info.Length() < 3) {
-        /* LCOV_EXCL_START */
-        Nan::ThrowTypeError("3 arguments expected");
-        return;
-        /* LCOV_EXCL_STOP */
-    }
+    assert(info.Length() >= 3);
 
     Nan::Utf8String hash{Nan::To<String>(info[0]).ToLocalChecked()};
     const auto plain = Nan::To<Object>(info[1]).ToLocalChecked();
@@ -248,14 +233,17 @@ NAN_METHOD(VerifySync) {
     auto result = argon2_verify(*hash, Buffer::Data(plain),
             Buffer::Length(plain), type);
 
-    if (result != ARGON2_OK && result != ARGON2_VERIFY_MISMATCH) {
-        /* LCOV_EXCL_START */
-        Nan::ThrowError(argon2_error_message(result));
-        return;
-        /* LCOV_EXCL_STOP */
+    switch (result) {
+        case ARGON2_OK:
+        case ARGON2_VERIFY_MISMATCH:
+            info.GetReturnValue().Set(result == ARGON2_OK);
+            break;
+        default:
+            /* LCOV_EXCL_START */
+            Nan::ThrowError(argon2_error_message(result));
+            break;
+            /* LCOV_EXCL_STOP */
     }
-
-    info.GetReturnValue().Set(result == ARGON2_OK);
 }
 
 }
