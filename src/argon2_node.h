@@ -8,9 +8,8 @@ namespace NodeArgon2 {
 
 class HashAsyncWorker final: public Nan::AsyncWorker {
 public:
-    HashAsyncWorker(const std::string& plain, const std::string& salt,
-            uint32_t time_cost, uint32_t memory_cost, uint32_t parallelism,
-            argon2_type type);
+    HashAsyncWorker(std::string&& plain, std::string&& salt, uint32_t time_cost,
+            uint32_t memory_cost, uint32_t parallelism, argon2_type type);
 
     void Execute() override;
 
@@ -30,8 +29,7 @@ private:
 
 class VerifyAsyncWorker final: public Nan::AsyncWorker {
 public:
-    VerifyAsyncWorker(const std::string& hash, const std::string& plain,
-            argon2_type type);
+    VerifyAsyncWorker(std::string&& hash, std::string&& plain, argon2_type type);
 
     void Execute() override;
 
