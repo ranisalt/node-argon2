@@ -1,7 +1,9 @@
 {
   "target_defaults": {
     "target_conditions": [
-      ["OS != 'win'", {"cflags": ["-msse", "-msse2"]}]
+      ["OS != 'win'", {
+        "cflags": ["-fvisibility=hidden", "-msse", "-msse2"]
+      }]
     ]
   },
   "targets": [
@@ -16,6 +18,7 @@
         "argon2/src/opt.c"
       ],
       "include_dirs": ["argon2/include"],
+      "cflags": ["-march=native", "-pthread"],
       "type": "static_library"
     }, {
       "target_name": "argon2",
