@@ -30,7 +30,7 @@ try {
   //...
 }
 
-// ES6
+// ES7
 
 try {
   const hash = await argon2.hash('password', salt);
@@ -57,7 +57,7 @@ try {
   // ...
 }
 
-// ES6
+// ES7
 
 try {
   const hash = await argon2.hash('password', salt, {
@@ -81,7 +81,7 @@ argon2.generateSalt().then(salt => {
 
 var salt = argon2.generateSaltSync();
 
-// ES6
+// ES7
 
 const salt = await argon2.generateSalt();
 ```
@@ -96,7 +96,7 @@ argon2.generateSalt(32).then(salt => {
 
 var salt = argon2.generateSaltSync(32);
 
-// ES6
+// ES7
 
 const salt = await argon2.generateSalt(32);
 ```
@@ -122,7 +122,7 @@ argon2.generateSalt().then(salt => {
 
 var hash = argon2.hashSync('password', argon2.generateSaltSync(), options);
 
-// ES6
+// ES7
 
 var hash = await argon2.hash('password', await argon2.generateSalt(), options);
 ```
@@ -149,7 +149,7 @@ if (argon2.verifySync('<big long hash>', 'password')) {
   // password did not match
 }
 
-// ES6
+// ES7
 
 try {
   await argon2.verify('<big long hash>', 'password');
