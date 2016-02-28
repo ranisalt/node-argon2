@@ -3,8 +3,35 @@ Bindings to the reference [Argon2](https://github.com/P-H-C/phc-winner-argon2)
 implementation.
 
 ### Before installing
-You **MUST** have a **node-gyp** global install before proceeding with install.
-**node-argon2** works only and is tested against Node >=4.0.0 .
+You **MUST** have a **node-gyp** global install before proceeding with install,
+along with GCC >= 4.8 / Clang >= 3.3.
+
+**node-argon2** works only and is tested against Node >=4.0.0.
+
+#### OSX
+
+To install GCC >= 4.8 on OSX, use [homebrew](http://brew.sh/):
+
+```console
+$ brew install gcc
+```
+
+Once you've got GCC installed and ready to run, you then need to install
+node-gyp, you must do this globally:
+
+```console
+$ npm install -g node-gyp
+```
+
+Finally, once node-gyp is installed and ready to go, you can install this
+library, specifying the GCC or Clang binary to use:
+
+```console
+$ CXX=g++-5 npm install argon2
+```
+
+**NOTE**: If your GCC or Clang binary is named something different than `g++-5`,
+you'll need to specify that in the command.
 
 ### Usage
 It's possible to hash a password using both Argon2i (default) and Argon2d, sync
