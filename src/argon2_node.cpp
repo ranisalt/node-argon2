@@ -15,17 +15,17 @@ namespace NodeArgon2 {
 using size_type = std::string::size_type;
 const auto HASH_LEN = 32u;
 
-constexpr uint32_t log(uint32_t number, uint32_t base = 2u)
+constexpr auto log(uint32_t number, uint32_t base = 2u) -> decltype(number)
 {
     return (number > 1) ? 1u + log(number / base, base) : 0u;
 }
 
-constexpr size_type base64Length(size_type length)
+constexpr auto base64Length(size_type length) -> decltype(length)
 {
-    return static_cast<size_type>(std::ceil(length / 3.0)) * 4;
+    return static_cast<decltype(length)>(std::ceil(length / 3.0)) * 4u;
 }
 
-size_type encodedLength(size_type saltLength)
+auto encodedLength(size_type saltLength) -> decltype(saltLength)
 {
     /* statically calculate maximum encoded hash length */
     static constexpr size_type extraLength = sizeof "$argon2x$m=,t=,p=$$" +
@@ -33,7 +33,7 @@ size_type encodedLength(size_type saltLength)
         1u + log(ARGON2_MAX_LANES, 10u) + base64Length(HASH_LEN);
 
     /* (number + 3) & ~3 rounds up to the nearest 4-byte boundary */
-    return (extraLength + base64Length(saltLength) + 3) & ~3;
+    return (extraLength + base64Length(saltLength) + 3u) & ~3u;
 }
 
 HashAsyncWorker::HashAsyncWorker(std::string&& plain, std::string&& salt,
