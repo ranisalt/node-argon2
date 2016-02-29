@@ -22,16 +22,11 @@ constexpr uint32_t log(uint32_t number, uint32_t base = 2u)
 
 constexpr size_type base64Length(size_type length)
 {
-    using std::ceil;
-
-    return static_cast<size_type>(ceil(length / 3.0)) * 4;
+    return static_cast<size_type>(std::ceil(length / 3.0)) * 4;
 }
 
 size_type encodedLength(size_type saltLength)
 {
-    using std::strlen;
-    using std::to_string;
-
     /* statically calculate maximum encoded hash length */
     static constexpr size_type extraLength = sizeof "$argon2x$m=,t=,p=$$" +
         1u + log(ARGON2_MAX_MEMORY, 10u) + 1u + log(ARGON2_MAX_TIME, 10u) +
@@ -66,9 +61,8 @@ void HashAsyncWorker::Execute()
 
 void HashAsyncWorker::HandleOKCallback()
 {
+    using namespace v8;
     using std::strlen;
-    using v8::Context;
-    using v8::Promise;
 
     Nan::HandleScope scope;
 
@@ -80,9 +74,7 @@ void HashAsyncWorker::HandleOKCallback()
 /* LCOV_EXCL_START */
 void HashAsyncWorker::HandleErrorCallback()
 {
-    using v8::Context;
-    using v8::Exception;
-    using v8::Promise;
+    using namespace v8;
 
     Nan::HandleScope scope;
 
@@ -94,8 +86,7 @@ void HashAsyncWorker::HandleErrorCallback()
 
 NAN_METHOD(Hash) {
     using namespace node;
-    using v8::Object;
-    using v8::Promise;
+    using namespace v8;
 
     assert(info.Length() >= 6);
 
@@ -117,8 +108,8 @@ NAN_METHOD(Hash) {
 
 NAN_METHOD(HashSync) {
     using namespace node;
+    using namespace v8;
     using std::strlen;
-    using v8::Object;
 
     assert(info.Length() >= 6);
 
@@ -167,8 +158,7 @@ void VerifyAsyncWorker::Execute()
 
 void VerifyAsyncWorker::HandleOKCallback()
 {
-    using v8::Context;
-    using v8::Promise;
+    using namespace v8;
 
     Nan::HandleScope scope;
 
@@ -179,9 +169,7 @@ void VerifyAsyncWorker::HandleOKCallback()
 /* LCOV_EXCL_START */
 void VerifyAsyncWorker::HandleErrorCallback()
 {
-    using v8::Context;
-    using v8::Exception;
-    using v8::Promise;
+    using namespace v8;
 
     Nan::HandleScope scope;
 
@@ -193,9 +181,7 @@ void VerifyAsyncWorker::HandleErrorCallback()
 
 NAN_METHOD(Verify) {
     using namespace node;
-    using v8::Object;
-    using v8::Promise;
-    using v8::String;
+    using namespace v8;
 
     assert(info.Length() >= 3);
 
@@ -215,8 +201,7 @@ NAN_METHOD(Verify) {
 
 NAN_METHOD(VerifySync) {
     using namespace node;
-    using v8::Object;
-    using v8::String;
+    using namespace v8;
 
     assert(info.Length() >= 3);
 
@@ -239,15 +224,8 @@ NAN_METHOD(VerifySync) {
     }
 }
 
-#undef GET_ARG
-
-}
-
 NAN_MODULE_INIT(init) {
-    using namespace NodeArgon2;
-    using NodeArgon2::log;
-    using v8::Number;
-    using v8::Object;
+    using namespace v8;
 
     auto limits = Nan::New<Object>();
 
@@ -279,4 +257,8 @@ NAN_MODULE_INIT(init) {
     Nan::Export(target, "verifySync", VerifySync);
 }
 
-NODE_MODULE(argon2_lib, init)
+#undef GET_ARG
+
+}
+
+NODE_MODULE(argon2_lib, NodeArgon2::init);
