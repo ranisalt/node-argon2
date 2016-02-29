@@ -3,11 +3,14 @@
 #include <stdint.h>
 #include <cstring>
 #include <string>
+#include <tuple>
 
 #include "../argon2/include/argon2.h"
 #include "argon2_node.h"
 
 namespace NodeArgon2 {
+
+#define GET_ARG(type, index) Nan::To<type>(info[index]).FromJust()
 
 using size_type = std::string::size_type;
 const auto HASH_LEN = 32u;
@@ -100,15 +103,12 @@ NAN_METHOD(Hash) {
 
     const auto plain = Nan::To<Object>(info[0]).ToLocalChecked();
     const auto salt = Nan::To<Object>(info[1]).ToLocalChecked();
-    auto time_cost = Nan::To<uint32_t>(info[2]).FromJust();
-    auto memory_cost = Nan::To<uint32_t>(info[3]).FromJust();
-    auto parallelism = Nan::To<uint32_t>(info[4]).FromJust();
-    auto type = Nan::To<bool>(info[5]).FromJust() ? Argon2_d : Argon2_i;
 
     auto worker = new HashAsyncWorker{
             {Buffer::Data(plain), Buffer::Length(plain)},
             {Buffer::Data(salt), Buffer::Length(salt)},
-            time_cost, 1u << memory_cost, parallelism, type};
+            std::make_tuple(GET_ARG(uint32_t, 2), 1u << GET_ARG(uint32_t, 3),
+                GET_ARG(uint32_t, 4), GET_ARG(bool, 5) ? Argon2_d : Argon2_i)};
 
     auto resolver = Promise::Resolver::New(Nan::GetCurrentContext()).ToLocalChecked();
     worker->SaveToPersistent(1, resolver);
@@ -126,18 +126,14 @@ NAN_METHOD(HashSync) {
 
     const auto plain = Nan::To<Object>(info[0]).ToLocalChecked();
     const auto salt = Nan::To<Object>(info[1]).ToLocalChecked();
-    auto time_cost = Nan::To<uint32_t>(info[2]).FromJust();
-    auto memory_cost = Nan::To<uint32_t>(info[3]).FromJust();
-    auto parallelism = Nan::To<uint32_t>(info[4]).FromJust();
-    auto type = Nan::To<bool>(info[5]).FromJust() ? Argon2_d : Argon2_i;
 
     const auto ENCODED_LEN = encodedLength(Buffer::Length(salt));
     auto output = std::unique_ptr<char[]>{new char[ENCODED_LEN]};
 
-    auto result = argon2_hash(time_cost, 1u << memory_cost, parallelism,
-            Buffer::Data(plain), Buffer::Length(plain), Buffer::Data(salt),
-            Buffer::Length(salt), nullptr, HASH_LEN, output.get(), ENCODED_LEN,
-            type);
+    auto result = argon2_hash(GET_ARG(uint32_t, 2), 1u << GET_ARG(uint32_t, 3),
+            GET_ARG(uint32_t, 4), Buffer::Data(plain), Buffer::Length(plain),
+            Buffer::Data(salt), Buffer::Length(salt), nullptr, HASH_LEN,
+            output.get(), ENCODED_LEN, GET_ARG(bool, 5) ? Argon2_d : Argon2_i);
 
     if (result != ARGON2_OK) {
         /* LCOV_EXCL_START */
@@ -207,7 +203,7 @@ NAN_METHOD(Verify) {
 
     Nan::Utf8String hash{Nan::To<String>(info[0]).ToLocalChecked()};
     const auto plain = Nan::To<Object>(info[1]).ToLocalChecked();
-    auto type = Nan::To<bool>(info[2]).FromJust() ? Argon2_d : Argon2_i;
+    auto type = GET_ARG(bool, 2) ? Argon2_d : Argon2_i;
 
     auto worker = new VerifyAsyncWorker(*hash,
             {Buffer::Data(plain), Buffer::Length(plain)}, type);
@@ -228,10 +224,9 @@ NAN_METHOD(VerifySync) {
 
     Nan::Utf8String hash{Nan::To<String>(info[0]).ToLocalChecked()};
     const auto plain = Nan::To<Object>(info[1]).ToLocalChecked();
-    auto type = Nan::To<bool>(info[2]).FromJust() ? Argon2_d : Argon2_i;
 
     auto result = argon2_verify(*hash, Buffer::Data(plain),
-            Buffer::Length(plain), type);
+            Buffer::Length(plain), GET_ARG(bool, 2) ? Argon2_d : Argon2_i);
 
     switch (result) {
         case ARGON2_OK:
@@ -245,6 +240,8 @@ NAN_METHOD(VerifySync) {
             /* LCOV_EXCL_STOP */
     }
 }
+
+#undef GET_ARG
 
 }
 
