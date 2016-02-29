@@ -44,10 +44,10 @@ size_type encodedLength(size_type saltLength)
 }
 
 HashAsyncWorker::HashAsyncWorker(std::string&& plain, std::string&& salt,
-        uint32_t time_cost, uint32_t memory_cost, uint32_t parallelism,
-        argon2_type type):
-    Nan::AsyncWorker{nullptr}, plain{plain}, salt{salt}, time_cost{time_cost},
-    memory_cost{memory_cost}, parallelism{parallelism}, type{type}, output{}
+        std::tuple<uint32_t, uint32_t, uint32_t, argon2_type>&& params):
+    Nan::AsyncWorker{nullptr}, plain{plain}, salt{salt},
+    time_cost{std::get<0>(params)}, memory_cost{std::get<1>(params)},
+    parallelism{std::get<2>(params)}, type{std::get<3>(params)}, output{}
 { }
 
 void HashAsyncWorker::Execute()
