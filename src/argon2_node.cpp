@@ -32,15 +32,13 @@ size_type encodedLength(size_type saltLength)
     using std::strlen;
     using std::to_string;
 
-    /* statically calculate maximum encoded hash length, null byte included */
-    static const auto extraLength = strlen("$argon2x$m=,t=,p=$$") + 1u,
-            memoryCostLength = to_string(ARGON2_MAX_MEMORY).size(),
-            timeCostLength = to_string(ARGON2_MAX_TIME).size(),
-            parallelismLength = to_string(ARGON2_MAX_LANES).size();
+    /* statically calculate maximum encoded hash length */
+    static constexpr size_type extraLength = sizeof "$argon2x$m=,t=,p=$$" +
+        1u + log(ARGON2_MAX_MEMORY, 10u) + 1u + log(ARGON2_MAX_TIME, 10u) +
+        1u + log(ARGON2_MAX_LANES, 10u) + base64Length(HASH_LEN);
 
     /* (number + 3) & ~3 rounds up to the nearest 4-byte boundary */
-    return (extraLength + memoryCostLength + timeCostLength + parallelismLength
-        + base64Length(saltLength) + base64Length(HASH_LEN) + 3) & ~3;
+    return (extraLength + base64Length(saltLength) + 3) & ~3;
 }
 
 HashAsyncWorker::HashAsyncWorker(std::string&& plain, std::string&& salt,
