@@ -38,6 +38,9 @@
               "ldflags": ["-fprofile-arcs", "-ftest-coverage"],
             }]
           ]
+        },
+        "Release": {
+          "defines+": ["NDEBUG"]
         }
       }
     }
