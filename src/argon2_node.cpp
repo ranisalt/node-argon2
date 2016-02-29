@@ -76,7 +76,7 @@ void HashAsyncWorker::HandleOKCallback()
 
     auto promise = GetFromPersistent(1).As<Promise::Resolver>();
     auto value = Nan::Encode(output.get(), strlen(output.get()));
-    promise->Resolve(Nan::New<Context>(), value);
+    promise->Resolve(Nan::GetCurrentContext(), value);
 }
 
 /* LCOV_EXCL_START */
@@ -90,7 +90,7 @@ void HashAsyncWorker::HandleErrorCallback()
 
     auto promise = GetFromPersistent(1).As<Promise::Resolver>();
     auto reason = Nan::New(ErrorMessage()).ToLocalChecked();
-    promise->Reject(Nan::New<Context>(), Exception::Error(reason));
+    promise->Reject(Nan::GetCurrentContext(), Exception::Error(reason));
 }
 /* LCOV_EXCL_STOP */
 
