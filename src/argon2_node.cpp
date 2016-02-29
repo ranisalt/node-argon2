@@ -229,26 +229,17 @@ NAN_MODULE_INIT(init) {
 
     auto limits = Nan::New<Object>();
 
-    auto memoryCost = Nan::New<Object>();
-    Nan::Set(memoryCost, Nan::New("max").ToLocalChecked(),
-            Nan::New<Number>(log(ARGON2_MAX_MEMORY)));
-    Nan::Set(memoryCost, Nan::New("min").ToLocalChecked(),
-            Nan::New<Number>(log(ARGON2_MIN_MEMORY)));
-    Nan::Set(limits, Nan::New("memoryCost").ToLocalChecked(), memoryCost);
+    #define setMaxMin(target, max, min) \
+        auto target = Nan::New<Object>(); \
+        Nan::Set(target, Nan::New("max").ToLocalChecked(), Nan::New<Number>(max)); \
+        Nan::Set(target, Nan::New("min").ToLocalChecked(), Nan::New<Number>(min)); \
+        Nan::Set(limits, Nan::New(#target).ToLocalChecked(), target);
 
-    auto timeCost = Nan::New<Object>();
-    Nan::Set(timeCost, Nan::New("max").ToLocalChecked(),
-            Nan::New<Number>(ARGON2_MAX_TIME));
-    Nan::Set(timeCost, Nan::New("min").ToLocalChecked(),
-            Nan::New<Number>(ARGON2_MIN_TIME));
-    Nan::Set(limits, Nan::New("timeCost").ToLocalChecked(), timeCost);
+    setMaxMin(memoryCost, log(ARGON2_MAX_MEMORY), log(ARGON2_MIN_MEMORY));
+    setMaxMin(timeCost, ARGON2_MAX_TIME, ARGON2_MIN_TIME);
+    setMaxMin(parallelism, ARGON2_MAX_LANES, ARGON2_MIN_LANES);
 
-    auto parallelism = Nan::New<Object>();
-    Nan::Set(parallelism, Nan::New("max").ToLocalChecked(),
-            Nan::New<Number>(ARGON2_MAX_LANES));
-    Nan::Set(parallelism, Nan::New("min").ToLocalChecked(),
-            Nan::New<Number>(ARGON2_MIN_LANES));
-    Nan::Set(limits, Nan::New("parallelism").ToLocalChecked(), parallelism);
+    #undef setMaxMin
 
     Nan::Set(target, Nan::New("limits").ToLocalChecked(), limits);
     Nan::Export(target, "hash", Hash);
