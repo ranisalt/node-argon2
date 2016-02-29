@@ -34,7 +34,7 @@ size_type encodedLength(size_type saltLength)
 
     /* statically calculate maximum encoded hash length, null byte included */
     static const auto extraLength = strlen("$argon2x$m=,t=,p=$$") + 1u,
-            memoryCostLength = to_string(log(ARGON2_MAX_MEMORY)).size(),
+            memoryCostLength = to_string(ARGON2_MAX_MEMORY).size(),
             timeCostLength = to_string(ARGON2_MAX_TIME).size(),
             parallelismLength = to_string(ARGON2_MAX_LANES).size();
 
