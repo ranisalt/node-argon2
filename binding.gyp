@@ -18,7 +18,7 @@
         "argon2/src/opt.c"
       ],
       "include_dirs": ["argon2/include"],
-      "cflags": ["-march=native", "-pthread"],
+      "cflags": ["-march=native", "-pthread", "-Wno-type-limits"],
       "type": "static_library"
     }, {
       "target_name": "argon2",
