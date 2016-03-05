@@ -22,7 +22,7 @@ constexpr auto log(uint64_t number, uint64_t base = 2u) -> decltype(number)
 
 constexpr auto base64Length(size_type length) -> decltype(length)
 {
-    return static_cast<decltype(length)>(std::ceil(length / 3.0)) * 4u;
+    return ((length  + 2u) / 3u) * 4u;
 }
 
 auto encodedLength(size_type saltLength) -> decltype(saltLength)
