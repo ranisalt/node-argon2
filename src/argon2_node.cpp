@@ -40,7 +40,7 @@ HashAsyncWorker::HashAsyncWorker(std::string&& plain, std::string&& salt,
         std::tuple<uint32_t, uint32_t, uint32_t, argon2_type>&& params):
     Nan::AsyncWorker{nullptr}, plain{plain}, salt{salt},
     time_cost{std::get<0>(params)}, memory_cost{std::get<1>(params)},
-    parallelism{std::get<2>(params)}, type{std::get<3>(params)}, output{}
+    parallelism{std::get<2>(params)}, type{std::get<3>(params)}
 { }
 
 void HashAsyncWorker::Execute()
@@ -136,7 +136,7 @@ NAN_METHOD(HashSync) {
 
 VerifyAsyncWorker::VerifyAsyncWorker(std::string&& hash, std::string&& plain,
         argon2_type type):
-    Nan::AsyncWorker{nullptr}, hash{hash}, plain{plain}, type{type}, output{}
+    Nan::AsyncWorker{nullptr}, hash{hash}, plain{plain}, type{type}
 { }
 
 void VerifyAsyncWorker::Execute()

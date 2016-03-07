@@ -24,7 +24,7 @@ private:
     uint32_t memory_cost;
     uint32_t parallelism;
     argon2_type type;
-    std::unique_ptr<char[]> output;
+    std::unique_ptr<char[]> output{nullptr};
 };
 
 class VerifyAsyncWorker final: public Nan::AsyncWorker {
@@ -42,7 +42,7 @@ private:
     std::string hash;
     std::string plain;
     argon2_type type;
-    bool output;
+    bool output{false};
 };
 
 NAN_METHOD(Hash);
