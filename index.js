@@ -10,24 +10,11 @@ const defaults = Object.freeze({
 
 const limits = Object.freeze(bindings.limits);
 
-const fail = (message, reject) => {
-  'use strict';
-
-  const error = new Error(message);
-
-  if (typeof reject === 'function') {
-    process.nextTick(reject.bind(null, error));
-  } else {
-    throw error;
-  }
-};
-
-const validate = (salt, options, resolve, reject) => {
+const validate = (salt, options) => {
   'use strict';
 
   if (!Buffer.isBuffer(salt) || salt.length < 8) {
-    fail('Invalid salt, must be a buffer with 8 or more bytes.', reject);
-    return false;
+    throw new Error('Invalid salt, must be a buffer with 8 or more bytes.');
   }
 
   if (options.parallelism === 'auto') {
@@ -39,16 +26,9 @@ const validate = (salt, options, resolve, reject) => {
     const min = limits[key].min;
     const value = options[key];
     if (!Number.isInteger(value) || value > max || value < min) {
-      fail(`Invalid ${key}, must be an integer between ${min} and ${max}.`, reject);
-      return false;
+      throw new Error(`Invalid ${key}, must be an integer between ${min} and ${max}.`);
     }
   }
-
-  if (typeof resolve === 'function') {
-    resolve();
-  }
-
-  return true;
 };
 
 module.exports = {
@@ -63,9 +43,13 @@ module.exports = {
       plain = new Buffer(plain);
     }
 
-    return new Promise(validate.bind(null, salt, options))
-      .then(bindings.hash.bind(null, plain, salt, options.timeCost,
-          options.memoryCost, options.parallelism, options.argon2d));
+    try {
+      validate(salt, options);
+      return bindings.hash(plain, salt, options.timeCost, options.memoryCost,
+          options.parallelism, options.argon2d);
+    } catch (err) {
+      return Promise.reject(err);
+    }
   },
 
   hashSync(plain, salt, options) {
@@ -78,10 +62,9 @@ module.exports = {
       plain = new Buffer(plain);
     }
 
-    if (validate(salt, options)) {
-      return bindings.hashSync(plain, salt, options.timeCost,
-        options.memoryCost, options.parallelism, options.argon2d);
-    }
+    validate(salt, options);
+    return bindings.hashSync(plain, salt, options.timeCost, options.memoryCost,
+        options.parallelism, options.argon2d);
   },
 
   generateSalt(length) {
