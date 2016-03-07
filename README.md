@@ -4,7 +4,8 @@ implementation.
 
 ### Before installing
 You **MUST** have a **node-gyp** global install before proceeding with install,
-along with GCC >= 4.8 / Clang >= 3.3.
+along with GCC >= 4.8 / Clang >= 3.3. On Windows, you must compile under Visual
+Studio 2015 or newer.
 
 **node-argon2** works only and is tested against Node >=4.0.0.
 
