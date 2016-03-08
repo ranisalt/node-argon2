@@ -3,7 +3,7 @@ Bindings to the reference [Argon2](https://github.com/P-H-C/phc-winner-argon2)
 implementation.
 
 **Want to use it on command line? Instead check
-[node-argon2-cli](https://github.com/ranisalt/node-argon2-cli).
+[node-argon2-cli](https://github.com/ranisalt/node-argon2-cli).**
 
 ### Before installing
 You **MUST** have a **node-gyp** global install before proceeding with install,
