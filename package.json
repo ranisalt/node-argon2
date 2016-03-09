@@ -32,7 +32,7 @@
   "devDependencies": {
     "async": "^1.5.2",
     "async-benchmark": "^1.0.1",
-    "babel-tap": "^4.0.0",
+    "babel-tap": "^5.0.0",
     "xo": "^0.13.0"
   },
   "engines": {
