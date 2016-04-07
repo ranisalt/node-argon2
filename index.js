@@ -22,6 +22,7 @@ const validate = (salt, options) => {
   }
 
   if (options.parallelism === 'auto') {
+    /* istanbul ignore next */
     options.parallelism = require('os').cpus().length;
   }
 

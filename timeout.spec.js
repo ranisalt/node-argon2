@@ -6,7 +6,8 @@ t.test('js promise + setInterval', t => {
 
   t.plan(1);
   let timer = setInterval(() => {
-    t.fail("Interval expired first");
+    /* istanbul ignore next */
+    t.fail('Interval expired first');
   }, 5e3);
 
   return argon2.hash('password', new Buffer('somesalt')).then(() => {
@@ -20,8 +21,8 @@ t.test('js promise + setTimeout', t => {
 
   t.plan(1);
   let timer = setTimeout(() => {
-    t.fail();
-    t.fail("Timeout expired first");
+    /* istanbul ignore next */
+    t.fail('Timeout expired first');
   }, 5e3);
 
   return argon2.hash('password', new Buffer('somesalt')).then(() => {
