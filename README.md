@@ -6,6 +6,9 @@ implementation.
 [node-argon2-cli](https://github.com/ranisalt/node-argon2-cli).**
 
 ### Before installing
+**Don't forget to checkout submodules! Always `git clone --recursive` or run
+`git submodule update --init` after cloning.**
+
 You **MUST** have a **node-gyp** global install before proceeding with install,
 along with GCC >= 4.8 / Clang >= 3.3. On Windows, you must compile under Visual
 Studio 2015 or newer.
