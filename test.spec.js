@@ -64,13 +64,13 @@ t.test('async hash with null in salt', t => {
 t.test('async hash with longer salt', t => {
   'use strict';
 
-  t.plan(1);
+  t.plan(2);
 
   /* intentionally using a length that is not multiple of 3 */
   return argon2.generateSalt(500).then(salt => {
     return argon2.hash('password', salt).then(hash => {
       t.match(hash, /.*\$.{667}\$/, 'Hash should use the entire salt');
-      return argon2.verify(hash, 'password').then(t.end);
+      return argon2.verify(hash, 'password').then(t.ok);
     });
   });
 }).catch(t.threw);

@@ -66,9 +66,9 @@ void HashAsyncWorker::HandleOKCallback()
 
     Nan::HandleScope scope;
 
-    auto promise = GetFromPersistent(1).As<Promise::Resolver>();
-    auto value = Nan::Encode(output.get(), strlen(output.get()));
-    promise->Resolve(Nan::GetCurrentContext(), value);
+    Nan::Callback resolve{GetFromPersistent(1).As<Function>()};
+    Local<Value> argv[] = {Nan::Encode(output.get(), strlen(output.get()))};
+    resolve.Call(1, argv);
 }
 
 /* LCOV_EXCL_START */
@@ -78,9 +78,9 @@ void HashAsyncWorker::HandleErrorCallback()
 
     Nan::HandleScope scope;
 
-    auto promise = GetFromPersistent(1).As<Promise::Resolver>();
-    auto reason = Nan::New(ErrorMessage()).ToLocalChecked();
-    promise->Reject(Nan::GetCurrentContext(), Exception::Error(reason));
+    Nan::Callback reject{GetFromPersistent(2).As<Function>()};
+    Local<Value> argv[] = {Nan::New(ErrorMessage()).ToLocalChecked()};
+    reject.Call(1, argv);
 }
 /* LCOV_EXCL_STOP */
 
@@ -88,10 +88,12 @@ NAN_METHOD(Hash) {
     using namespace node;
     using namespace v8;
 
-    assert(info.Length() >= 6);
+    assert(info.Length() >= 8);
 
     const auto plain = Nan::To<Object>(info[0]).ToLocalChecked();
     const auto salt = Nan::To<Object>(info[1]).ToLocalChecked();
+    auto resolve = Local<Function>::Cast(info[6]);
+    auto reject = Local<Function>::Cast(info[7]);
 
     auto worker = new HashAsyncWorker{
             {Buffer::Data(plain), Buffer::Length(plain)},
@@ -99,11 +101,10 @@ NAN_METHOD(Hash) {
             std::make_tuple(GET_ARG(uint32_t, 2), 1u << GET_ARG(uint32_t, 3),
                 GET_ARG(uint32_t, 4), GET_ARG(bool, 5) ? Argon2_d : Argon2_i)};
 
-    auto resolver = Promise::Resolver::New(Nan::GetCurrentContext()).ToLocalChecked();
-    worker->SaveToPersistent(1, resolver);
+    worker->SaveToPersistent(1, resolve);
+    worker->SaveToPersistent(2, reject);
 
     Nan::AsyncQueueWorker(worker);
-    info.GetReturnValue().Set(resolver->GetPromise());
 }
 
 NAN_METHOD(HashSync) {
@@ -162,8 +163,9 @@ void VerifyAsyncWorker::HandleOKCallback()
 
     Nan::HandleScope scope;
 
-    auto promise = GetFromPersistent(1).As<Promise::Resolver>();
-    promise->Resolve(Nan::GetCurrentContext(), Nan::New(output));
+    Nan::Callback resolve{GetFromPersistent(1).As<Function>()};
+    Local<Value> argv[] = {Nan::New(output)};
+    resolve.Call(1, argv);
 }
 
 /* LCOV_EXCL_START */
@@ -173,9 +175,9 @@ void VerifyAsyncWorker::HandleErrorCallback()
 
     Nan::HandleScope scope;
 
-    auto promise = GetFromPersistent(1).As<Promise::Resolver>();
-    auto reason = Nan::New(ErrorMessage()).ToLocalChecked();
-    promise->Reject(Nan::GetCurrentContext(), Exception::Error(reason));
+    Nan::Callback reject{GetFromPersistent(2).As<Function>()};
+    Local<Value> argv[] = {Nan::New(ErrorMessage()).ToLocalChecked()};
+    reject.Call(1, argv);
 }
 /* LCOV_EXCL_STOP */
 
@@ -183,20 +185,21 @@ NAN_METHOD(Verify) {
     using namespace node;
     using namespace v8;
 
-    assert(info.Length() >= 3);
+    assert(info.Length() >= 5);
 
     Nan::Utf8String hash{Nan::To<String>(info[0]).ToLocalChecked()};
     const auto plain = Nan::To<Object>(info[1]).ToLocalChecked();
     auto type = GET_ARG(bool, 2) ? Argon2_d : Argon2_i;
+    auto resolve = Local<Function>::Cast(info[3]);
+    auto reject = Local<Function>::Cast(info[4]);
 
-    auto worker = new VerifyAsyncWorker(*hash,
-            {Buffer::Data(plain), Buffer::Length(plain)}, type);
+    auto worker = new VerifyAsyncWorker{*hash,
+            {Buffer::Data(plain), Buffer::Length(plain)}, type};
 
-    auto resolver = Promise::Resolver::New(Nan::GetCurrentContext()).ToLocalChecked();
-    worker->SaveToPersistent(1, resolver);
+    worker->SaveToPersistent(1, resolve);
+    worker->SaveToPersistent(2, reject);
 
     Nan::AsyncQueueWorker(worker);
-    info.GetReturnValue().Set(resolver->GetPromise());
 }
 
 NAN_METHOD(VerifySync) {

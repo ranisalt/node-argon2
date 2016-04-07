@@ -49,8 +49,10 @@ module.exports = {
 
     try {
       validate(salt, options);
-      return bindings.hash(plain, salt, options.timeCost, options.memoryCost,
-          options.parallelism, options.argon2d);
+      return new Promise((resolve, reject) => {
+        return bindings.hash(plain, salt, options.timeCost, options.memoryCost,
+          options.parallelism, options.argon2d, resolve, reject);
+      });
     } catch (err) {
       return Promise.reject(err);
     }
@@ -105,7 +107,9 @@ module.exports = {
       plain = new Buffer(plain);
     }
 
-    return bindings.verify(new Buffer(hash), plain, hash[7] === 'd');
+    return new Promise((resolve, reject) => {
+      bindings.verify(hash, plain, hash[7] === 'd', resolve, reject);
+    });
   },
 
   verifySync(hash, plain) {
