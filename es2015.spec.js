@@ -9,8 +9,8 @@ const saltWithNull = new Buffer('\0abcdefghijklmno');
 const truncatedBase64 = buffer => buffer.toString('base64').replace(/\=*$/, '');
 
 const hashes = Object.freeze({
-  argon2i: '$argon2i$m=4096,t=3,p=1$c29tZXNhbHQ$vpOd0mbc3AzXEHMgcTb1CrZt5XuoRQuz1kQtGBv7ejk',
-  argon2d: '$argon2d$m=4096,t=3,p=1$c29tZXNhbHQ$/rwrGjZ1NrS+TEgQxricD7B57yJMKGQ/uov96abC6ko'
+  argon2i: '$argon2i$v=19$m=4096,t=3,p=1$c29tZXNhbHQ$iWh06vD8Fy27wf9npn6FXWiCX4K6pW6Ue1Bnzz07Z8A',
+  argon2d: '$argon2d$v=19$m=4096,t=3,p=1$c29tZXNhbHQ$2+JCoQtY/2x5F0VB9pEVP3xBNguWP1T25Ui0PtZuk8o'
 });
 
 const limits = argon2.limits;
@@ -22,12 +22,14 @@ t.test('basic hash', async t => {
 
 t.test('hash with null in password', async t => {
   const hash = await argon2.hash(passwordWithNull, salt);
-  t.equal(hash, '$argon2i$m=4096,t=3,p=1$c29tZXNhbHQ$tcauj48oAe6NE/VLzTawLTQtmX848wkNs1d7z53ahNE');
+  t.equal(hash, '$argon2i$v=19$m=4096,t=3,p=1$c29tZXNhbHQ$gk27gZBfGSSQTGxrg0xP9BjOw1pY1QMEdLcNe+t6N8Q');
 });
 
 t.test('hash with null in salt', async t => {
+  const paramsLen = '$argon2i$v=19$m=4096,t=3,p=1'.length;
   const hash = await argon2.hash(password, saltWithNull);
-  t.equal(hash.substring(23, 47), '$' + truncatedBase64(saltWithNull) + '$');
+  const saltBase64 = '$' + truncatedBase64(saltWithNull) + '$';
+  t.equal(hash.substring(paramsLen, paramsLen + 24), saltBase64);
 });
 
 t.test('hash with longer salt', async t => {

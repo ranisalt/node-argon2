@@ -50,7 +50,7 @@ void HashAsyncWorker::Execute()
 
     auto result = argon2_hash(time_cost, memory_cost, parallelism,
             plain.c_str(), plain.size(), salt.c_str(), salt.size(), nullptr,
-            HASH_LEN, output.get(), ENCODED_LEN, type);
+            HASH_LEN, output.get(), ENCODED_LEN, type, ARGON2_VERSION_NUMBER);
 
     if (result != ARGON2_OK) {
         /* LCOV_EXCL_START */
@@ -123,7 +123,8 @@ NAN_METHOD(HashSync) {
     auto result = argon2_hash(GET_ARG(uint32_t, 2), 1u << GET_ARG(uint32_t, 3),
             GET_ARG(uint32_t, 4), Buffer::Data(plain), Buffer::Length(plain),
             Buffer::Data(salt), Buffer::Length(salt), nullptr, HASH_LEN,
-            output.get(), ENCODED_LEN, GET_ARG(bool, 5) ? Argon2_d : Argon2_i);
+            output.get(), ENCODED_LEN, GET_ARG(bool, 5) ? Argon2_d : Argon2_i,
+            ARGON2_VERSION_NUMBER);
 
     if (result != ARGON2_OK) {
         /* LCOV_EXCL_START */

@@ -11,7 +11,7 @@ const defaults = Object.freeze({
 const limits = Object.freeze(bindings.limits);
 
 const isValidHash = hash => {
-  return /^\$argon2[di]\$m=\d+,t=\d+,p=\d+(?:\$[a-zA-Z0-9+\/]+){2}$/.test(hash);
+  return /^\$argon2[di](\$v=\d+)?\$m=\d+,t=\d+,p=\d+(?:\$[a-zA-Z0-9+\/]+){2}$/.test(hash);
 };
 
 const validate = (salt, options) => {

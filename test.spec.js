@@ -11,8 +11,8 @@ const truncatedBase64 = buffer => buffer.toString('base64').replace(/\=*$/, '');
 
 // hashes for argon2i and argon2d with default options
 const hashes = Object.freeze({
-  argon2i: '$argon2i$m=4096,t=3,p=1$c29tZXNhbHQ$vpOd0mbc3AzXEHMgcTb1CrZt5XuoRQuz1kQtGBv7ejk',
-  argon2d: '$argon2d$m=4096,t=3,p=1$c29tZXNhbHQ$/rwrGjZ1NrS+TEgQxricD7B57yJMKGQ/uov96abC6ko'
+  argon2i: '$argon2i$v=19$m=4096,t=3,p=1$c29tZXNhbHQ$iWh06vD8Fy27wf9npn6FXWiCX4K6pW6Ue1Bnzz07Z8A',
+  argon2d: '$argon2d$v=19$m=4096,t=3,p=1$c29tZXNhbHQ$2+JCoQtY/2x5F0VB9pEVP3xBNguWP1T25Ui0PtZuk8o'
 });
 
 const limits = argon2.limits;
@@ -46,7 +46,7 @@ t.test('async hash with null in password', t => {
   t.plan(1);
 
   return argon2.hash('pass\0word', salt).then(hash => {
-    t.equal(hash, '$argon2i$m=4096,t=3,p=1$c29tZXNhbHQ$tcauj48oAe6NE/VLzTawLTQtmX848wkNs1d7z53ahNE');
+    t.equal(hash, '$argon2i$v=19$m=4096,t=3,p=1$c29tZXNhbHQ$gk27gZBfGSSQTGxrg0xP9BjOw1pY1QMEdLcNe+t6N8Q');
   });
 }).catch(t.threw);
 
@@ -56,8 +56,9 @@ t.test('async hash with null in salt', t => {
   t.plan(1);
 
   return argon2.hash(password, saltWithNull).then(hash => {
-    const saltBase64 = hash.substring(24, 46);
-    t.equal(saltBase64, truncatedBase64(saltWithNull));
+    const paramsLen = '$argon2i$v=19$m=4096,t=3,p=1'.length;
+    const saltBase64 = hash.substring(paramsLen, paramsLen + 24);
+    t.equal(saltBase64, '$' + truncatedBase64(saltWithNull) + '$');
   });
 }).catch(t.threw);
 
@@ -302,7 +303,7 @@ t.test('sync hash with null in password', t => {
   'use strict';
 
   const hash = argon2.hashSync('pass\0word', salt);
-  t.equal(hash, '$argon2i$m=4096,t=3,p=1$c29tZXNhbHQ$tcauj48oAe6NE/VLzTawLTQtmX848wkNs1d7z53ahNE');
+  t.equal(hash, '$argon2i$v=19$m=4096,t=3,p=1$c29tZXNhbHQ$gk27gZBfGSSQTGxrg0xP9BjOw1pY1QMEdLcNe+t6N8Q');
   t.end();
 });
 
@@ -310,8 +311,9 @@ t.test('sync hash with null in salt', t => {
   'use strict';
 
   const hash = argon2.hashSync(password, saltWithNull);
-  const saltBase64 = hash.substring(24, 46);
-  t.equal(saltBase64, truncatedBase64(saltWithNull));
+  const paramsLen = '$argon2i$v=19$m=4096,t=3,p=1'.length;
+  const saltBase64 = hash.substring(paramsLen, paramsLen + 24);
+  t.equal(saltBase64, '$' + truncatedBase64(saltWithNull) + '$');
   t.end();
 });
 
