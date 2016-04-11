@@ -1,5 +1,5 @@
-const bindings = require('bindings')('argon2');
 const crypto = require('crypto');
+const bindings = require('bindings')('argon2');
 
 const defaults = Object.freeze({
   timeCost: 3,

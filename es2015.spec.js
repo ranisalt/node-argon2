@@ -1,12 +1,12 @@
-import argon2 from './';
 import t from 'tap';
+import argon2 from './';
 
 const password = 'password';
 const passwordWithNull = 'pass\0word';
 const salt = new Buffer('somesalt');
 const saltWithNull = new Buffer('\0abcdefghijklmno');
 
-const truncatedBase64 = buffer => buffer.toString('base64').replace(/\=*$/, '');
+const truncatedBase64 = buffer => buffer.toString('base64').replace(/=*$/, '');
 
 const hashes = Object.freeze({
   argon2i: '$argon2i$v=19$m=4096,t=3,p=1$c29tZXNhbHQ$iWh06vD8Fy27wf9npn6FXWiCX4K6pW6Ue1Bnzz07Z8A',

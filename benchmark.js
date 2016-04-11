@@ -1,6 +1,6 @@
-const argon2 = require('./');
 const async = require('async');
 const benchmark = require('async-benchmark');
+const argon2 = require('./');
 
 console.warn = () => {};
 const password = 'password';
