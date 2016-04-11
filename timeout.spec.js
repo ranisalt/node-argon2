@@ -1,5 +1,5 @@
-const argon2 = require('./');
 const t = require('tap');
+const argon2 = require('./');
 
 t.test('js promise + setInterval', t => {
   'use strict';

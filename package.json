@@ -41,6 +41,9 @@
     "node": ">=4.0.0"
   },
   "xo": {
+    "rules": {
+      "no-div-regex": "warn"
+    },
     "space": 2
   }
 }
