@@ -2,10 +2,7 @@ sudo: required
 dist: trusty
 language: node_js
 node_js:
-  - "4.0"
-  - "4.1"
-  - "4.2"
-  - "4.3"
+  - lts
   - "5.0"
   - "5.1"
   - "5.2"
@@ -15,13 +12,14 @@ node_js:
   - "5.6"
   - "5.7"
   - "5.8"
+  - "5.9"
+  - "5.10"
+  - "5.11"
+  - "6.0"
   - node
 matrix:
   allow_failures:
-    - node_js: "4.0"
-    - node_js: "4.1"
-    - node_js: "4.2"
-    - node_js: "4.3"
+    - node_js: lts
 before_install: sudo apt-get update && sudo apt-get install lcov -y
 before_script: npm install -g coveralls node-gyp
 after_success:
