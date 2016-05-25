@@ -2,7 +2,7 @@ sudo: required
 dist: trusty
 language: node_js
 node_js:
-  - lts
+  - "4.4"
   - "5.0"
   - "5.1"
   - "5.2"
@@ -16,7 +16,8 @@ node_js:
   - "5.10"
   - "5.11"
   - "6.0"
-  - node
+  - "6.1"
+  - "6.2"
 matrix:
   allow_failures:
     - node_js: lts
