@@ -2,6 +2,9 @@
 Bindings to the reference [Argon2](https://github.com/P-H-C/phc-winner-argon2)
 implementation.
 
+**Warning: synchronous API has been removed as of 0.12, either use async/await
+(recommended) or keep with 0.11.x if you need it.**
+
 **Want to use it on command line? Instead check
 [node-argon2-cli](https://github.com/ranisalt/node-argon2-cli).**
 
