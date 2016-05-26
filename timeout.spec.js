@@ -1,32 +1,32 @@
-const t = require('tap');
-const argon2 = require('./');
+const t = require('tap')
+const argon2 = require('./')
 
 t.test('js promise + setInterval', t => {
-  'use strict';
+  'use strict'
 
-  t.plan(1);
-  let timer = setInterval(() => {
+  t.plan(1)
+  const timer = setInterval(() => {
     /* istanbul ignore next */
-    t.fail('Interval expired first');
-  }, 5e3);
+    t.fail('Interval expired first')
+  }, 5e3)
 
   return argon2.hash('password', new Buffer('somesalt')).then(() => {
-    clearInterval(timer);
-    t.pass();
-  });
-});
+    clearInterval(timer)
+    t.pass()
+  })
+})
 
 t.test('js promise + setTimeout', t => {
-  'use strict';
+  'use strict'
 
-  t.plan(1);
-  let timer = setTimeout(() => {
+  t.plan(1)
+  const timer = setTimeout(() => {
     /* istanbul ignore next */
-    t.fail('Timeout expired first');
-  }, 5e3);
+    t.fail('Timeout expired first')
+  }, 5e3)
 
   return argon2.hash('password', new Buffer('somesalt')).then(() => {
-    clearTimeout(timer);
-    t.pass();
-  });
-});
+    clearTimeout(timer)
+    t.pass()
+  })
+})

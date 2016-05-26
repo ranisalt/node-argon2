@@ -42,9 +42,11 @@
     "node": ">=4.0.0"
   },
   "xo": {
+    "esnext": true,
     "rules": {
       "no-div-regex": "off"
     },
+    "semicolon": false,
     "space": 2
   }
 }

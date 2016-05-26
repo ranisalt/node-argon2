@@ -1,76 +1,76 @@
-const async = require('async');
-const benchmark = require('async-benchmark');
-const argon2 = require('./');
+const async = require('async')
+const benchmark = require('async-benchmark')
+const argon2 = require('./')
 
-console.warn = () => {};
-const password = 'password';
-const salt = argon2.generateSaltSync();
-const hash = argon2.hashSync(password, salt);
+console.warn = () => {}
+const password = 'password'
+const salt = argon2.generateSaltSync()
+const hash = argon2.hashSync(password, salt)
 
 const fixtures = [{
   name: 'argon2#hash',
-  func: (done) => argon2.hash(password, salt).then(done)
+  func: done => argon2.hash(password, salt).then(done)
 }, {
   name: 'argon2#hashSync',
-  func: (done) => {
-    argon2.hashSync(password, salt);
-    done();
+  func: done => {
+    argon2.hashSync(password, salt)
+    done()
   }
 }, {
   name: 'argon2#hashTimeCost',
-  func: (done) => {
+  func: done => {
     argon2.hash(password, salt, {
       timeCost: argon2.defaults.timeCost + 3
-    }).then(done);
+    }).then(done)
   }
 }, {
   name: 'argon2#hashMemoryCost',
-  func: (done) => {
+  func: done => {
     argon2.hash(password, salt, {
       memoryCost: argon2.defaults.memoryCost + 3
-    }).then(done);
+    }).then(done)
   }
 }, {
   name: 'argon2#hashParallelism',
-  func: (done) => {
+  func: done => {
     argon2.hash(password, salt, {
       parallelism: argon2.defaults.parallelism + 3
-    }).then(done);
+    }).then(done)
   }
 }, {
   name: 'argon2#hashArgon2d',
-  func: (done) => {
+  func: done => {
     argon2.hash(password, salt, {
       argon2d: true
-    }).then(done);
+    }).then(done)
   }
 }, {
   name: 'argon2#verify',
-  func: (done) => argon2.verify(hash, password).then(done)
+  func: done => argon2.verify(hash, password).then(done)
 }, {
   name: 'argon2#verifySync',
-  func: (done) => {
-    argon2.verifySync(hash, password);
-    done();
+  func: done => {
+    argon2.verifySync(hash, password)
+    done()
   }
 }, {
   name: 'argon2#generateSalt',
-  func: (done) => argon2.generateSalt().then(done)
+  func: done => argon2.generateSalt().then(done)
 }, {
   name: 'argon2#generateSaltSync',
-  func: (done) => {
-    argon2.generateSaltSync();
-    done();
+  func: done => {
+    argon2.generateSaltSync()
+    done()
   }
-}];
+}]
 
 async.eachSeries(fixtures, (item, callback) => {
-  benchmark(item.name, (done) => item.func(done), (err, ev) => {
-    console.log(ev.target.toString());
-    callback(err);
-  });
-}, (err) => {
+  benchmark(item.name, done => item.func(done), (err, ev) => {
+    console.log(ev.target.toString())
+    callback(err)
+  })
+}, err => {
   if (err) {
-    console.dir(err);
+    console.dir(err)
   }
-});
+})
