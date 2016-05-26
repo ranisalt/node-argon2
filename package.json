@@ -43,7 +43,7 @@
   },
   "xo": {
     "rules": {
-      "no-div-regex": "warn"
+      "no-div-regex": "off"
     },
     "space": 2
   }
