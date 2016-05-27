@@ -7,39 +7,39 @@ import argon2 from './'
   const hash = await argon2.hash(password, salt)
 
   const fixtures = {
-    'argon2#hash': async deferred => {
+    'basic hash': async deferred => {
       await argon2.hash(password, salt)
       deferred.resolve()
     },
-    'argon2#hashTimeCost': async deferred => {
+    'time cost': async deferred => {
       await argon2.hash(password, salt, {
         timeCost: argon2.defaults.timeCost + 3
       })
       deferred.resolve()
     },
-    'argon2#hashMemoryCost': async deferred => {
+    'memory cost': async deferred => {
       await argon2.hash(password, salt, {
         memoryCost: argon2.defaults.memoryCost + 3
       })
       deferred.resolve()
     },
-    'argon2#hashParallelism': async deferred => {
+    'parallelism': async deferred => {
       await argon2.hash(password, salt, {
         parallelism: argon2.defaults.parallelism + 3
       })
       deferred.resolve()
     },
-    'argon2#hashArgon2d': async deferred => {
+    'argon2d': async deferred => {
       await argon2.hash(password, salt, {
         argon2d: true
       })
       deferred.resolve()
     },
-    'argon2#verify': async deferred => {
+    'verify': async deferred => {
       await argon2.verify(hash, password)
       deferred.resolve()
     },
-    'argon2#generateSalt': async deferred => {
+    'generate salt': async deferred => {
       await argon2.generateSalt()
       deferred.resolve()
     }
