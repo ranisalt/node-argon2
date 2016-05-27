@@ -36,14 +36,14 @@ auto encodedLength(size_type saltLength) -> decltype(saltLength)
     return extraLength + base64Length(saltLength);
 }
 
-HashAsyncWorker::HashAsyncWorker(std::string&& plain, std::string&& salt,
+HashWorker::HashWorker(std::string&& plain, std::string&& salt,
         std::tuple<uint32_t, uint32_t, uint32_t, argon2_type>&& params):
     Nan::AsyncWorker{nullptr}, plain{plain}, salt{salt},
     time_cost{std::get<0>(params)}, memory_cost{std::get<1>(params)},
     parallelism{std::get<2>(params)}, type{std::get<3>(params)}
 { }
 
-void HashAsyncWorker::Execute()
+void HashWorker::Execute()
 {
     const auto ENCODED_LEN = encodedLength(salt.size());
     output.reset(new char[ENCODED_LEN]);
@@ -59,7 +59,7 @@ void HashAsyncWorker::Execute()
     }
 }
 
-void HashAsyncWorker::HandleOKCallback()
+void HashWorker::HandleOKCallback()
 {
     using namespace v8;
     using std::strlen;
@@ -72,7 +72,7 @@ void HashAsyncWorker::HandleOKCallback()
 }
 
 /* LCOV_EXCL_START */
-void HashAsyncWorker::HandleErrorCallback()
+void HashWorker::HandleErrorCallback()
 {
     using namespace v8;
 
@@ -95,7 +95,7 @@ NAN_METHOD(Hash) {
     auto resolve = Local<Function>::Cast(info[6]);
     auto reject = Local<Function>::Cast(info[7]);
 
-    auto worker = new HashAsyncWorker{
+    auto worker = new HashWorker{
             {Buffer::Data(plain), Buffer::Length(plain)},
             {Buffer::Data(salt), Buffer::Length(salt)},
             std::make_tuple(GET_ARG(uint32_t, 2), 1u << GET_ARG(uint32_t, 3),
@@ -107,41 +107,12 @@ NAN_METHOD(Hash) {
     Nan::AsyncQueueWorker(worker);
 }
 
-NAN_METHOD(HashSync) {
-    using namespace node;
-    using namespace v8;
-    using std::strlen;
-
-    assert(info.Length() >= 6);
-
-    const auto plain = Nan::To<Object>(info[0]).ToLocalChecked();
-    const auto salt = Nan::To<Object>(info[1]).ToLocalChecked();
-
-    const auto ENCODED_LEN = encodedLength(Buffer::Length(salt));
-    auto output = std::unique_ptr<char[]>{new char[ENCODED_LEN]};
-
-    auto result = argon2_hash(GET_ARG(uint32_t, 2), 1u << GET_ARG(uint32_t, 3),
-            GET_ARG(uint32_t, 4), Buffer::Data(plain), Buffer::Length(plain),
-            Buffer::Data(salt), Buffer::Length(salt), nullptr, HASH_LEN,
-            output.get(), ENCODED_LEN, GET_ARG(bool, 5) ? Argon2_d : Argon2_i,
-            ARGON2_VERSION_NUMBER);
-
-    if (result != ARGON2_OK) {
-        /* LCOV_EXCL_START */
-        Nan::ThrowError(argon2_error_message(result));
-        return;
-        /* LCOV_EXCL_STOP */
-    }
-
-    info.GetReturnValue().Set(Nan::Encode(output.get(), strlen(output.get())));
-}
-
-VerifyAsyncWorker::VerifyAsyncWorker(std::string&& hash, std::string&& plain,
+VerifyWorker::VerifyWorker(std::string&& hash, std::string&& plain,
         argon2_type type):
     Nan::AsyncWorker{nullptr}, hash{hash}, plain{plain}, type{type}
 { }
 
-void VerifyAsyncWorker::Execute()
+void VerifyWorker::Execute()
 {
     auto result = argon2_verify(hash.c_str(), plain.c_str(), plain.size(), type);
 
@@ -158,7 +129,7 @@ void VerifyAsyncWorker::Execute()
     }
 }
 
-void VerifyAsyncWorker::HandleOKCallback()
+void VerifyWorker::HandleOKCallback()
 {
     using namespace v8;
 
@@ -170,7 +141,7 @@ void VerifyAsyncWorker::HandleOKCallback()
 }
 
 /* LCOV_EXCL_START */
-void VerifyAsyncWorker::HandleErrorCallback()
+void VerifyWorker::HandleErrorCallback()
 {
     using namespace v8;
 
@@ -194,38 +165,13 @@ NAN_METHOD(Verify) {
     auto resolve = Local<Function>::Cast(info[3]);
     auto reject = Local<Function>::Cast(info[4]);
 
-    auto worker = new VerifyAsyncWorker{*hash,
+    auto worker = new VerifyWorker{*hash,
             {Buffer::Data(plain), Buffer::Length(plain)}, type};
 
     worker->SaveToPersistent(1, resolve);
     worker->SaveToPersistent(2, reject);
 
     Nan::AsyncQueueWorker(worker);
-}
-
-NAN_METHOD(VerifySync) {
-    using namespace node;
-    using namespace v8;
-
-    assert(info.Length() >= 3);
-
-    Nan::Utf8String hash{Nan::To<String>(info[0]).ToLocalChecked()};
-    const auto plain = Nan::To<Object>(info[1]).ToLocalChecked();
-
-    auto result = argon2_verify(*hash, Buffer::Data(plain),
-            Buffer::Length(plain), GET_ARG(bool, 2) ? Argon2_d : Argon2_i);
-
-    switch (result) {
-        case ARGON2_OK:
-        case ARGON2_VERIFY_MISMATCH:
-            info.GetReturnValue().Set(result == ARGON2_OK);
-            break;
-        default:
-            /* LCOV_EXCL_START */
-            Nan::ThrowError(argon2_error_message(result));
-            break;
-            /* LCOV_EXCL_STOP */
-    }
 }
 
 NAN_MODULE_INIT(init) {
@@ -247,9 +193,7 @@ NAN_MODULE_INIT(init) {
 
     Nan::Set(target, Nan::New("limits").ToLocalChecked(), limits);
     Nan::Export(target, "hash", Hash);
-    Nan::Export(target, "hashSync", HashSync);
     Nan::Export(target, "verify", Verify);
-    Nan::Export(target, "verifySync", VerifySync);
 }
 
 #undef GET_ARG
