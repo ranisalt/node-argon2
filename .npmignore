@@ -8,8 +8,6 @@ argon2/src/bench.c
 argon2/src/blake2/blamka-round-ref.h
 argon2/src/genkat.c
 argon2/src/genkat.h
-argon2/src/ref.c
-argon2/src/ref.h
 argon2/src/run.c
 argon2/src/test.c
 argon2/vs2015
