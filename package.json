@@ -35,6 +35,7 @@
     "babel-preset-stage-3": "^6.5.0",
     "babel-tap": "^5.0.0",
     "benchmark": "^2.1.0",
+    "bluebird": "^3.4.0",
     "tap": "^5.7.2",
     "xo": "^0.15.1"
   },
