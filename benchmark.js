@@ -1,7 +1,10 @@
 import {Suite} from 'benchmark'
+import Bluebird from 'bluebird'
 import argon2 from './'
 
-(async () => {
+argon2.Promise = Bluebird
+
+const f = (async () => {
   const password = 'password'
   const salt = await argon2.generateSalt()
   const hash = await argon2.hash(password, salt)
@@ -56,4 +59,6 @@ import argon2 from './'
   }
 
   suite.run({async: true})
-})()
+})
+
+f()
