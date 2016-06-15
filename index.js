@@ -37,7 +37,8 @@ const validate = (salt, options) => {
 }
 
 module.exports = {
-  defaults, limits,
+  defaults,
+  limits,
 
   hash(plain, salt, options) {
     'use strict'
