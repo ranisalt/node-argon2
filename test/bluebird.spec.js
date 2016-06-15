@@ -1,6 +1,6 @@
 const Bluebird = require('bluebird')
 const t = require('tap')
-const argon2 = require('./')
+const argon2 = require('../')
 
 argon2.Promise = Bluebird
 

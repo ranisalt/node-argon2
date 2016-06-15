@@ -1,5 +1,5 @@
 const t = require('tap')
-const argon2 = require('./index')
+const argon2 = require('../index')
 
 const password = 'password'
 const salt = new Buffer('somesalt')
@@ -16,7 +16,6 @@ const hashes = Object.freeze({
 })
 
 const limits = argon2.limits
-console.warn = () => {}
 
 t.test('defaults', t => {
   'use strict'
@@ -30,7 +29,7 @@ t.test('defaults', t => {
   t.end()
 })
 
-t.test('basic async hash', t => {
+t.test('basic hash', t => {
   'use strict'
 
   t.plan(1)
@@ -40,7 +39,7 @@ t.test('basic async hash', t => {
   })
 }).catch(t.threw)
 
-t.test('async hash with null in password', t => {
+t.test('hash with null in password', t => {
   'use strict'
 
   t.plan(1)
@@ -50,7 +49,7 @@ t.test('async hash with null in password', t => {
   })
 }).catch(t.threw)
 
-t.test('async hash with null in salt', t => {
+t.test('hash with null in salt', t => {
   'use strict'
 
   t.plan(1)
@@ -62,7 +61,7 @@ t.test('async hash with null in salt', t => {
   })
 }).catch(t.threw)
 
-t.test('async hash with longer salt', t => {
+t.test('hash with longer salt', t => {
   'use strict'
 
   t.plan(2)
@@ -76,7 +75,7 @@ t.test('async hash with longer salt', t => {
   })
 }).catch(t.threw)
 
-t.test('async hash with argon2d', t => {
+t.test('hash with argon2d', t => {
   'use strict'
 
   t.plan(2)
@@ -89,7 +88,7 @@ t.test('async hash with argon2d', t => {
   })
 }).catch(t.threw)
 
-t.test('async hash with truthy argon2d', t => {
+t.test('hash with truthy argon2d', t => {
   'use strict'
 
   t.plan(1)
@@ -101,7 +100,7 @@ t.test('async hash with truthy argon2d', t => {
   })
 }).catch(t.threw)
 
-t.test('async hash with falsy argon2d', t => {
+t.test('hash with falsy argon2d', t => {
   'use strict'
 
   t.plan(1)
@@ -113,7 +112,7 @@ t.test('async hash with falsy argon2d', t => {
   })
 }).catch(t.threw)
 
-t.test('async hash with invalid salt', t => {
+t.test('hash with invalid salt', t => {
   'use strict'
 
   t.plan(1)
@@ -123,7 +122,7 @@ t.test('async hash with invalid salt', t => {
   })
 })
 
-t.test('async hash with short salt', t => {
+t.test('hash with short salt', t => {
   'use strict'
 
   t.plan(1)
@@ -133,7 +132,7 @@ t.test('async hash with short salt', t => {
   })
 })
 
-t.test('async hash with time cost', t => {
+t.test('hash with time cost', t => {
   'use strict'
 
   t.plan(1)
@@ -145,7 +144,7 @@ t.test('async hash with time cost', t => {
   })
 }).catch(t.threw)
 
-t.test('async hash with invalid time cost', t => {
+t.test('hash with invalid time cost', t => {
   'use strict'
 
   t.plan(1)
@@ -157,7 +156,7 @@ t.test('async hash with invalid time cost', t => {
   })
 })
 
-t.test('async hash with low time cost', t => {
+t.test('hash with low time cost', t => {
   'use strict'
 
   t.plan(1)
@@ -169,7 +168,7 @@ t.test('async hash with low time cost', t => {
   })
 })
 
-t.test('async hash with high time cost', t => {
+t.test('hash with high time cost', t => {
   'use strict'
 
   t.plan(1)
@@ -181,7 +180,7 @@ t.test('async hash with high time cost', t => {
   })
 })
 
-t.test('async hash with memory cost', t => {
+t.test('hash with memory cost', t => {
   'use strict'
 
   t.plan(1)
@@ -193,7 +192,7 @@ t.test('async hash with memory cost', t => {
   })
 }).catch(t.threw)
 
-t.test('async hash with invalid time cost', t => {
+t.test('hash with invalid time cost', t => {
   'use strict'
 
   t.plan(1)
@@ -205,7 +204,7 @@ t.test('async hash with invalid time cost', t => {
   })
 })
 
-t.test('async hash with low time cost', t => {
+t.test('hash with low time cost', t => {
   'use strict'
 
   t.plan(1)
@@ -217,7 +216,7 @@ t.test('async hash with low time cost', t => {
   })
 })
 
-t.test('async hash with high time cost', t => {
+t.test('hash with high time cost', t => {
   'use strict'
 
   t.plan(1)
@@ -229,7 +228,7 @@ t.test('async hash with high time cost', t => {
   })
 })
 
-t.test('async hash with parallelism', t => {
+t.test('hash with parallelism', t => {
   'use strict'
 
   t.plan(1)
@@ -241,7 +240,7 @@ t.test('async hash with parallelism', t => {
   })
 }).catch(t.threw)
 
-t.test('async hash with invalid parallelism', t => {
+t.test('hash with invalid parallelism', t => {
   'use strict'
 
   t.plan(1)
@@ -253,7 +252,7 @@ t.test('async hash with invalid parallelism', t => {
   })
 })
 
-t.test('async hash with low parallelism', t => {
+t.test('hash with low parallelism', t => {
   'use strict'
 
   t.plan(1)
@@ -265,7 +264,7 @@ t.test('async hash with low parallelism', t => {
   })
 })
 
-t.test('async hash with high parallelism', t => {
+t.test('hash with high parallelism', t => {
   'use strict'
 
   t.plan(1)
@@ -277,7 +276,7 @@ t.test('async hash with high parallelism', t => {
   })
 })
 
-t.test('async hash with all options', t => {
+t.test('hash with all options', t => {
   'use strict'
 
   t.plan(1)
@@ -288,114 +287,5 @@ t.test('async hash with all options', t => {
     parallelism: 2
   }).then(hash => {
     t.match(hash, /m=8192,t=4,p=2/, 'Should have correct options.')
-  })
-}).catch(t.threw)
-
-t.test('async generate salt with default length', t => {
-  'use strict'
-
-  t.plan(1)
-
-  return argon2.generateSalt().then(salt => {
-    t.equal(salt.length, 16)
-  })
-}).catch(t.threw)
-
-t.test('async generate salt with specified length', t => {
-  'use strict'
-
-  t.plan(1)
-
-  return argon2.generateSalt(32).then(salt => {
-    t.equal(salt.length, 32)
-  })
-}).catch(t.threw)
-
-t.test('async verify correct password', t => {
-  'use strict'
-
-  t.plan(1)
-
-  return argon2.generateSalt().then(salt => {
-    return argon2.hash(password, salt).then(hash => {
-      return argon2.verify(hash, password).then(result => {
-        t.true(result)
-      })
-    })
-  })
-}).catch(t.threw)
-
-t.test('async verify wrong password', t => {
-  'use strict'
-
-  t.plan(1)
-
-  return argon2.generateSalt().then(salt => {
-    return argon2.hash(password, salt).then(hash => {
-      return argon2.verify(hash, 'passworld').then(result => {
-        t.false(result)
-      })
-    })
-  })
-}).catch(t.threw)
-
-t.test('async verify invalid hash', t => {
-  'use strict'
-
-  t.plan(1)
-
-  return argon2.generateSalt().then(salt => {
-    return argon2.hash(password, salt).then(hash => {
-      /* cut just a piece of the hash making it invalid */
-      return argon2.verify(hash.slice(8), password).catch(err => {
-        t.match(err.message, /invalid hash.+generated by argon2/i)
-      })
-    })
-  })
-}).catch(t.threw)
-
-t.test('async verify with null in password', t => {
-  'use strict'
-
-  t.plan(1)
-
-  return argon2.generateSalt().then(salt => {
-    return argon2.hash('pass\0word', salt).then(hash => {
-      return argon2.verify(hash, 'pass\0word').then(result => {
-        t.true(result)
-      })
-    })
-  })
-}).catch(t.threw)
-
-t.test('async verify argon2d correct password', t => {
-  'use strict'
-
-  t.plan(1)
-
-  return argon2.generateSalt().then(salt => {
-    return argon2.hash(password, salt, {
-      argon2d: true
-    }).then(hash => {
-      return argon2.verify(hash, password).then(result => {
-        t.true(result)
-      })
-    })
-  })
-}).catch(t.threw)
-
-t.test('async verify argon2d wrong password', t => {
-  'use strict'
-
-  t.plan(1)
-
-  return argon2.generateSalt().then(salt => {
-    return argon2.hash(password, salt, {
-      argon2d: true
-    }).then(hash => {
-      return argon2.verify(hash, 'passwolrd').then(result => {
-        t.false(result)
-      })
-    })
   })
 }).catch(t.threw)

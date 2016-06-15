@@ -1,5 +1,5 @@
 import t from 'tap'
-import argon2 from './'
+import argon2 from '../'
 
 const password = 'password'
 const passwordWithNull = 'pass\0word'

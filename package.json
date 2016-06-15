@@ -6,7 +6,7 @@
   "scripts": {
     "benchmark": "babel-node benchmark.js",
     "clean": "node-gyp clean",
-    "test": "xo && babel-tap *.spec.js"
+    "test": "xo && babel-tap test/*.spec.js"
   },
   "repository": {
     "type": "git",
