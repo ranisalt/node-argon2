@@ -1,8 +1,6 @@
-const Bluebird = require('bluebird')
+require('any-promise/register/bluebird')
 const t = require('tap')
 const argon2 = require('../')
-
-argon2.Promise = Bluebird
 
 const password = 'password'
 const salt = new Buffer('somesalt')

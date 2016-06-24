@@ -79,6 +79,10 @@ argon2.generateSalt(32).then(salt => {
 const salt = await argon2.generateSalt(32);
 ```
 
+You can change the Promise with
+[any-promise](https://www.npmjs.com/package/any-promise). Try using Bluebird or
+Q for enhanced functionality.
+
 You can also modify time, memory and parallelism constraints passing the object
 as the third parameter, with keys `timeCost`, `memoryCost` and `parallelism`,
 respectively defaulted to 3, 12 (meaning 2^12 KB) and 1 (threads):
