@@ -1,8 +1,6 @@
+import 'any-promise/register/bluebird'
 import {Suite} from 'benchmark'
-import Bluebird from 'bluebird'
 import argon2 from './'
-
-argon2.Promise = Bluebird
 
 const f = (async () => {
   const password = 'password'
