@@ -24,14 +24,6 @@ argon2.hash('password', salt).then(hash => {
   // ...
 });
 
-// OR
-
-try {
-  const hash = argon2.hashSync('password', salt);
-} catch (err) {
-  //...
-}
-
 // ES7
 
 try {
@@ -50,16 +42,6 @@ argon2.hash('password', salt, {
 }).catch(err => {
   // internal failure
 });
-
-// OR
-
-try {
-  const hash = argon2.hashSync('password', salt, {
-    argon2d: true
-  });
-} catch (err) {
-  // internal failure
-}
 
 // ES7
 
@@ -81,10 +63,6 @@ argon2.generateSalt().then(salt => {
   // ...
 });
 
-// OR
-
-var salt = argon2.generateSaltSync();
-
 // ES7
 
 const salt = await argon2.generateSalt();
@@ -96,17 +74,10 @@ argon2.generateSalt(32).then(salt => {
   // ...
 });
 
-// OR
-
-var salt = argon2.generateSaltSync(32);
-
 // ES7
 
 const salt = await argon2.generateSalt(32);
 ```
-
-Please keep in mind synchronous salt generation is blocking, since it waits for
-entropy when enough is not available, so please refrain from using sync version.
 
 You can also modify time, memory and parallelism constraints passing the object
 as the third parameter, with keys `timeCost`, `memoryCost` and `parallelism`,
@@ -121,10 +92,6 @@ argon2.generateSalt().then(salt => {
     // ...
   });
 });
-
-// OR
-
-const hash = argon2.hashSync('password', argon2.generateSaltSync(), options);
 
 // ES7
 
@@ -148,18 +115,6 @@ argon2.verify('<big long hash>', 'password').then(match => {
 }).catch(err => {
   // internal failure
 });
-
-// OR
-
-try {
-  if (argon2.verifySync('<big long hash>', 'password')) {
-    // password match
-  } else {
-    // password did not match
-  }
-} catch (err) {
-  // internal failure
-}
 
 // ES7
 
