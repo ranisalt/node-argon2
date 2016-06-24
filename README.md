@@ -8,41 +8,6 @@ implementation.
 **Want to use it on command line? Instead check
 [node-argon2-cli](https://github.com/ranisalt/node-argon2-cli).**
 
-### Before installing
-**Don't forget to checkout submodules! Always `git clone --recursive` or run
-`git submodule update --init` after cloning.**
-
-You **MUST** have a **node-gyp** global install before proceeding with install,
-along with GCC >= 4.8 / Clang >= 3.3. On Windows, you must compile under Visual
-Studio 2015 or newer.
-
-**node-argon2** works only and is tested against Node >=4.0.0.
-
-#### OSX
-
-To install GCC >= 4.8 on OSX, use [homebrew](http://brew.sh/):
-
-```console
-$ brew install gcc
-```
-
-Once you've got GCC installed and ready to run, you then need to install
-node-gyp, you must do this globally:
-
-```console
-$ npm install -g node-gyp
-```
-
-Finally, once node-gyp is installed and ready to go, you can install this
-library, specifying the GCC or Clang binary to use:
-
-```console
-$ CXX=g++-5 npm install argon2
-```
-
-**NOTE**: If your GCC or Clang binary is named something different than `g++-5`,
-you'll need to specify that in the command.
-
 ### Usage
 It's possible to hash a password using both Argon2i (default) and Argon2d, sync
 and async, and to verify if a password matches a hash, and also generate random
@@ -213,6 +178,36 @@ not raw.
 
 When you hit an internal failure, the message is properly set. If it is not or
 you do not understand it, feel free to open an issue.
+
+### Before installing
+You **MUST** have a **node-gyp** global install before proceeding with install,
+along with GCC >= 4.8 / Clang >= 3.3. On Windows, you must compile under Visual
+Studio 2015 or newer.
+
+**node-argon2** works only and is tested against Node >=4.0.0.
+
+#### OSX
+
+To install GCC >= 4.8 on OSX, use [homebrew](http://brew.sh/):
+```console
+$ brew install gcc
+```
+
+Once you've got GCC installed and ready to run, you then need to install
+node-gyp, you must do this globally:
+```console
+$ npm install -g node-gyp
+```
+
+Finally, once node-gyp is installed and ready to go, you can install this
+library, specifying the GCC or Clang binary to use:
+
+```console
+$ CXX=g++-5 npm install argon2
+```
+
+**NOTE**: If your GCC or Clang binary is named something different than `g++-5`,
+you'll need to specify that in the command.
 
 # License
 Work licensed under the [MIT License](LICENSE). Please check
