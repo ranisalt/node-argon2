@@ -11,17 +11,14 @@ const hashes = Object.freeze({
 })
 
 t.test('bluebird hash', t => {
-  'use strict'
-
   t.plan(1)
+
   return argon2.hash(password, salt).then(hash => {
     t.equal(hash, hashes.argon2i)
   })
 })
 
 t.test('bluebird generate salt', t => {
-  'use strict'
-
   t.plan(1)
 
   return argon2.generateSalt().then(salt => {
@@ -30,15 +27,43 @@ t.test('bluebird generate salt', t => {
 }).catch(t.threw)
 
 t.test('bluebird verify', t => {
-  'use strict'
-
   t.plan(1)
 
   return argon2.generateSalt().then(salt => {
     return argon2.hash(password, salt).then(hash => {
-      return argon2.verify(hash, password).then(result => {
-        t.true(result)
-      })
+      return argon2.verify(hash, password).then(t.true)
+    })
+  })
+}).catch(t.threw)
+
+t.test('js promise + setInterval', t => {
+  t.plan(1)
+
+  const timer = setInterval(() => {
+    /* istanbul ignore next */
+    t.fail('Interval expired first')
+  }, 5e3)
+
+  return argon2.generateSalt().then(salt => {
+    return argon2.hash('password', salt).then(() => {
+      clearInterval(timer)
+      t.pass()
+    })
+  })
+}).catch(t.threw)
+
+t.test('js promise + setTimeout', t => {
+  t.plan(1)
+
+  const timer = setTimeout(() => {
+    /* istanbul ignore next */
+    t.fail('Timeout expired first')
+  }, 5e3)
+
+  return argon2.generateSalt().then(salt => {
+    return argon2.hash('password', salt).then(() => {
+      clearTimeout(timer)
+      t.pass()
     })
   })
 }).catch(t.threw)
