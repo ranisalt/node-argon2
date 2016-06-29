@@ -162,10 +162,10 @@ Finally, once node-gyp is installed and ready to go, you can install this
 library, specifying the GCC or Clang binary to use:
 
 ```console
-$ CXX=g++-5 npm install argon2
+$ CXX=g++-6 npm install argon2
 ```
 
-**NOTE**: If your GCC or Clang binary is named something different than `g++-5`,
+**NOTE**: If your GCC or Clang binary is named something different than `g++-6`,
 you'll need to specify that in the command.
 
 # License
