@@ -28,7 +28,7 @@ before_script: npm install -g coveralls node-gyp
 after_success:
   - npm run benchmark
   - node-gyp --debug rebuild
-  - npm test -- --coverage --coverage-report=lcov
+  - npm test
   - lcov -c -d . --no-external -o lcov-cpp.info
   - lcov -r lcov-cpp.info "*/node_modules/*" -o lcov-cpp.info
   - lcov -a lcov-cpp.info -a coverage/lcov.info -o lcov.info

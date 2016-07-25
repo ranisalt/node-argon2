@@ -13,8 +13,6 @@ argon2/src/test.c
 argon2/vs2015
 benchmark.js
 ISSUE_TEMPLATE.md
-test/bluebird.spec.js
-test/es-2015.spec.js
 .babelrc
 .editorconfig
 .git*
