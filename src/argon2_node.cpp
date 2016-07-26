@@ -10,7 +10,10 @@
 
 namespace NodeArgon2 {
 
-#define GET_ARG(type, index) Nan::To<type>(info[index]).FromJust()
+template<class T>
+T fromJust(v8::Local<v8::Value> info) {
+    return Nan::To<T>(info).FromJust();
+}
 
 using size_type = std::string::size_type;
 const auto HASH_LEN = 32u;
@@ -98,8 +101,10 @@ NAN_METHOD(Hash) {
     auto worker = new HashWorker{
             {Buffer::Data(plain), Buffer::Length(plain)},
             {Buffer::Data(salt), Buffer::Length(salt)},
-            std::make_tuple(GET_ARG(uint32_t, 2), 1u << GET_ARG(uint32_t, 3),
-                GET_ARG(uint32_t, 4), GET_ARG(bool, 5) ? Argon2_d : Argon2_i)};
+            std::make_tuple(fromJust<uint32_t>(info[2]),
+                    1u << fromJust<uint32_t>(info[3]),
+                    fromJust<uint32_t>(info[4]),
+                    fromJust<bool>(info[5]) ? Argon2_d : Argon2_i)};
 
     worker->SaveToPersistent(1, resolve);
     worker->SaveToPersistent(2, reject);
@@ -161,7 +166,7 @@ NAN_METHOD(Verify) {
 
     Nan::Utf8String hash{Nan::To<String>(info[0]).ToLocalChecked()};
     const auto plain = Nan::To<Object>(info[1]).ToLocalChecked();
-    auto type = GET_ARG(bool, 2) ? Argon2_d : Argon2_i;
+    auto type = fromJust<bool>(info[2]) ? Argon2_d : Argon2_i;
     auto resolve = Local<Function>::Cast(info[3]);
     auto reject = Local<Function>::Cast(info[4]);
 
@@ -179,24 +184,21 @@ NAN_MODULE_INIT(init) {
 
     auto limits = Nan::New<Object>();
 
-    #define setMaxMin(target, max, min) \
-        auto target = Nan::New<Object>(); \
-        Nan::Set(target, Nan::New("max").ToLocalChecked(), Nan::New<Number>(max)); \
-        Nan::Set(target, Nan::New("min").ToLocalChecked(), Nan::New<Number>(min)); \
-        Nan::Set(limits, Nan::New(#target).ToLocalChecked(), target);
+    auto setMaxMin = [&](const char* name, uint32_t max, uint32_t min) {
+        auto obj = Nan::New<Object>();
+        Nan::Set(obj, Nan::New("max").ToLocalChecked(), Nan::New<Number>(max));
+        Nan::Set(obj, Nan::New("min").ToLocalChecked(), Nan::New<Number>(min));
+        Nan::Set(limits, Nan::New(name).ToLocalChecked(), obj);
+    };
 
-    setMaxMin(memoryCost, log(ARGON2_MAX_MEMORY), log(ARGON2_MIN_MEMORY));
-    setMaxMin(timeCost, ARGON2_MAX_TIME, ARGON2_MIN_TIME);
-    setMaxMin(parallelism, ARGON2_MAX_LANES, ARGON2_MIN_LANES);
-
-    #undef setMaxMin
+    setMaxMin("memoryCost", log(ARGON2_MAX_MEMORY), log(ARGON2_MIN_MEMORY));
+    setMaxMin("timeCost", ARGON2_MAX_TIME, ARGON2_MIN_TIME);
+    setMaxMin("parallelism", ARGON2_MAX_LANES, ARGON2_MIN_LANES);
 
     Nan::Set(target, Nan::New("limits").ToLocalChecked(), limits);
     Nan::Export(target, "hash", Hash);
     Nan::Export(target, "verify", Verify);
 }
-
-#undef GET_ARG
 
 }
 
