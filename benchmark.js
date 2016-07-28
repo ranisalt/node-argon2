@@ -1,62 +1,26 @@
 import 'any-promise/register/bluebird'
-import {Suite} from 'benchmark'
-import argon2 from './'
+import {Suite} from 'sandra'
+import argon2, {defaults} from './'
 
-const f = (async () => {
+(async() => {
   const password = 'password'
   const salt = await argon2.generateSalt()
   const hash = await argon2.hash(password, salt)
+  const suite = new Suite('argon2')
 
-  const fixtures = {
-    'basic hash': async deferred => {
-      await argon2.hash(password, salt)
-      deferred.resolve()
-    },
-    'time cost': async deferred => {
-      await argon2.hash(password, salt, {
-        timeCost: argon2.defaults.timeCost + 3
-      })
-      deferred.resolve()
-    },
-    'memory cost': async deferred => {
-      await argon2.hash(password, salt, {
-        memoryCost: argon2.defaults.memoryCost + 3
-      })
-      deferred.resolve()
-    },
-    'parallelism': async deferred => {
-      await argon2.hash(password, salt, {
-        parallelism: argon2.defaults.parallelism + 3
-      })
-      deferred.resolve()
-    },
-    'argon2d': async deferred => {
-      await argon2.hash(password, salt, {
-        argon2d: true
-      })
-      deferred.resolve()
-    },
-    'verify': async deferred => {
-      await argon2.verify(hash, password)
-      deferred.resolve()
-    },
-    'generate salt': async deferred => {
-      await argon2.generateSalt()
-      deferred.resolve()
-    }
-  }
+  suite.push('basic hash', argon2.hash, password, salt)
+  suite.push('time cost', argon2.hash, password, salt, {timeCost: defaults.timeCost + 3})
+  suite.push('memory cost', argon2.hash, password, salt, {memoryCost: defaults.memoryCost + 3})
+  suite.push('parallelism', argon2.hash, password, salt, {parallelism: defaults.parallelism + 3})
+  suite.push('argon2d', argon2.hash, password, salt, {argon2d: true})
+  suite.push('verify', argon2.verify, hash, password)
+  suite.push('generate salt', argon2.generateSalt)
 
-  const suite = new Suite({
-    onCycle(event) {
-      console.log(event.target.toString())
-    }
+  suite.on('cycle', event => {
+    console.log(event.toString())
   })
 
-  for (const item of Object.keys(fixtures)) {
-    suite.add(item, fixtures[item], {defer: true})
-  }
-
-  suite.run({async: true})
-})
-
-f()
+  await suite.run({
+    timeout: 2500
+  })
+})()
