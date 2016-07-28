@@ -16,11 +16,6 @@ const validate = (salt, options) => {
     throw new Error('Invalid salt, must be a buffer with 8 or more bytes.')
   }
 
-  if (options.parallelism === 'auto') {
-    /* istanbul ignore next */
-    options.parallelism = require('os').cpus().length
-  }
-
   for (const key of Object.keys(limits)) {
     const max = limits[key].max
     const min = limits[key].min
