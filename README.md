@@ -1,4 +1,6 @@
-# node-argon2 [![NPM package][npm-image]][npm-url] [![Build status][travis-image]][travis-url] [![Coverage status][coverage-image]][coverage-url] [![Code Quality][codequality-image]][codequality-url] [![Dependencies][david-dm-image]][david-dm-url]
+# node-argon2
+[![NPM package][npm-image]][npm-url] [![Build status][travis-image]][travis-url] [![Coverage status][coverage-image]][coverage-url] [![Code Quality][codequality-image]][codequality-url] [![Dependencies][david-dm-image]][david-dm-url] [![Codewake][codewake-image]][codewake-url]
+
 Bindings to the reference [Argon2](https://github.com/P-H-C/phc-winner-argon2)
 implementation.
 
@@ -183,3 +185,5 @@ license over Argon2 and the reference implementation.
 [codequality-url]: https://www.codacy.com/app/ranisalt/node-argon2
 [david-dm-image]: https://img.shields.io/david/ranisalt/node-argon2.svg?style=flat-square
 [david-dm-url]: https://david-dm.org/ranisalt/node-argon2
+[codewake-image]: https://www.codewake.com/badges/ask_question_flat_square.svg
+[codewake-url]: https://www.codewake.com/p/node-argon2
