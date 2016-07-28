@@ -1,4 +1,3 @@
-import 'any-promise/register/bluebird'
 import test from 'ava'
 import argon2 from './'
 
