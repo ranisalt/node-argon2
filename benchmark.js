@@ -1,4 +1,3 @@
-import 'any-promise/register/bluebird'
 import {Suite} from 'sandra'
 import argon2, {defaults} from './'
 
