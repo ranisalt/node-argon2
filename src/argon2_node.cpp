@@ -110,8 +110,8 @@ NAN_METHOD(Hash) {
                     fromJust<uint32_t>(getArg("parallelism")),
                     fromJust<bool>(getArg("argon2d")) ? Argon2_d : Argon2_i)};
 
-    worker->SaveToPersistent(1, resolve);
-    worker->SaveToPersistent(2, reject);
+    worker->SaveToPersistent(1, Local<Function>::Cast(info[3]));
+    worker->SaveToPersistent(2, Local<Function>::Cast(info[4]));
 
     Nan::AsyncQueueWorker(worker);
 }
@@ -171,14 +171,12 @@ NAN_METHOD(Verify) {
     Nan::Utf8String hash{Nan::To<String>(info[0]).ToLocalChecked()};
     const auto plain = Nan::To<Object>(info[1]).ToLocalChecked();
     auto type = fromJust<bool>(info[2]) ? Argon2_d : Argon2_i;
-    auto resolve = Local<Function>::Cast(info[3]);
-    auto reject = Local<Function>::Cast(info[4]);
 
     auto worker = new VerifyWorker{*hash,
             {Buffer::Data(plain), Buffer::Length(plain)}, type};
 
-    worker->SaveToPersistent(1, resolve);
-    worker->SaveToPersistent(2, reject);
+    worker->SaveToPersistent(1, Local<Function>::Cast(info[3]));
+    worker->SaveToPersistent(2, Local<Function>::Cast(info[4]));
 
     Nan::AsyncQueueWorker(worker);
 }
