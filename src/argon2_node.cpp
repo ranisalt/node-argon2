@@ -97,7 +97,7 @@ NAN_METHOD(Hash) {
     const auto salt = Nan::To<Object>(info[1]).ToLocalChecked();
     const auto options = Nan::To<Object>(info[2]).ToLocalChecked();
 
-    auto getArg = [&](const char* key) {
+    const auto getArg = [&](const char* key) {
         auto localKey = Nan::New(key).ToLocalChecked();
         return Nan::Get(options, localKey).ToLocalChecked();
     };
@@ -185,7 +185,7 @@ NAN_MODULE_INIT(init) {
 
     auto limits = Nan::New<Object>();
 
-    auto setMaxMin = [&](const char* name, uint32_t max, uint32_t min) {
+    const auto setMaxMin = [&](const char* name, uint32_t max, uint32_t min) {
         auto obj = Nan::New<Object>();
         Nan::Set(obj, Nan::New("max").ToLocalChecked(), Nan::New<Number>(max));
         Nan::Set(obj, Nan::New("min").ToLocalChecked(), Nan::New<Number>(min));
