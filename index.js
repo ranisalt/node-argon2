@@ -10,14 +10,14 @@ const defaults = Object.freeze({
 })
 
 const limits = Object.freeze(bindings.limits)
-const internalLimits = new Map(Object.keys(bindings.limits).map(key => [key, bindings.limits[key]]))
 
 const validate = (salt, options) => new Promise((resolve, reject) => {
   if (!Buffer.isBuffer(salt) || salt.length < 8) {
     reject(new Error('Invalid salt, must be a buffer with 8 or more bytes.'))
   }
 
-  for (const [key, {min, max}] of internalLimits) {
+  for (const key of Object.keys(limits)) {
+    const {max, min} = limits[key]
     const value = options[key]
     if (!Number.isInteger(value) || value > max || value < min) {
       reject(new Error(`Invalid ${key}, must be an integer between ${min} and ${max}.`))
