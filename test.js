@@ -1,5 +1,5 @@
 import test from 'ava'
-import argon2 from './'
+import argon2, {defaults, limits} from './'
 
 const password = 'password'
 const salt = new Buffer('somesalt')
@@ -16,10 +16,8 @@ const hashes = Object.freeze({
   withNull: '$argon2i$v=19$m=4096,t=3,p=1$c29tZXNhbHQ$gk27gZBfGSSQTGxrg0xP9BjOw1pY1QMEdLcNe+t6N8Q'
 })
 
-const limits = argon2.limits
-
 test('defaults', t => {
-  t.deepEqual(argon2.defaults, {
+  t.deepEqual(defaults, {
     timeCost: 3,
     memoryCost: 12,
     parallelism: 1,
@@ -193,7 +191,6 @@ test('verify argon2d wrong password', async t => {
 })
 
 test('js promise + setInterval', async t => {
-  t.plan(1)
   const timer = setInterval(() => {
     /* istanbul ignore next */
     t.fail('Interval expired first')
@@ -201,11 +198,9 @@ test('js promise + setInterval', async t => {
 
   await argon2.hash(password, salt)
   clearInterval(timer)
-  t.pass()
 })
 
 test('js promise + setTimeout', async t => {
-  t.plan(1)
   const timer = setTimeout(() => {
     /* istanbul ignore next */
     t.fail('Timeout expired first')
@@ -213,5 +208,4 @@ test('js promise + setTimeout', async t => {
 
   await argon2.hash(password, salt)
   clearTimeout(timer)
-  t.pass()
 })
