@@ -95,16 +95,20 @@ NAN_METHOD(Hash) {
 
     const auto plain = Nan::To<Object>(info[0]).ToLocalChecked();
     const auto salt = Nan::To<Object>(info[1]).ToLocalChecked();
-    auto resolve = Local<Function>::Cast(info[6]);
-    auto reject = Local<Function>::Cast(info[7]);
+    const auto options = Nan::To<Object>(info[2]).ToLocalChecked();
+
+    auto getArg = [&](const char* key) {
+        auto localKey = Nan::New(key).ToLocalChecked();
+        return Nan::Get(options, localKey).ToLocalChecked();
+    };
 
     auto worker = new HashWorker{
             {Buffer::Data(plain), Buffer::Length(plain)},
             {Buffer::Data(salt), Buffer::Length(salt)},
-            std::make_tuple(fromJust<uint32_t>(info[2]),
-                    1u << fromJust<uint32_t>(info[3]),
-                    fromJust<uint32_t>(info[4]),
-                    fromJust<bool>(info[5]) ? Argon2_d : Argon2_i)};
+            std::make_tuple(fromJust<uint32_t>(getArg("timeCost")),
+                    1u << fromJust<uint32_t>(getArg("memoryCost")),
+                    fromJust<uint32_t>(getArg("parallelism")),
+                    fromJust<bool>(getArg("argon2d")) ? Argon2_d : Argon2_i)};
 
     worker->SaveToPersistent(1, resolve);
     worker->SaveToPersistent(2, reject);

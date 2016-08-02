@@ -35,9 +35,7 @@ module.exports = {
     try {
       validate(salt, options)
       return new Promise((resolve, reject) => {
-        return bindings.hash(new Buffer(plain), salt, options.timeCost,
-          options.memoryCost, options.parallelism, options.argon2d, resolve,
-          reject)
+        return bindings.hash(new Buffer(plain), salt, options, resolve, reject)
       })
     } catch (err) {
       return Promise.reject(err)
