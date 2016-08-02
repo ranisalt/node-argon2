@@ -18,6 +18,13 @@ T fromJust(v8::Local<v8::Value> info) {
 using size_type = std::string::size_type;
 const auto HASH_LEN = 32u;
 
+enum OBJECTS {
+    RESERVED = 0,
+    THIS,
+    RESOLVE,
+    REJECT,
+};
+
 constexpr auto log(uint64_t number, uint64_t base = 2u) -> decltype(number)
 {
     return (number > 1) ? 1u + log(number / base, base) : 0u;
@@ -69,9 +76,9 @@ void HashWorker::HandleOKCallback()
 
     Nan::HandleScope scope;
 
-    Nan::Callback resolve{GetFromPersistent(1).As<Function>()};
     Local<Value> argv[] = {Nan::Encode(output.get(), strlen(output.get()))};
-    resolve.Call(1, argv);
+    Nan::MakeCallback(GetFromPersistent(THIS).As<Object>(),
+            GetFromPersistent(RESOLVE).As<Function>(), 1, argv);
 }
 
 /* LCOV_EXCL_START */
@@ -81,9 +88,9 @@ void HashWorker::HandleErrorCallback()
 
     Nan::HandleScope scope;
 
-    Nan::Callback reject{GetFromPersistent(2).As<Function>()};
     Local<Value> argv[] = {Nan::New(ErrorMessage()).ToLocalChecked()};
-    reject.Call(1, argv);
+    Nan::MakeCallback(GetFromPersistent(THIS).As<Object>(),
+            GetFromPersistent(REJECT).As<Function>(), 1, argv);
 }
 /* LCOV_EXCL_STOP */
 
@@ -110,8 +117,9 @@ NAN_METHOD(Hash) {
                     fromJust<uint32_t>(getArg("parallelism")),
                     fromJust<bool>(getArg("argon2d")) ? Argon2_d : Argon2_i)};
 
-    worker->SaveToPersistent(1, Local<Function>::Cast(info[3]));
-    worker->SaveToPersistent(2, Local<Function>::Cast(info[4]));
+    worker->SaveToPersistent(THIS, info.This());
+    worker->SaveToPersistent(RESOLVE, Local<Function>::Cast(info[3]));
+    worker->SaveToPersistent(REJECT, Local<Function>::Cast(info[4]));
 
     Nan::AsyncQueueWorker(worker);
 }
@@ -144,9 +152,9 @@ void VerifyWorker::HandleOKCallback()
 
     Nan::HandleScope scope;
 
-    Nan::Callback resolve{GetFromPersistent(1).As<Function>()};
     Local<Value> argv[] = {Nan::New(output)};
-    resolve.Call(1, argv);
+    Nan::MakeCallback(GetFromPersistent(THIS).As<Object>(),
+            GetFromPersistent(RESOLVE).As<Function>(), 1, argv);
 }
 
 /* LCOV_EXCL_START */
@@ -156,9 +164,9 @@ void VerifyWorker::HandleErrorCallback()
 
     Nan::HandleScope scope;
 
-    Nan::Callback reject{GetFromPersistent(2).As<Function>()};
     Local<Value> argv[] = {Nan::New(ErrorMessage()).ToLocalChecked()};
-    reject.Call(1, argv);
+    Nan::MakeCallback(GetFromPersistent(THIS).As<Object>(),
+            GetFromPersistent(REJECT).As<Function>(), 1, argv);
 }
 /* LCOV_EXCL_STOP */
 
@@ -174,8 +182,9 @@ NAN_METHOD(Verify) {
     auto worker = new VerifyWorker{{Buffer::Data(hash), Buffer::Length(hash)},
             {Buffer::Data(plain), Buffer::Length(plain)}};
 
-    worker->SaveToPersistent(1, Local<Function>::Cast(info[2]));
-    worker->SaveToPersistent(2, Local<Function>::Cast(info[3]));
+    worker->SaveToPersistent(THIS, info.This());
+    worker->SaveToPersistent(RESOLVE, Local<Function>::Cast(info[2]));
+    worker->SaveToPersistent(REJECT, Local<Function>::Cast(info[3]));
 
     Nan::AsyncQueueWorker(worker);
 }
