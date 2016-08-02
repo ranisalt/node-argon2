@@ -29,8 +29,7 @@ private:
 
 class VerifyWorker final: public Nan::AsyncWorker {
 public:
-    explicit VerifyWorker(std::string&& hash, std::string&& plain,
-            argon2_type type);
+    explicit VerifyWorker(std::string&& hash, std::string&& plain);
 
     void Execute() override;
 
@@ -41,7 +40,6 @@ public:
 private:
     std::string hash;
     std::string plain;
-    argon2_type type;
     bool output{false};
 };
 

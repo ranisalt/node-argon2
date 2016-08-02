@@ -116,13 +116,13 @@ NAN_METHOD(Hash) {
     Nan::AsyncQueueWorker(worker);
 }
 
-VerifyWorker::VerifyWorker(std::string&& hash, std::string&& plain,
-        argon2_type type):
-    Nan::AsyncWorker{nullptr}, hash{hash}, plain{plain}, type{type}
+VerifyWorker::VerifyWorker(std::string&& hash, std::string&& plain):
+    Nan::AsyncWorker{nullptr}, hash{hash}, plain{plain}
 { }
 
 void VerifyWorker::Execute()
 {
+    auto type = (hash.at(7) == 'd') ? Argon2_d : Argon2_i;
     auto result = argon2_verify(hash.c_str(), plain.c_str(), plain.size(), type);
 
     switch (result) {
@@ -170,13 +170,12 @@ NAN_METHOD(Verify) {
 
     Nan::Utf8String hash{Nan::To<String>(info[0]).ToLocalChecked()};
     const auto plain = Nan::To<Object>(info[1]).ToLocalChecked();
-    auto type = fromJust<bool>(info[2]) ? Argon2_d : Argon2_i;
 
     auto worker = new VerifyWorker{*hash,
-            {Buffer::Data(plain), Buffer::Length(plain)}, type};
+            {Buffer::Data(plain), Buffer::Length(plain)}};
 
-    worker->SaveToPersistent(1, Local<Function>::Cast(info[3]));
-    worker->SaveToPersistent(2, Local<Function>::Cast(info[4]));
+    worker->SaveToPersistent(1, Local<Function>::Cast(info[2]));
+    worker->SaveToPersistent(2, Local<Function>::Cast(info[3]));
 
     Nan::AsyncQueueWorker(worker);
 }
