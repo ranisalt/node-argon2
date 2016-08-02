@@ -168,10 +168,10 @@ NAN_METHOD(Verify) {
 
     assert(info.Length() >= 5);
 
-    Nan::Utf8String hash{Nan::To<String>(info[0]).ToLocalChecked()};
+    const auto hash = Nan::To<Object>(info[0]).ToLocalChecked();
     const auto plain = Nan::To<Object>(info[1]).ToLocalChecked();
 
-    auto worker = new VerifyWorker{*hash,
+    auto worker = new VerifyWorker{{Buffer::Data(hash), Buffer::Length(hash)},
             {Buffer::Data(plain), Buffer::Length(plain)}};
 
     worker->SaveToPersistent(1, Local<Function>::Cast(info[2]));

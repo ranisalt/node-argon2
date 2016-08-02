@@ -57,7 +57,7 @@ module.exports = {
     }
 
     return new Promise((resolve, reject) => {
-      bindings.verify(hash, new Buffer(plain), resolve, reject)
+      bindings.verify(new Buffer(hash), new Buffer(plain), resolve, reject)
     })
   }
 }
