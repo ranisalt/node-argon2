@@ -3,7 +3,9 @@ argon2/argon2-specs.pdf
 argon2/Argon2.sln
 argon2/export.sh
 argon2/kats
+argon2/libargon2.pc
 argon2/Makefile
+argon2/man
 argon2/src/bench.c
 argon2/src/genkat.c
 argon2/src/genkat.h
