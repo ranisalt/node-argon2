@@ -1,4 +1,5 @@
 {
+  "ignore": ["index.js"],
   "plugins": ["transform-async-to-generator"],
   "presets": ["es2015"],
   "sourceMaps": "inline"

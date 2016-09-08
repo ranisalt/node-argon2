@@ -17,7 +17,8 @@ const validate = (salt, options) => new Promise((resolve, reject) => {
   }
 
   for (const key of Object.keys(limits)) {
-    const {max, min} = limits[key]
+    const max = limits[key].max
+    const min = limits[key].min
     const value = options[key]
     if (!Number.isInteger(value) || value > max || value < min) {
       reject(new Error(`Invalid ${key}, must be an integer between ${min} and ${max}.`))
