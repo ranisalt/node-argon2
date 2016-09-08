@@ -20,7 +20,7 @@ const auto HASH_LEN = 32u;
 
 enum OBJECTS {
     RESERVED = 0,
-    THIS,
+    THIS_OBJ,
     RESOLVE,
     REJECT,
 };
@@ -77,7 +77,7 @@ void HashWorker::HandleOKCallback()
     Nan::HandleScope scope;
 
     Local<Value> argv[] = {Nan::Encode(output.get(), strlen(output.get()))};
-    Nan::MakeCallback(GetFromPersistent(THIS).As<Object>(),
+    Nan::MakeCallback(GetFromPersistent(THIS_OBJ).As<Object>(),
             GetFromPersistent(RESOLVE).As<Function>(), 1, argv);
 }
 
@@ -89,7 +89,7 @@ void HashWorker::HandleErrorCallback()
     Nan::HandleScope scope;
 
     Local<Value> argv[] = {Nan::New(ErrorMessage()).ToLocalChecked()};
-    Nan::MakeCallback(GetFromPersistent(THIS).As<Object>(),
+    Nan::MakeCallback(GetFromPersistent(THIS_OBJ).As<Object>(),
             GetFromPersistent(REJECT).As<Function>(), 1, argv);
 }
 /* LCOV_EXCL_STOP */
@@ -117,7 +117,7 @@ NAN_METHOD(Hash) {
                     fromJust<uint32_t>(getArg("parallelism")),
                     fromJust<bool>(getArg("argon2d")) ? Argon2_d : Argon2_i)};
 
-    worker->SaveToPersistent(THIS, info.This());
+    worker->SaveToPersistent(THIS_OBJ, info.This());
     worker->SaveToPersistent(RESOLVE, Local<Function>::Cast(info[3]));
     worker->SaveToPersistent(REJECT, Local<Function>::Cast(info[4]));
 
@@ -153,7 +153,7 @@ void VerifyWorker::HandleOKCallback()
     Nan::HandleScope scope;
 
     Local<Value> argv[] = {Nan::New(output)};
-    Nan::MakeCallback(GetFromPersistent(THIS).As<Object>(),
+    Nan::MakeCallback(GetFromPersistent(THIS_OBJ).As<Object>(),
             GetFromPersistent(RESOLVE).As<Function>(), 1, argv);
 }
 
@@ -165,7 +165,7 @@ void VerifyWorker::HandleErrorCallback()
     Nan::HandleScope scope;
 
     Local<Value> argv[] = {Nan::New(ErrorMessage()).ToLocalChecked()};
-    Nan::MakeCallback(GetFromPersistent(THIS).As<Object>(),
+    Nan::MakeCallback(GetFromPersistent(THIS_OBJ).As<Object>(),
             GetFromPersistent(REJECT).As<Function>(), 1, argv);
 }
 /* LCOV_EXCL_STOP */
@@ -182,7 +182,7 @@ NAN_METHOD(Verify) {
     auto worker = new VerifyWorker{{Buffer::Data(hash), Buffer::Length(hash)},
             {Buffer::Data(plain), Buffer::Length(plain)}};
 
-    worker->SaveToPersistent(THIS, info.This());
+    worker->SaveToPersistent(THIS_OBJ, info.This());
     worker->SaveToPersistent(RESOLVE, Local<Function>::Cast(info[2]));
     worker->SaveToPersistent(REJECT, Local<Function>::Cast(info[3]));
 
