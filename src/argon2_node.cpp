@@ -32,7 +32,7 @@ constexpr auto log(uint64_t number, uint64_t base = 2u) -> decltype(number)
 
 constexpr auto base64Length(size_type length) -> decltype(length)
 {
-    return ((length  + 2u) / 3u) * 4u;
+    return ((length + 2u) / 3u) * 4u;
 }
 
 auto encodedLength(size_type saltLength) -> decltype(saltLength)
@@ -42,7 +42,6 @@ auto encodedLength(size_type saltLength) -> decltype(saltLength)
         log(ARGON2_MAX_MEMORY + 1u, 10u) + log(ARGON2_MAX_TIME + 1u, 10u) +
         log(ARGON2_MAX_LANES + 1u, 10u) + base64Length(HASH_LEN);
 
-    /* (number + 3) & ~3 rounds up to the nearest 4-byte boundary */
     return extraLength + base64Length(saltLength);
 }
 
