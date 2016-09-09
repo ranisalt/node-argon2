@@ -46,7 +46,8 @@
   "xo": {
     "esnext": true,
     "rules": {
-      "no-div-regex": "off"
+      "no-div-regex": "off",
+      "prefer-const": "off"
     },
     "semicolon": false,
     "space": 2

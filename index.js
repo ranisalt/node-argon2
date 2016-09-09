@@ -1,3 +1,4 @@
+'use strict'
 const crypto = require('crypto')
 const bindings = require('bindings')('argon2')
 const Promise = require('any-promise')
@@ -16,7 +17,7 @@ const validate = (salt, options) => new Promise((resolve, reject) => {
     reject(new Error('Invalid salt, must be a buffer with 8 or more bytes.'))
   }
 
-  for (const key of Object.keys(limits)) {
+  for (let key of Object.keys(limits)) {
     const max = limits[key].max
     const min = limits[key].min
     const value = options[key]
