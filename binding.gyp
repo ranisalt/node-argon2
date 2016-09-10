@@ -3,6 +3,11 @@
     "target_conditions": [
       ["OS != 'win'", {
         "cflags": ["-fvisibility=hidden"]
+      }],
+      ["OS == 'mac'", {
+        "xcode_settings": {
+          "MACOSX_DEPLOYMENT_TARGET": "10.9",
+        }
       }]
     ]
   },
