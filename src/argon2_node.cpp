@@ -47,7 +47,7 @@ auto encodedLength(size_type saltLength) -> decltype(saltLength)
 
 HashWorker::HashWorker(std::string&& plain, std::string&& salt,
         std::tuple<uint32_t, uint32_t, uint32_t, argon2_type>&& params):
-    Nan::AsyncWorker{nullptr}, plain{plain}, salt{salt},
+    Nan::AsyncWorker{nullptr}, plain{std::move(plain)}, salt{std::move(salt)},
     time_cost{std::get<0>(params)}, memory_cost{std::get<1>(params)},
     parallelism{std::get<2>(params)}, type{std::get<3>(params)}
 { }
@@ -124,7 +124,7 @@ NAN_METHOD(Hash) {
 }
 
 VerifyWorker::VerifyWorker(std::string&& hash, std::string&& plain):
-    Nan::AsyncWorker{nullptr}, hash{hash}, plain{plain}
+    Nan::AsyncWorker{nullptr}, hash{std::move(hash)}, plain{std::move(plain)}
 { }
 
 void VerifyWorker::Execute()
