@@ -22,7 +22,7 @@
         "argon2/src/encoding.c",
       ],
       "include_dirs": ["argon2/include"],
-      "cflags": ["-march=native", "-pthread", "-Wno-type-limits"],
+      "cflags": ["-march=native", "-Wno-type-limits"],
       "conditions": [
         ["target_arch == 'ia32' or target_arch == 'x64'", {
           "cflags+": ["-msse", "-msse2"],
