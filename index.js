@@ -13,7 +13,7 @@ const defaults = Object.freeze({
 const limits = Object.freeze(bindings.limits)
 
 const validate = (salt, options) => new Promise((resolve, reject) => {
-  if (!Buffer.isBuffer(salt) || salt.length < 8) {
+  if (salt.length < 8) {
     reject(new Error('Invalid salt, must be a buffer with 8 or more bytes.'))
   }
 
@@ -34,6 +34,7 @@ module.exports = {
   limits,
 
   hash(plain, salt, options) {
+    salt = new Buffer(salt)
     options = Object.assign({}, defaults, options)
 
     return validate(salt, options).then(() => new Promise((resolve, reject) => {

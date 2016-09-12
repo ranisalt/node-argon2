@@ -50,10 +50,6 @@ test('hash with argon2d', async t => {
   t.is(await argon2.hash(password, salt, {argon2d: true}), hashes.argon2d)
 })
 
-test('hash with invalid salt', async t => {
-  t.throws(argon2.hash(password, 'stringsalt'), /invalid salt.+must be a buffer/i)
-})
-
 test('hash with short salt', async t => {
   t.throws(argon2.hash(password, salt.slice(0, 7)), /invalid salt.+with 8 or more bytes/i)
 })
