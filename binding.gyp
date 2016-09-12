@@ -2,7 +2,8 @@
   "target_defaults": {
     "target_conditions": [
       ["OS != 'win'", {
-        "cflags": ["-fvisibility=hidden"]
+        "cflags": ["-fdata-sections", "-ffunction-sections", "-fvisibility=hidden"],
+        "ldflags": ["-Wl,--gc-sections"]
       }],
       ["OS == 'mac'", {
         "xcode_settings": {
