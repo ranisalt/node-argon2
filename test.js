@@ -50,14 +50,6 @@ test('hash with argon2d', async t => {
   t.is(await argon2.hash(password, salt, {argon2d: true}), hashes.argon2d)
 })
 
-test('hash with truthy argon2d', async t => {
-  t.regex(await argon2.hash(password, salt, {argon2d: 'foo'}), /\$argon2d\$/)
-})
-
-test('hash with falsy argon2d', async t => {
-  t.regex(await argon2.hash(password, salt, {argon2d: ''}), /\$argon2[^d]\$/)
-})
-
 test('hash with invalid salt', async t => {
   t.throws(argon2.hash(password, 'stringsalt'), /invalid salt.+must be a buffer/i)
 })
@@ -68,10 +60,6 @@ test('hash with short salt', async t => {
 
 test('hash with time cost', async t => {
   t.regex(await argon2.hash(password, salt, {timeCost: 4}), /t=4/)
-})
-
-test('hash with invalid time cost', async t => {
-  t.throws(argon2.hash(password, salt, {timeCost: 'foo'}), /invalid timeCost.+must be an integer/i)
 })
 
 test('hash with low time cost', async t => {
@@ -86,10 +74,6 @@ test('hash with memory cost', async t => {
   t.regex(await argon2.hash(password, salt, {memoryCost: 13}), /m=8192/)
 })
 
-test('hash with invalid memory cost', async t => {
-  t.throws(argon2.hash(password, salt, {memoryCost: 'foo'}), /invalid memoryCost.+must be an integer/i)
-})
-
 test('hash with low memory cost', async t => {
   t.throws(argon2.hash(password, salt, {memoryCost: limits.memoryCost.min - 1}), /invalid memoryCost.+between \d+ and \d+/i)
 })
@@ -100,10 +84,6 @@ test('hash with high memory cost', async t => {
 
 test('hash with parallelism', async t => {
   t.regex(await argon2.hash(password, salt, {parallelism: 2}), /p=2/)
-})
-
-test('hash with invalid parallelism', async t => {
-  t.throws(argon2.hash(password, salt, {parallelism: 'foo'}), /invalid parallelism, must be an integer/i)
 })
 
 test('hash with low parallelism', async t => {
