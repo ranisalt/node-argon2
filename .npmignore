@@ -18,4 +18,5 @@ ISSUE_TEMPLATE.md
 .editorconfig
 .git*
 .idea
+.node-version
 .travis.yml
