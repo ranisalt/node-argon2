@@ -22,6 +22,8 @@ environment:
 install:
   - ps: Install-Product node $env:nodejs_version
   - git submodule update --init --recursive
+  - IF %nodejs_version% LSS 6 npm -g install npm@2
+  - IF %nodejs_version% EQU 6 npm -g install npm@3
   - npm install
 
 #---------------------------------#
@@ -29,7 +31,7 @@ install:
 #---------------------------------#
 
 # to disable automatic builds
-build: off
+build: on
 
 #---------------------------------#
 #       tests configuration       #

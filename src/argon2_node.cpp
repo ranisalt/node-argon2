@@ -25,22 +25,24 @@ enum OBJECTS {
     REJECT,
 };
 
-constexpr auto log(uint64_t number, uint64_t base = 2u) -> decltype(number)
+constexpr uint32_t log(uint64_t number, uint64_t base = 2u)
 {
     return (number > 1) ? 1u + log(number / base, base) : 0u;
 }
 
-constexpr auto base64Length(size_type length) -> decltype(length)
+constexpr size_type base64Length(size_type length)
 {
     return ((length + 2u) / 3u) * 4u;
 }
 
-auto encodedLength(size_type saltLength) -> decltype(saltLength)
+size_type encodedLength(size_type saltLength)
 {
     /* statically calculate maximum encoded hash length */
     constexpr size_type extraLength = sizeof "$argon2x$m=,t=,p=$$" +
-        log(ARGON2_MAX_MEMORY + 1u, 10u) + log(ARGON2_MAX_TIME + 1u, 10u) +
-        log(ARGON2_MAX_LANES + 1u, 10u) + base64Length(HASH_LEN);
+        log(static_cast<uint64_t>(ARGON2_MAX_MEMORY) + 1u, 10u) +
+        log(static_cast<uint64_t>(ARGON2_MAX_TIME) + 1u, 10u) +
+        log(static_cast<uint64_t>(ARGON2_MAX_LANES) + 1u, 10u) +
+        base64Length(HASH_LEN);
 
     return extraLength + base64Length(saltLength);
 }
