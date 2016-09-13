@@ -98,7 +98,7 @@ NAN_METHOD(Hash) {
     using namespace node;
     using namespace v8;
 
-    assert(info.Length() >= 8);
+    assert(info.Length() >= 5);
 
     const auto plain = Nan::To<Object>(info[0]).ToLocalChecked();
     const auto salt = Nan::To<Object>(info[1]).ToLocalChecked();
@@ -175,7 +175,7 @@ NAN_METHOD(Verify) {
     using namespace node;
     using namespace v8;
 
-    assert(info.Length() >= 5);
+    assert(info.Length() >= 4);
 
     const auto hash = Nan::To<Object>(info[0]).ToLocalChecked();
     const auto plain = Nan::To<Object>(info[1]).ToLocalChecked();

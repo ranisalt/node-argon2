@@ -28,7 +28,6 @@ node_js:
 before_install: sudo apt-get update && sudo apt-get install lcov -y
 before_script: npm install -g coveralls node-gyp
 after_success:
-  - npm run benchmark
   - node-gyp --debug rebuild
   - npm test
   - lcov -c -d . --no-external -o lcov-cpp.info
