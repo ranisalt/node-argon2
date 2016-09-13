@@ -4,6 +4,7 @@ const bindings = require('bindings')('argon2')
 const Promise = require('any-promise')
 
 const defaults = Object.freeze({
+  hashLength: 32,
   timeCost: 3,
   memoryCost: 12,
   parallelism: 1,

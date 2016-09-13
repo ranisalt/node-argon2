@@ -16,7 +16,6 @@ T fromJust(v8::Local<v8::Value> info) {
 }
 
 using size_type = std::string::size_type;
-const auto HASH_LEN = 32u;
 
 enum OBJECTS {
     RESERVED = 0,
@@ -35,33 +34,33 @@ constexpr size_type base64Length(size_type length)
     return ((length + 2u) / 3u) * 4u;
 }
 
-size_type encodedLength(size_type saltLength)
+size_type encodedLength(size_type hashLength, size_type saltLength)
 {
     /* statically calculate maximum encoded hash length */
     constexpr size_type extraLength = sizeof "$argon2x$m=,t=,p=$$" +
         log(static_cast<uint64_t>(ARGON2_MAX_MEMORY) + 1u, 10u) +
         log(static_cast<uint64_t>(ARGON2_MAX_TIME) + 1u, 10u) +
-        log(static_cast<uint64_t>(ARGON2_MAX_LANES) + 1u, 10u) +
-        base64Length(HASH_LEN);
+        log(static_cast<uint64_t>(ARGON2_MAX_LANES) + 1u, 10u);
 
-    return extraLength + base64Length(saltLength);
+    return extraLength + base64Length(hashLength) + base64Length(saltLength);
 }
 
 HashWorker::HashWorker(std::string&& plain, std::string&& salt,
-        std::tuple<uint32_t, uint32_t, uint32_t, argon2_type>&& params):
+        std::tuple<uint32_t, uint32_t, uint32_t, uint32_t, argon2_type>&& params):
     Nan::AsyncWorker{nullptr}, plain{std::move(plain)}, salt{std::move(salt)},
-    time_cost{std::get<0>(params)}, memory_cost{std::get<1>(params)},
-    parallelism{std::get<2>(params)}, type{std::get<3>(params)}
+    hash_length{std::get<0>(params)}, time_cost{std::get<1>(params)},
+    memory_cost{std::get<2>(params)}, parallelism{std::get<3>(params)},
+    type{std::get<4>(params)}
 { }
 
 void HashWorker::Execute()
 {
-    const auto ENCODED_LEN = encodedLength(salt.size());
+    const auto ENCODED_LEN = encodedLength(hash_length, salt.size());
     output.reset(new char[ENCODED_LEN]);
 
     auto result = argon2_hash(time_cost, memory_cost, parallelism,
             plain.c_str(), plain.size(), salt.c_str(), salt.size(), nullptr,
-            HASH_LEN, output.get(), ENCODED_LEN, type, ARGON2_VERSION_NUMBER);
+            hash_length, output.get(), ENCODED_LEN, type, ARGON2_VERSION_NUMBER);
 
     if (result != ARGON2_OK) {
         /* LCOV_EXCL_START */
@@ -113,7 +112,8 @@ NAN_METHOD(Hash) {
     auto worker = new HashWorker{
             {Buffer::Data(plain), Buffer::Length(plain)},
             {Buffer::Data(salt), Buffer::Length(salt)},
-            std::make_tuple(fromJust<uint32_t>(getArg("timeCost")),
+            std::make_tuple(fromJust<uint32_t>(getArg("hashLength")),
+                    fromJust<uint32_t>(getArg("timeCost")),
                     1u << fromJust<uint32_t>(getArg("memoryCost")),
                     fromJust<uint32_t>(getArg("parallelism")),
                     fromJust<bool>(getArg("argon2d")) ? Argon2_d : Argon2_i)};
@@ -202,6 +202,7 @@ NAN_MODULE_INIT(init) {
         Nan::Set(limits, Nan::New(name).ToLocalChecked(), obj);
     };
 
+    setMaxMin("hashLength", ARGON2_MAX_OUTLEN, ARGON2_MIN_OUTLEN);
     setMaxMin("memoryCost", log(ARGON2_MAX_MEMORY), log(ARGON2_MIN_MEMORY));
     setMaxMin("timeCost", ARGON2_MAX_TIME, ARGON2_MIN_TIME);
     setMaxMin("parallelism", ARGON2_MAX_LANES, ARGON2_MIN_LANES);

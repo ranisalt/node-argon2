@@ -18,6 +18,7 @@ const hashes = Object.freeze({
 
 test('defaults', t => {
   t.deepEqual(defaults, {
+    hashLength: 32,
     timeCost: 3,
     memoryCost: 12,
     parallelism: 1,
@@ -64,6 +65,19 @@ test('hash with low time cost', async t => {
 
 test('hash with high time cost', async t => {
   t.throws(argon2.hash(password, salt, {timeCost: limits.timeCost.max + 1}), /invalid timeCost.+between \d+ and \d+/i)
+})
+
+test('hash with hash length', async t => {
+  // 4 bytes ascii == 6 bytes base64
+  t.regex(await argon2.hash(password, salt, {hashLength: 4}), /\$\w{6}$/)
+})
+
+test('hash with low hash length', async t => {
+  t.throws(argon2.hash(password, salt, {hashLength: limits.hashLength.min - 1}), /invalid hashLength.+between \d+ and \d+/i)
+})
+
+test('hash with high hash length', async t => {
+  t.throws(argon2.hash(password, salt, {hashLength: limits.hashLength.max + 1}), /invalid hashLength.+between \d+ and \d+/i)
 })
 
 test('hash with memory cost', async t => {
