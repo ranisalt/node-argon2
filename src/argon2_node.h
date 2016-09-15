@@ -9,7 +9,7 @@ namespace NodeArgon2 {
 class HashWorker final: public Nan::AsyncWorker {
 public:
     explicit HashWorker(std::string&& plain, std::string&& salt,
-            std::tuple<uint32_t, uint32_t, uint32_t, uint32_t, argon2_type>&&);
+            uint32_t, uint32_t, uint32_t, uint32_t, argon2_type);
 
     void Execute() override;
 
@@ -25,7 +25,7 @@ private:
     uint32_t memory_cost;
     uint32_t parallelism;
     argon2_type type;
-    std::unique_ptr<char[]> output{nullptr};
+    std::unique_ptr<char[]> output;
 };
 
 class VerifyWorker final: public Nan::AsyncWorker {
@@ -41,7 +41,7 @@ public:
 private:
     std::string hash;
     std::string plain;
-    bool output{false};
+    bool output;
 };
 
 NAN_METHOD(Hash);

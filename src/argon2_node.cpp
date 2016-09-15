@@ -10,7 +10,7 @@
 
 namespace NodeArgon2 {
 
-template<class T>
+template<class T = uint32_t>
 T fromJust(v8::Local<v8::Value> info) {
     return Nan::To<T>(info).FromJust();
 }
@@ -46,11 +46,9 @@ size_type encodedLength(size_type hashLength, size_type saltLength)
 }
 
 HashWorker::HashWorker(std::string&& plain, std::string&& salt,
-        std::tuple<uint32_t, uint32_t, uint32_t, uint32_t, argon2_type>&& params):
+        uint32_t l, uint32_t t, uint32_t m, uint32_t p, argon2_type a):
     Nan::AsyncWorker{nullptr}, plain{std::move(plain)}, salt{std::move(salt)},
-    hash_length{std::get<0>(params)}, time_cost{std::get<1>(params)},
-    memory_cost{std::get<2>(params)}, parallelism{std::get<3>(params)},
-    type{std::get<4>(params)}
+    hash_length{l}, time_cost{t}, memory_cost{m}, parallelism{p}, type{a}
 { }
 
 void HashWorker::Execute()
@@ -58,7 +56,7 @@ void HashWorker::Execute()
     const auto ENCODED_LEN = encodedLength(hash_length, salt.size());
     output.reset(new char[ENCODED_LEN]);
 
-    auto result = argon2_hash(time_cost, memory_cost, parallelism,
+    auto result = argon2_hash(time_cost, 1u << memory_cost, parallelism,
             plain.c_str(), plain.size(), salt.c_str(), salt.size(), nullptr,
             hash_length, output.get(), ENCODED_LEN, type, ARGON2_VERSION_NUMBER);
 
@@ -112,11 +110,9 @@ NAN_METHOD(Hash) {
     auto worker = new HashWorker{
             {Buffer::Data(plain), Buffer::Length(plain)},
             {Buffer::Data(salt), Buffer::Length(salt)},
-            std::make_tuple(fromJust<uint32_t>(getArg("hashLength")),
-                    fromJust<uint32_t>(getArg("timeCost")),
-                    1u << fromJust<uint32_t>(getArg("memoryCost")),
-                    fromJust<uint32_t>(getArg("parallelism")),
-                    fromJust<bool>(getArg("argon2d")) ? Argon2_d : Argon2_i)};
+            fromJust(getArg("hashLength")), fromJust(getArg("timeCost")),
+            fromJust(getArg("memoryCost")), fromJust(getArg("parallelism")),
+            fromJust<bool>(getArg("argon2d")) ? Argon2_d : Argon2_i};
 
     worker->SaveToPersistent(THIS_OBJ, info.This());
     worker->SaveToPersistent(RESOLVE, Local<Function>::Cast(info[3]));
