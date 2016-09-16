@@ -3,7 +3,6 @@
 #include <stdint.h>
 #include <cstring>
 #include <string>
-#include <tuple>
 
 #include "../argon2/include/argon2.h"
 #include "argon2_node.h"
