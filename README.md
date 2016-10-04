@@ -25,10 +25,10 @@ argon2.hash('password', salt).then(hash => {
   // ...
 });
 
-// ES7
+// ES7 or Typescript
 
 try {
-  const hash = await argon2.hash('password', salt);
+  const hash = await argon2.hash("password", salt);
 } catch (err) {
   //...
 }
@@ -44,10 +44,10 @@ argon2.hash('password', salt, {
   // internal failure
 });
 
-// ES7
+// ES7 or Typescript
 
 try {
-  const hash = await argon2.hash('password', salt, {
+  const hash = await argon2.hash("password", salt, {
     argon2d: true
   });
 } catch (err) {
@@ -64,7 +64,7 @@ argon2.generateSalt().then(salt => {
   // ...
 });
 
-// ES7
+// ES7 or Typescript
 
 const salt = await argon2.generateSalt();
 ```
@@ -75,7 +75,7 @@ argon2.generateSalt(32).then(salt => {
   // ...
 });
 
-// ES7
+// ES7 or Typescript
 
 const salt = await argon2.generateSalt(32);
 ```
@@ -98,9 +98,9 @@ argon2.generateSalt().then(salt => {
   });
 });
 
-// ES7
+// ES7 or Typescript
 
-const hash = await argon2.hash('password', await argon2.generateSalt(), options);
+const hash = await argon2.hash("password", await argon2.generateSalt(), options);
 ```
 
 The default parameters for Argon2 can be accessed with `defaults`:
@@ -121,10 +121,10 @@ argon2.verify('<big long hash>', 'password').then(match => {
   // internal failure
 });
 
-// ES7
+// ES7 or Typescript
 
 try {
-  if (await argon2.verify('<big long hash>', 'password')) {
+  if (await argon2.verify("<big long hash>", "password")) {
     // password match
   } else {
     // password did not match
