@@ -1,0 +1,47 @@
+# http://www.appveyor.com/docs/appveyor-yml
+
+#---------------------------------#
+#    environment configuration    #
+#---------------------------------#
+
+# Operating system (build VM template)
+os: Visual Studio 2015
+
+# Skipping commits with particular message
+skip_commits:
+  message: /\[ci skip\]/
+
+# environment variables
+environment:
+  matrix:
+  - nodejs_version: 4
+  - nodejs_version: 5
+  - nodejs_version: 6
+
+# scripts that run after cloning repository
+install:
+  - ps: Install-Product node $env:nodejs_version
+  - git submodule update --init --recursive
+  - IF %nodejs_version% LSS 6 npm -g install npm@2
+  - IF %nodejs_version% EQU 6 npm -g install npm@3
+  - npm install
+
+#---------------------------------#
+#       build configuration       #
+#---------------------------------#
+
+# to disable automatic builds
+build: on
+
+#---------------------------------#
+#       tests configuration       #
+#---------------------------------#
+
+# scripts to run before tests
+before_test:
+  - node --version
+  - npm --version
+
+# to run your custom scripts instead of automatic tests
+test_script:
+  - npm test

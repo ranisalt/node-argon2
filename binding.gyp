@@ -2,7 +2,13 @@
   "target_defaults": {
     "target_conditions": [
       ["OS != 'win'", {
-        "cflags": ["-fvisibility=hidden"]
+        "cflags": ["-fdata-sections", "-ffunction-sections", "-fvisibility=hidden"],
+        "ldflags": ["-Wl,--gc-sections"]
+      }],
+      ["OS == 'mac'", {
+        "xcode_settings": {
+          "MACOSX_DEPLOYMENT_TARGET": "10.9",
+        }
       }]
     ]
   },
@@ -17,7 +23,7 @@
         "argon2/src/encoding.c",
       ],
       "include_dirs": ["argon2/include"],
-      "cflags": ["-march=native", "-pthread", "-Wno-type-limits"],
+      "cflags": ["-march=native", "-Wno-type-limits"],
       "conditions": [
         ["target_arch == 'ia32' or target_arch == 'x64'", {
           "cflags+": ["-msse", "-msse2"],

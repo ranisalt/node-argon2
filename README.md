@@ -1,9 +1,10 @@
-# node-argon2 [![NPM package][npm-image]][npm-url] [![Build status][travis-image]][travis-url] [![Coverage status][coverage-image]][coverage-url] [![Code Quality][codequality-image]][codequality-url] [![Dependencies][david-dm-image]][david-dm-url]
+# node-argon2
+[![NPM package][npm-image]][npm-url] [![Coverage status][coverage-image]][coverage-url] [![Code Quality][codequality-image]][codequality-url] [![Dependencies][david-dm-image]][david-dm-url] [![Codewake][codewake-image]][codewake-url]
+- Linux: [![Linux build status][travis-image]][travis-url]
+- Windows: [![Windows build status][appveyor-image]][appveyor-url]
+
 Bindings to the reference [Argon2](https://github.com/P-H-C/phc-winner-argon2)
 implementation.
-
-**Warning: synchronous API has been removed as of 0.12, either use async/await
-(recommended) or keep with 0.11.x if you need it.**
 
 **Want to use it on command line? Instead check
 [node-argon2-cli](https://github.com/ranisalt/node-argon2-cli).**
@@ -138,6 +139,21 @@ not raw.
 When you hit an internal failure, the message is properly set. If it is not or
 you do not understand it, feel free to open an issue.
 
+### Differences from [node-argon2-ffi](https://github.com/cjlarose/argon2-ffi)
+This library is implemented natively, meaning it is an extension to the node
+engine. Thus, half of the code are C++ bindings, the other half are Javascript
+functions. node-argon2-ffi uses ffi, a mechanism to call functions from one
+language in another, and handles the type bindings (e.g. JS Number -> C++ int).
+
+The interface of both are very similar, notably node-argon2-ffi splits the
+argon2i and argon2d function set, but the differences stop there. Also, while
+node-argon2-ffi suggests you promisify `crypto.randomBytes`, this library has
+`generateSalt` which is exactly the same.
+
+Performance-wise, the libraries are equal. You can run the same benchmark suite
+if you are curious, but both can perform around 130 hashes/second on an Intel
+Core i5-4460 @ 3.2GHz with default options.
+
 ### Before installing
 You **MUST** have a **node-gyp** global install before proceeding with install,
 along with GCC >= 4.8 / Clang >= 3.3. On Windows, you must compile under Visual
@@ -177,9 +193,13 @@ license over Argon2 and the reference implementation.
 [npm-url]: https://www.npmjs.com/package/argon2
 [travis-image]: https://img.shields.io/travis/ranisalt/node-argon2/master.svg?style=flat-square
 [travis-url]: https://travis-ci.org/ranisalt/node-argon2
+[appveyor-image]: https://img.shields.io/appveyor/ci/ranisalt/node-argon2.svg?style=flat-square
+[appveyor-url]: https://ci.appveyor.com/project/ranisalt/node-argon2
 [coverage-image]: https://img.shields.io/coveralls/ranisalt/node-argon2/master.svg?style=flat-square
 [coverage-url]: https://coveralls.io/github/ranisalt/node-argon2
 [codequality-image]: https://img.shields.io/codacy/15927f4eb15747fd8a537e48a04bd4f6/master.svg?style=flat-square
 [codequality-url]: https://www.codacy.com/app/ranisalt/node-argon2
 [david-dm-image]: https://img.shields.io/david/ranisalt/node-argon2.svg?style=flat-square
 [david-dm-url]: https://david-dm.org/ranisalt/node-argon2
+[codewake-image]: https://www.codewake.com/badges/ask_question_flat_square.svg
+[codewake-url]: https://www.codewake.com/p/node-argon2

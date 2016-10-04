@@ -7,6 +7,7 @@ node_js:
   - "4.2"
   - "4.3"
   - "4.4"
+  - "4.5"
   - "5.0"
   - "5.1"
   - "5.2"
@@ -22,12 +23,13 @@ node_js:
   - "6.0"
   - "6.1"
   - "6.2"
+  - "6.3"
+  - "6.4"
 before_install: sudo apt-get update && sudo apt-get install lcov -y
 before_script: npm install -g coveralls node-gyp
 after_success:
-  - npm run benchmark
   - node-gyp --debug rebuild
-  - npm test -- --coverage --coverage-report=lcov
+  - npm test
   - lcov -c -d . --no-external -o lcov-cpp.info
   - lcov -r lcov-cpp.info "*/node_modules/*" -o lcov-cpp.info
   - lcov -a lcov-cpp.info -a coverage/lcov.info -o lcov.info
