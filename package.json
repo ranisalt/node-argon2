@@ -3,10 +3,11 @@
   "version": "0.14.0",
   "description": "An Argon2 library for Node",
   "main": "index.js",
+  "types": "index.d.ts",
   "scripts": {
     "benchmark": "babel-node benchmark.js",
     "clean": "node-gyp clean",
-    "test": "xo && nyc --reporter=lcov ava"
+    "test": "tsc -p . && rm test-d.js && xo && nyc --reporter=lcov ava"
   },
   "repository": {
     "type": "git",
@@ -31,6 +32,7 @@
     "nan": "^2.4.0"
   },
   "devDependencies": {
+    "@types/node": "^6.0.42",
     "ava": "^0.17.0",
     "babel-cli": "^6.18.0",
     "babel-plugin-transform-async-to-generator": "^6.16.0",
@@ -39,6 +41,7 @@
     "nyc": "^10.0.0",
     "object-assign": "^4.1.0",
     "sandra": "^0.1.0",
+    "typescript": "^2.0.3",
     "xo": "^0.17.1"
   },
   "engines": {
