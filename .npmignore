@@ -14,6 +14,7 @@ argon2/src/test.c
 argon2/vs2015
 benchmark.js
 ISSUE_TEMPLATE.md
+tsconfig.json
 .babelrc
 .editorconfig
 .git*
