@@ -30,6 +30,6 @@ export interface OptionLimits {
 
 export const defaults: Options;
 export const limits: OptionLimits;
-export function hash(plain: Buffer | string, salt: string, options?: Options): Promise<string>;
+export function hash(plain: Buffer | string, salt: Buffer, options?: Options): Promise<string>;
 export function generateSalt(length: number): Promise<Buffer>;
 export function verify(hash: string, plain: Buffer | string): Promise<boolean>;
