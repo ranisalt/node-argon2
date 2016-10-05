@@ -8,7 +8,7 @@
 //
 // const hash = await argon2.hash(...);
 
-export interface IOptions {
+export interface Options {
     hashLength?: number;
     timeCost?: number; 
     memoryCost?: number; 
@@ -16,20 +16,20 @@ export interface IOptions {
     argon2d?: boolean; 
 }
 
-export interface INumericLimit {
+export interface NumericLimit {
     max: number;
     min: number;
 }
 
-export interface IOptionLimits {
-    hashLength: INumericLimit;
-    memoryCost: INumericLimit;
-    timeCost: INumericLimit;
-    parallelism: INumericLimit;
+export interface OptionLimits {
+    hashLength: NumericLimit;
+    memoryCost: NumericLimit;
+    timeCost: NumericLimit;
+    parallelism: NumericLimit;
 }
 
-export const defaults: IOptions;
-export const limits: IOptionLimits;
-export function hash(plain: string, salt: Buffer | string, options?: IOptions): Promise<string>;
+export const defaults: Options;
+export const limits: OptionLimits;
+export function hash(plain: Buffer | string, salt: string, options?: Options): Promise<string>;
 export function generateSalt(length: number): Promise<Buffer>;
-export function verify(hash: string, plain: string): Promise<boolean>;
+export function verify(hash: string, plain: Buffer | string): Promise<boolean>;
