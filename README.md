@@ -139,6 +139,38 @@ not raw.
 When you hit an internal failure, the message is properly set. If it is not or
 you do not understand it, feel free to open an issue.
 
+### TypeScript Usage
+A TypeScript type declaration file is published with this module. If you are
+using TypeScript >= 2.0.0 that means you do not need to install any additional
+typings in order to get access to the strongly typed interface. Simply use the
+library as mentioned above. This library uses Promises, so make sure you are 
+targeting ES6+, including the es2015.promise lib in your build, or globally 
+importing a Promise typings library.
+
+Some example tsconfig.json compiler options:
+
+```json
+{
+    "compilerOptions": {
+        "lib": ["es2015.promise"]
+    }
+}
+
+or
+
+{
+    "compilerOptions": {
+        "target": "es6"
+    }
+}
+```
+
+```ts
+import * as argon2 from "argon2";
+
+const hash = await argon2.hash(..);
+```
+
 ### Differences from [node-argon2-ffi](https://github.com/cjlarose/argon2-ffi)
 This library is implemented natively, meaning it is an extension to the node
 engine. Thus, half of the code are C++ bindings, the other half are Javascript
