@@ -25,7 +25,7 @@ argon2.hash('password', salt).then(hash => {
   // ...
 });
 
-// ES7 or Typescript
+// ES7 or TypeScript
 
 try {
   const hash = await argon2.hash("password", salt);
@@ -44,7 +44,7 @@ argon2.hash('password', salt, {
   // internal failure
 });
 
-// ES7 or Typescript
+// ES7 or TypeScript
 
 try {
   const hash = await argon2.hash("password", salt, {
@@ -64,7 +64,7 @@ argon2.generateSalt().then(salt => {
   // ...
 });
 
-// ES7 or Typescript
+// ES7 or TypeScript
 
 const salt = await argon2.generateSalt();
 ```
@@ -75,7 +75,7 @@ argon2.generateSalt(32).then(salt => {
   // ...
 });
 
-// ES7 or Typescript
+// ES7 or TypeScript
 
 const salt = await argon2.generateSalt(32);
 ```
@@ -98,7 +98,7 @@ argon2.generateSalt().then(salt => {
   });
 });
 
-// ES7 or Typescript
+// ES7 or TypeScript
 
 const hash = await argon2.hash("password", await argon2.generateSalt(), options);
 ```
@@ -121,7 +121,7 @@ argon2.verify('<big long hash>', 'password').then(match => {
   // internal failure
 });
 
-// ES7 or Typescript
+// ES7 or TypeScript
 
 try {
   if (await argon2.verify("<big long hash>", "password")) {

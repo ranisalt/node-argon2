@@ -3,6 +3,7 @@
   "version": "0.14.0",
   "description": "An Argon2 library for Node",
   "main": "index.js",
+  "types": "index.d.ts",
   "scripts": {
     "benchmark": "babel-node benchmark.js",
     "clean": "node-gyp clean",
