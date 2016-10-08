@@ -1,5 +1,8 @@
 {
     "compilerOptions": {
-        "lib": ["es2015.promise"]
-    }
+        "target": "es2015"
+    },
+    "files": [
+        "test-d.ts"
+    ]
 }

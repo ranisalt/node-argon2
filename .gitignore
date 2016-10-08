@@ -1,6 +1,10 @@
 
 # Created by https://www.gitignore.io/api/node,intellij
 
+# VS Code / Typescript
+.vscode
+test-d.js
+
 ### Node ###
 # Logs
 logs

@@ -7,7 +7,7 @@
   "scripts": {
     "benchmark": "babel-node benchmark.js",
     "clean": "node-gyp clean",
-    "test": "xo && nyc --reporter=lcov ava -r babel-register"
+    "test": "tsc -p . && rm test-d.js && xo && nyc --reporter=lcov ava -r babel-register"
   },
   "repository": {
     "type": "git",
@@ -40,6 +40,7 @@
     "babel-register": "^6.11.6",
     "nyc": "^8.0.0",
     "sandra": "^0.1.0",
+    "typescript": "^2.0.3",
     "xo": "^0.16.0"
   },
   "engines": {
