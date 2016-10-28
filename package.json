@@ -37,6 +37,7 @@
     "babel-preset-es2015": "^6.9.0",
     "babel-register": "^6.11.6",
     "nyc": "^8.0.0",
+    "object-assign": "^4.1.0",
     "sandra": "^0.1.0",
     "xo": "^0.17.0"
   },
