@@ -6,7 +6,7 @@
   "scripts": {
     "benchmark": "babel-node benchmark.js",
     "clean": "node-gyp clean",
-    "test": "xo && nyc --reporter=lcov ava -r babel-register"
+    "test": "xo && nyc --reporter=lcov ava"
   },
   "repository": {
     "type": "git",
@@ -43,6 +43,12 @@
   },
   "engines": {
     "node": ">=4.0.0"
+  },
+  "ava": {
+    "babel": "inherit",
+    "require": [
+      "babel-register"
+    ]
   },
   "xo": {
     "esnext": true,
