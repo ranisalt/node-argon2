@@ -31,7 +31,7 @@ install:
 #---------------------------------#
 
 # to disable automatic builds
-build: on
+build: off
 
 #---------------------------------#
 #       tests configuration       #

@@ -6,7 +6,7 @@
   "scripts": {
     "benchmark": "babel-node benchmark.js",
     "clean": "node-gyp clean",
-    "test": "xo && nyc --reporter=lcov ava -r babel-register"
+    "test": "xo && nyc --reporter=lcov ava"
   },
   "repository": {
     "type": "git",
@@ -31,7 +31,7 @@
     "nan": "^2.4.0"
   },
   "devDependencies": {
-    "ava": "^0.16.0",
+    "ava": "^0.17.0",
     "babel-cli": "^6.11.4",
     "babel-plugin-transform-async-to-generator": "^6.8.0",
     "babel-preset-es2015": "^6.9.0",
@@ -43,6 +43,12 @@
   },
   "engines": {
     "node": ">=4.0.0"
+  },
+  "ava": {
+    "babel": "inherit",
+    "require": [
+      "babel-register"
+    ]
   },
   "xo": {
     "esnext": true,
