@@ -127,7 +127,18 @@ VerifyWorker::VerifyWorker(std::string&& hash, std::string&& plain):
 
 void VerifyWorker::Execute()
 {
-    auto type = (hash.at(7) == 'd') ? Argon2_d : ( hash.at(8) == 'd' ? Argon2_id : Argon2_i );
+    argon2_type type;
+
+    if(hash.at(7) == 'd') {
+        type = Argon2_d;
+    }
+    else if(hash.at(8) == 'd') {
+        type = Argon2_id;
+    }
+    else {
+        type = Argon2_i;
+    }
+
     auto result = argon2_verify(hash.c_str(), plain.c_str(), plain.size(), type);
 
     switch (result) {
