@@ -10,7 +10,7 @@ implementation.
 [node-argon2-cli](https://github.com/ranisalt/node-argon2-cli).**
 
 ### Usage
-It's possible to hash a password using both Argon2i (default) and Argon2d, sync
+It's possible to hash a password using both Argon2i (default) Argon2d and Argon2id, sync
 and async, and to verify if a password matches a hash, and also generate random
 cryptographically-safe salts. Salts **must** be at least 8-byte long buffers.
 
@@ -33,11 +33,11 @@ try {
   //...
 }
 ```
-You can choose between Argon2i and Argon2d by passing an object as the third
-argument with the `argon2d` key set to whether or not you want Argon2d:
+You can choose between Argon2i, Argon2d and Argon2id by passing an object as the third
+argument with the `type` key set to which type you want to use:
 ```js
 argon2.hash('password', salt, {
-  argon2d: true
+  type: argon2.argon2d
 }.then(hash => {
   // ...
 }).catch(err => {
@@ -48,13 +48,13 @@ argon2.hash('password', salt, {
 
 try {
   const hash = await argon2.hash('password', salt, {
-    argon2d: true
+    type: argon2.argon2d
   });
 } catch (err) {
   // internal failure
 }
 ```
-The `argon2d` option is flexible and accepts any truthy or falsy values.
+The `type` option is flexible and accepts 0, 1 or 2 for Argon2d, Argon2i and Argon2id respectively.
 
 You can provide your own salt as the second parameter. It is **highly**
 recommended to use the salt generating methods instead of a hardcoded, constant
@@ -89,7 +89,7 @@ as the third parameter, with keys `timeCost`, `memoryCost` and `parallelism`,
 respectively defaulted to 3, 12 (meaning 2^12 KB) and 1 (threads):
 ```js
 const options = {
-  timeCost: 4, memoryCost: 13, parallelism: 2, argon2d: true
+  timeCost: 4, memoryCost: 13, parallelism: 2, type: argon2.argon2d
 };
 
 argon2.generateSalt().then(salt => {
@@ -106,7 +106,7 @@ const hash = await argon2.hash('password', await argon2.generateSalt(), options)
 The default parameters for Argon2 can be accessed with `defaults`:
 ```js
 console.log(argon2.defaults);
-// => { timeCost: 3, memoryCost: 12, parallelism: 1, argon2d: false }
+// => { timeCost: 3, memoryCost: 12, parallelism: 1, type: argon2.argon2i }
 ```
 
 To verify a password:
@@ -146,7 +146,7 @@ functions. node-argon2-ffi uses ffi, a mechanism to call functions from one
 language in another, and handles the type bindings (e.g. JS Number -> C++ int).
 
 The interface of both are very similar, notably node-argon2-ffi splits the
-argon2i and argon2d function set, but the differences stop there. Also, while
+argon2i and argon2d function set, but this module also has the argon2id option. Also, while
 node-argon2-ffi suggests you promisify `crypto.randomBytes`, this library has
 `generateSalt` which is exactly the same.
 
