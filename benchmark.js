@@ -11,7 +11,8 @@ import argon2, {defaults} from './'
   suite.push('time cost', argon2.hash, password, salt, {timeCost: defaults.timeCost + 1})
   suite.push('memory cost', argon2.hash, password, salt, {memoryCost: defaults.memoryCost + 1})
   suite.push('parallelism', argon2.hash, password, salt, {parallelism: defaults.parallelism + 1})
-  suite.push('argon2d', argon2.hash, password, salt, {argon2d: true})
+  suite.push('argon2d', argon2.hash, password, salt, { type:argon2.argon2d })
+  suite.push('argon2id', argon2.hash, password, salt, { type:argon2.argon2id })
   suite.push('verify', argon2.verify, hash, password)
   suite.push('generate salt', argon2.generateSalt)
 
