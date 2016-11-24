@@ -111,7 +111,8 @@ NAN_METHOD(Hash) {
             {Buffer::Data(salt), Buffer::Length(salt)},
             fromJust(getArg("hashLength")), fromJust(getArg("timeCost")),
             fromJust(getArg("memoryCost")), fromJust(getArg("parallelism")),
-            fromJust<bool>(getArg("argon2d")) ? Argon2_d : Argon2_i};
+            argon2_type(fromJust(getArg("type")))
+            };
 
     worker->SaveToPersistent(THIS_OBJ, info.This());
     worker->SaveToPersistent(RESOLVE, Local<Function>::Cast(info[3]));
@@ -126,7 +127,7 @@ VerifyWorker::VerifyWorker(std::string&& hash, std::string&& plain):
 
 void VerifyWorker::Execute()
 {
-    auto type = (hash.at(7) == 'd') ? Argon2_d : Argon2_i;
+    auto type = (hash.at(7) == 'd') ? Argon2_d : ( hash.at(8) == 'd' ? Argon2_id : Argon2_i );
     auto result = argon2_verify(hash.c_str(), plain.c_str(), plain.size(), type);
 
     switch (result) {
