@@ -13,6 +13,7 @@ const truncatedBase64 = buffer => buffer.toString('base64').replace(/=*$/, '')
 const hashes = Object.freeze({
   argon2i: '$argon2i$v=19$m=4096,t=3,p=1$c29tZXNhbHQ$iWh06vD8Fy27wf9npn6FXWiCX4K6pW6Ue1Bnzz07Z8A',
   argon2d: '$argon2d$v=19$m=4096,t=3,p=1$c29tZXNhbHQ$2+JCoQtY/2x5F0VB9pEVP3xBNguWP1T25Ui0PtZuk8o',
+  argon2id: '$argon2id$v=19$m=4096,t=3,p=1$c29tZXNhbHQ$qLml5cbqFAO6YxVHhrSBHP0UWdxrIxkNcM8aMX3blzU',
   withNull: '$argon2i$v=19$m=4096,t=3,p=1$c29tZXNhbHQ$gk27gZBfGSSQTGxrg0xP9BjOw1pY1QMEdLcNe+t6N8Q'
 })
 
@@ -22,7 +23,7 @@ test('defaults', t => {
     timeCost: 3,
     memoryCost: 12,
     parallelism: 1,
-    argon2d: false
+    type: argon2.argon2i
   })
 })
 
@@ -48,7 +49,11 @@ test('hash with longer salt', async t => {
 })
 
 test('hash with argon2d', async t => {
-  t.is(await argon2.hash(password, salt, {argon2d: true}), hashes.argon2d)
+  t.is(await argon2.hash(password, salt, {type: argon2.argon2d}), hashes.argon2d)
+})
+
+test('hash with argon2id', async t => {
+  t.is(await argon2.hash(password, salt, {type: argon2.argon2id}), hashes.argon2id)
 })
 
 test('hash with short salt', async t => {
@@ -135,11 +140,19 @@ test('verify with null in password', async t => {
 })
 
 test('verify argon2d correct password', async t => {
-  t.true(await argon2.verify(await argon2.hash(password, await argon2.generateSalt(), {argon2d: true}), password))
+  t.true(await argon2.verify(await argon2.hash(password, await argon2.generateSalt(), {type: argon2.argon2d}), password))
 })
 
 test('verify argon2d wrong password', async t => {
-  t.false(await argon2.verify(await argon2.hash(password, await argon2.generateSalt(), {argon2d: true}), 'passworld'))
+  t.false(await argon2.verify(await argon2.hash(password, await argon2.generateSalt(), {type: argon2.argon2d}), 'passworld'))
+})
+
+test('verify argon2id correct password', async t => {
+  t.true(await argon2.verify(await argon2.hash(password, await argon2.generateSalt(), {type: argon2.argon2id}), password))
+})
+
+test('verify argon2id wrong password', async t => {
+  t.false(await argon2.verify(await argon2.hash(password, await argon2.generateSalt(), {type: argon2.argon2id}), 'passworld'))
 })
 
 test('js promise + setInterval', async t => {
