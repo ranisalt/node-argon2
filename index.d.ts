@@ -7,7 +7,7 @@ export interface Options {
     timeCost?: number;
     memoryCost?: number;
     parallelism?: number;
-    argon2d?: boolean;
+    type?: number;
 }
 
 export interface NumericLimit {
@@ -21,6 +21,10 @@ export interface OptionLimits {
     timeCost: NumericLimit;
     parallelism: NumericLimit;
 }
+
+export const argon2d: number;
+export const argon2i: number;
+export const argon2id: number;
 
 export const defaults: Options;
 export const limits: OptionLimits;
