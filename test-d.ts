@@ -21,14 +21,14 @@ function test_options() {
         timeCost: 3,
         memoryCost: 12,
         parallelism: 1,
-        argon2d: false
+        type: argon2.argon2i
     };
 
     console.log(argon2.defaults.hashLength === defaults.hashLength);
     console.log(argon2.defaults.timeCost === defaults.timeCost);
     console.log(argon2.defaults.memoryCost === defaults.memoryCost);
     console.log(argon2.defaults.parallelism === defaults.parallelism);
-    console.log(argon2.defaults.argon2d === defaults.argon2d);
+    console.log(argon2.defaults.type === defaults.type);
 }
 
 function test_hash() {
@@ -42,13 +42,13 @@ function test_generateSalt() {
     return Promise.all([
         argon2.generateSalt(), // Default salt length
         argon2.generateSalt(500) // Custom salt length
-    ]); 
+    ]);
 }
 
 function test_hashOptions() {
     // All options separately, and together
     return Promise.all([
-        argon2.hash(password, salt, {argon2d: true}),
+        argon2.hash(password, salt, {type: argon2.argon2i}),
         argon2.hash(password, salt, {timeCost: 4}),
         argon2.hash(password, salt, {hashLength: 4}),
         argon2.hash(password, salt, {memoryCost: 13}),
