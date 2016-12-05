@@ -45,19 +45,30 @@ size_type encodedLength(size_type hashLength, size_type saltLength)
 }
 
 HashWorker::HashWorker(std::string&& plain, std::string&& salt,
-        uint32_t l, uint32_t t, uint32_t m, uint32_t p, argon2_type a):
+        uint32_t l, uint32_t t, uint32_t m, uint32_t p, argon2_type a, bool raw):
     Nan::AsyncWorker{nullptr}, plain{std::move(plain)}, salt{std::move(salt)},
-    hash_length{l}, time_cost{t}, memory_cost{m}, parallelism{p}, type{a}
+    hash_length{l}, time_cost{t}, memory_cost{m}, parallelism{p}, type{a}, raw{raw}
 { }
 
 void HashWorker::Execute()
 {
-    const auto ENCODED_LEN = encodedLength(hash_length, salt.size());
-    output.reset(new char[ENCODED_LEN]);
+    int result;
 
-    auto result = argon2_hash(time_cost, 1u << memory_cost, parallelism,
-            plain.c_str(), plain.size(), salt.c_str(), salt.size(), nullptr,
-            hash_length, output.get(), ENCODED_LEN, type, ARGON2_VERSION_NUMBER);
+    if (raw) {
+        output.reset(new char[hash_length]);
+
+        result = argon2_hash(time_cost, 1u << memory_cost, parallelism,
+                plain.c_str(), plain.size(), salt.c_str(), salt.size(), output.get(),
+                hash_length, nullptr, 0, type, ARGON2_VERSION_NUMBER);
+    }
+    else {
+        const auto ENCODED_LEN = encodedLength(hash_length, salt.size());
+        output.reset(new char[ENCODED_LEN]);
+
+        result = argon2_hash(time_cost, 1u << memory_cost, parallelism,
+                plain.c_str(), plain.size(), salt.c_str(), salt.size(), nullptr,
+                hash_length, output.get(), ENCODED_LEN, type, ARGON2_VERSION_NUMBER);
+    }
 
     if (result != ARGON2_OK) {
         /* LCOV_EXCL_START */
@@ -73,9 +84,16 @@ void HashWorker::HandleOKCallback()
 
     Nan::HandleScope scope;
 
-    Local<Value> argv[] = {Nan::Encode(output.get(), strlen(output.get()))};
-    Nan::MakeCallback(GetFromPersistent(THIS_OBJ).As<Object>(),
+    if (raw) {
+        Local<Value> argv[] = {Nan::NewBuffer(output.release(), hash_length).ToLocalChecked()};
+        Nan::MakeCallback(GetFromPersistent(THIS_OBJ).As<Object>(),
             GetFromPersistent(RESOLVE).As<Function>(), 1, argv);
+    }
+    else {
+        Local<Value> argv[] = {Nan::Encode(output.get(), strlen(output.get()))};
+        Nan::MakeCallback(GetFromPersistent(THIS_OBJ).As<Object>(),
+            GetFromPersistent(RESOLVE).As<Function>(), 1, argv);
+    }
 }
 
 /* LCOV_EXCL_START */
@@ -111,7 +129,7 @@ NAN_METHOD(Hash) {
             {Buffer::Data(salt), Buffer::Length(salt)},
             fromJust(getArg("hashLength")), fromJust(getArg("timeCost")),
             fromJust(getArg("memoryCost")), fromJust(getArg("parallelism")),
-            argon2_type(fromJust(getArg("type")))
+            argon2_type(fromJust(getArg("type"))), fromJust<bool>(getArg("raw"))
             };
 
     worker->SaveToPersistent(THIS_OBJ, info.This());
