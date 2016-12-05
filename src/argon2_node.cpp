@@ -60,8 +60,7 @@ void HashWorker::Execute()
         result = argon2_hash(time_cost, 1u << memory_cost, parallelism,
                 plain.c_str(), plain.size(), salt.c_str(), salt.size(), output.get(),
                 hash_length, nullptr, 0, type, ARGON2_VERSION_NUMBER);
-    }
-    else {
+    } else {
         const auto ENCODED_LEN = encodedLength(hash_length, salt.size());
         output.reset(new char[ENCODED_LEN]);
 
@@ -88,8 +87,7 @@ void HashWorker::HandleOKCallback()
         Local<Value> argv[] = {Nan::NewBuffer(output.release(), hash_length).ToLocalChecked()};
         Nan::MakeCallback(GetFromPersistent(THIS_OBJ).As<Object>(),
             GetFromPersistent(RESOLVE).As<Function>(), 1, argv);
-    }
-    else {
+    } else {
         Local<Value> argv[] = {Nan::Encode(output.get(), strlen(output.get()))};
         Nan::MakeCallback(GetFromPersistent(THIS_OBJ).As<Object>(),
             GetFromPersistent(RESOLVE).As<Function>(), 1, argv);
