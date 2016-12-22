@@ -14,7 +14,10 @@ const hashes = Object.freeze({
   argon2i: '$argon2i$v=19$m=4096,t=3,p=1$c29tZXNhbHQ$iWh06vD8Fy27wf9npn6FXWiCX4K6pW6Ue1Bnzz07Z8A',
   argon2d: '$argon2d$v=19$m=4096,t=3,p=1$c29tZXNhbHQ$2+JCoQtY/2x5F0VB9pEVP3xBNguWP1T25Ui0PtZuk8o',
   argon2id: '$argon2id$v=19$m=4096,t=3,p=1$c29tZXNhbHQ$qLml5cbqFAO6YxVHhrSBHP0UWdxrIxkNcM8aMX3blzU',
-  withNull: '$argon2i$v=19$m=4096,t=3,p=1$c29tZXNhbHQ$gk27gZBfGSSQTGxrg0xP9BjOw1pY1QMEdLcNe+t6N8Q'
+  withNull: '$argon2i$v=19$m=4096,t=3,p=1$c29tZXNhbHQ$gk27gZBfGSSQTGxrg0xP9BjOw1pY1QMEdLcNe+t6N8Q',
+  raw: Buffer.from('iWh06vD8Fy27wf9npn6FXWiCX4K6pW6Ue1Bnzz07Z8A', 'base64'),
+  rawWithNull: Buffer.from('gk27gZBfGSSQTGxrg0xP9BjOw1pY1QMEdLcNe+t6N8Q', 'base64'),
+  rawArgon2d: Buffer.from('2+JCoQtY/2x5F0VB9pEVP3xBNguWP1T25Ui0PtZuk8o', 'base64')
 })
 
 test('defaults', t => {
@@ -23,7 +26,8 @@ test('defaults', t => {
     timeCost: 3,
     memoryCost: 12,
     parallelism: 1,
-    type: argon2.argon2i
+    type: argon2.argon2i,
+    raw: false
   })
 })
 
@@ -41,6 +45,14 @@ test('hash with null in salt', async t => {
   t.is(hash.substring(paramsLen, paramsLen + 22), truncatedBase64(saltWithNull))
 })
 
+test('with raw hash', async t => {
+  t.is((await argon2.hash(password, salt, {raw: true})).equals(hashes.raw), true)
+})
+
+test('with raw hash, null in password', async t => {
+  t.is((await argon2.hash('pass\0word', salt, {raw: true})).equals(hashes.rawWithNull), true)
+})
+
 test('hash with longer salt', async t => {
   /* Intentionally using a length that is not multiple of 3 */
   const hash = await argon2.hash('password', await argon2.generateSalt(500))
@@ -50,6 +62,10 @@ test('hash with longer salt', async t => {
 
 test('hash with argon2d', async t => {
   t.is(await argon2.hash(password, salt, {type: argon2.argon2d}), hashes.argon2d)
+})
+
+test('argon2d with raw hash', async t => {
+  t.is((await argon2.hash(password, salt, {type: argon2.argon2d, raw: true})).equals(hashes.rawArgon2d), true)
 })
 
 test('hash with argon2id', async t => {

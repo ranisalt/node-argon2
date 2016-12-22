@@ -38,7 +38,7 @@ argument with the `type` key set to which type you want to use:
 ```js
 argon2.hash('password', salt, {
   type: argon2.argon2d
-}.then(hash => {
+}).then(hash => {
   // ...
 }).catch(err => {
   // internal failure
@@ -55,6 +55,28 @@ try {
 }
 ```
 The `type` option is flexible and accepts 0, 1 or 2 for Argon2d, Argon2i and Argon2id respectively.
+
+You can also get the hash as a raw Node Buffer by passing 'true' to the 'raw' option:
+
+```js
+argon2.hash('password', salt, {
+  raw: true
+}).then(hash => {
+  // ... hash is a Buffer
+}).catch(err => {
+  // internal failure
+});
+
+// ES7 or TypeScript
+
+try {
+  const hash = await argon2.hash('password', salt, {
+    raw: true
+  });
+} catch (err) {
+  // internal failure
+}
+```
 
 You can provide your own salt as the second parameter. It is **highly**
 recommended to use the salt generating methods instead of a hardcoded, constant

@@ -8,6 +8,7 @@ export interface Options {
     memoryCost?: number;
     parallelism?: number;
     type?: 0 | 1 | 2;
+    raw?: boolean;
 }
 
 export interface NumericLimit {
