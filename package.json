@@ -41,7 +41,7 @@
     "nyc": "^10.0.0",
     "object-assign": "^4.1.0",
     "sandra": "^0.1.0",
-    "typescript": "^2.0.3",
+    "typescript": "^2.1.5",
     "xo": "^0.17.1"
   },
   "engines": {
