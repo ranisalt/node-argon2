@@ -1,6 +1,7 @@
-import test from 'ava'
-import argon2, {defaults, limits} from './'
+const test = require('ava')
+const argon2 = require('./')
 
+const {defaults, limits} = argon2
 const password = 'password'
 const salt = new Buffer('somesalt')
 const saltWithNull = new Buffer('\0abcdefghijklmno')

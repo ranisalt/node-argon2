@@ -1,7 +1,8 @@
-import {Suite} from 'sandra'
-import argon2, {defaults} from './'
+const {Suite} = require('sandra')
+const argon2 = require('./')
 
-(async() => {
+const main = async () => {
+  const defaults = argon2.defaults
   const password = 'password'
   const salt = await argon2.generateSalt()
   const hash = await argon2.hash(password, salt)
@@ -26,4 +27,6 @@ import argon2, {defaults} from './'
   await suite.run({
     timeout: 2500
   })
-})()
+}
+
+main()
