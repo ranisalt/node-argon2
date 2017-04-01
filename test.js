@@ -4,11 +4,9 @@ const argon2 = require('./')
 const {defaults, limits} = argon2
 const password = 'password'
 const salt = new Buffer('somesalt')
-const saltWithNull = new Buffer('\0abcdefghijklmno')
 
 // Like argon2's modified base64 implementation, this function truncates any
 // trailing '=' characters for a more compact representation.
-const truncatedBase64 = buffer => buffer.toString('base64').replace(/=*$/, '')
 
 // hashes for argon2i and argon2d with default options
 const hashes = Object.freeze({
@@ -41,6 +39,9 @@ test('hash with null in password', async t => {
 })
 
 test('hash with null in salt', async t => {
+  const saltWithNull = new Buffer('\0abcdefghijklmno')
+  const truncatedBase64 = buf => buf.toString('base64').replace(/=*$/, '')
+
   const hash = await argon2.hash(password, saltWithNull)
   const paramsLen = '$argon2i$v=19$m=4096,t=3,p=1$'.length
   t.is(hash.substring(paramsLen, paramsLen + 22), truncatedBase64(saltWithNull))
