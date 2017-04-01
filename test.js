@@ -11,9 +11,9 @@ const salt = new Buffer('somesalt')
 // hashes for argon2i and argon2d with default options
 const hashes = Object.freeze({
   argon2i: '$argon2i$v=19$m=4096,t=3,p=1$c29tZXNhbHQ$iWh06vD8Fy27wf9npn6FXWiCX4K6pW6Ue1Bnzz07Z8A',
+  withNull: '$argon2i$v=19$m=4096,t=3,p=1$c29tZXNhbHQ$gk27gZBfGSSQTGxrg0xP9BjOw1pY1QMEdLcNe+t6N8Q',
   argon2d: '$argon2d$v=19$m=4096,t=3,p=1$c29tZXNhbHQ$2+JCoQtY/2x5F0VB9pEVP3xBNguWP1T25Ui0PtZuk8o',
   argon2id: '$argon2id$v=19$m=4096,t=3,p=1$c29tZXNhbHQ$qLml5cbqFAO6YxVHhrSBHP0UWdxrIxkNcM8aMX3blzU',
-  withNull: '$argon2i$v=19$m=4096,t=3,p=1$c29tZXNhbHQ$gk27gZBfGSSQTGxrg0xP9BjOw1pY1QMEdLcNe+t6N8Q',
   raw: Buffer.from('iWh06vD8Fy27wf9npn6FXWiCX4K6pW6Ue1Bnzz07Z8A', 'base64'),
   rawWithNull: Buffer.from('gk27gZBfGSSQTGxrg0xP9BjOw1pY1QMEdLcNe+t6N8Q', 'base64'),
   rawArgon2d: Buffer.from('2+JCoQtY/2x5F0VB9pEVP3xBNguWP1T25Ui0PtZuk8o', 'base64'),
