@@ -32,7 +32,7 @@ install:
 #---------------------------------#
 
 # to disable automatic builds
-build: off
+build: on
 
 #---------------------------------#
 #       tests configuration       #
