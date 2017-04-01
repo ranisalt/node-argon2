@@ -16,7 +16,8 @@ const hashes = Object.freeze({
   withNull: '$argon2i$v=19$m=4096,t=3,p=1$c29tZXNhbHQ$gk27gZBfGSSQTGxrg0xP9BjOw1pY1QMEdLcNe+t6N8Q',
   raw: Buffer.from('iWh06vD8Fy27wf9npn6FXWiCX4K6pW6Ue1Bnzz07Z8A', 'base64'),
   rawWithNull: Buffer.from('gk27gZBfGSSQTGxrg0xP9BjOw1pY1QMEdLcNe+t6N8Q', 'base64'),
-  rawArgon2d: Buffer.from('2+JCoQtY/2x5F0VB9pEVP3xBNguWP1T25Ui0PtZuk8o', 'base64')
+  rawArgon2d: Buffer.from('2+JCoQtY/2x5F0VB9pEVP3xBNguWP1T25Ui0PtZuk8o', 'base64'),
+  rawArgon2id: Buffer.from('qLml5cbqFAO6YxVHhrSBHP0UWdxrIxkNcM8aMX3blzU', 'base64')
 })
 
 test('defaults', t => {
@@ -72,6 +73,10 @@ test('argon2d with raw hash', async t => {
 
 test('hash with argon2id', async t => {
   t.is(await argon2.hash(password, salt, {type: argon2.argon2id}), hashes.argon2id)
+})
+
+test('argon2id with raw hash', async t => {
+  t.is((await argon2.hash(password, salt, {type: argon2.argon2id, raw: true})).equals(hashes.rawArgon2id), true)
 })
 
 test('hash with short salt', async t => {
