@@ -1,7 +1,8 @@
 const test = require('ava')
 const argon2 = require('./')
 
-const {defaults, limits} = argon2
+const defaults = argon2.defaults
+const limits = argon2.limits
 const password = 'password'
 const salt = Buffer.from('somesalt')
 
