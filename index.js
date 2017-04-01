@@ -43,11 +43,11 @@ module.exports = {
   argon2id,
 
   hash(plain, salt, options) {
-    salt = new Buffer(salt)
+    salt = Buffer.from(salt)
     options = Object.assign({}, defaults, options)
 
     return validate(salt, options).then(() => new Promise((resolve, reject) => {
-      bindings.hash(new Buffer(plain), salt, options, resolve, reject)
+      bindings.hash(Buffer.from(plain), salt, options, resolve, reject)
     }))
   },
 
@@ -69,7 +69,7 @@ module.exports = {
     }
 
     return new Promise((resolve, reject) => {
-      bindings.verify(new Buffer(hash), new Buffer(plain), resolve, reject)
+      bindings.verify(Buffer.from(hash), Buffer.from(plain), resolve, reject)
     })
   }
 }
