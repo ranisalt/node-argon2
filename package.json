@@ -7,7 +7,7 @@
   "scripts": {
     "benchmark": "babel-node benchmark.js",
     "clean": "node-gyp clean",
-    "test": "tsc -p . && node test-d.js && xo && nyc --reporter=lcov ava"
+    "test": "tsc -p . && node test-d.js && standard && nyc --reporter=lcov ava"
   },
   "repository": {
     "type": "git",
@@ -38,8 +38,8 @@
     "nyc": "^10.0.0",
     "object-assign": "^4.1.0",
     "sandra": "^0.1.0",
-    "typescript": "^2.1.5",
-    "xo": "^0.17.1"
+    "standard": "^10.0.2",
+    "typescript": "^2.1.5"
   },
   "engines": {
     "node": ">=4.0.0"
