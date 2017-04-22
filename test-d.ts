@@ -7,7 +7,6 @@ import * as argon2 from "./index";
 
 const password = "password";
 const passwordBuffer = new Buffer("password");
-const salt = new Buffer("somesalt");
 
 // hashes for argon2i and argon2d with default options
 const hashes = Object.freeze({
@@ -35,32 +34,25 @@ function test_options() {
 
 function test_hash() {
     return Promise.all([
-        argon2.hash(password, salt), // String pw
-        argon2.hash(passwordBuffer, salt) // Buffer pw
-    ]);
-}
-
-function test_generateSalt() {
-    return Promise.all([
-        argon2.generateSalt(), // Default salt length
-        argon2.generateSalt(500) // Custom salt length
+        argon2.hash(password), // String pw
+        argon2.hash(passwordBuffer) // Buffer pw
     ]);
 }
 
 function test_hashOptions() {
     // All options separately, and together
     return Promise.all([
-        argon2.hash(password, salt, {type: argon2.argon2d}),
-        argon2.hash(password, salt, {timeCost: 4}),
-        argon2.hash(password, salt, {hashLength: 4}),
-        argon2.hash(password, salt, {memoryCost: 13}),
-        argon2.hash(password, salt, {parallelism: 2}),
-        argon2.hash(password, salt, {timeCost: 4, memoryCost: 13, parallelism: 2})
+        argon2.hash(password, {type: argon2.argon2d}),
+        argon2.hash(password, {timeCost: 4}),
+        argon2.hash(password, {hashLength: 4}),
+        argon2.hash(password, {memoryCost: 13}),
+        argon2.hash(password, {parallelism: 2}),
+        argon2.hash(password, {timeCost: 4, memoryCost: 13, parallelism: 2})
     ]);
 }
 
 function test_verify() {
-    // Verify with string and buffer 
+    // Verify with string and buffer
     return Promise.all([
         argon2.verify(hashes.argon2d, password),
         argon2.verify(hashes.argon2i, passwordBuffer)

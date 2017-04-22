@@ -1,24 +1,40 @@
+'use strict'
 const test = require('ava')
-const argon2 = require('./')
+const mockery = require('mockery')
 
-const defaults = argon2.defaults
-const limits = argon2.limits
+let argon2, defaults, limits
 const password = 'password'
-const salt = Buffer.from('somesalt')
 
 // Like argon2's modified base64 implementation, this function truncates any
 // trailing '=' characters for a more compact representation.
 
 // hashes for argon2i and argon2d with default options
 const hashes = Object.freeze({
-  argon2i: '$argon2i$v=19$m=4096,t=3,p=1$c29tZXNhbHQ$iWh06vD8Fy27wf9npn6FXWiCX4K6pW6Ue1Bnzz07Z8A',
-  withNull: '$argon2i$v=19$m=4096,t=3,p=1$c29tZXNhbHQ$gk27gZBfGSSQTGxrg0xP9BjOw1pY1QMEdLcNe+t6N8Q',
-  argon2d: '$argon2d$v=19$m=4096,t=3,p=1$c29tZXNhbHQ$2+JCoQtY/2x5F0VB9pEVP3xBNguWP1T25Ui0PtZuk8o',
-  argon2id: '$argon2id$v=19$m=4096,t=3,p=1$c29tZXNhbHQ$qLml5cbqFAO6YxVHhrSBHP0UWdxrIxkNcM8aMX3blzU',
-  raw: Buffer.from('iWh06vD8Fy27wf9npn6FXWiCX4K6pW6Ue1Bnzz07Z8A', 'base64'),
-  rawWithNull: Buffer.from('gk27gZBfGSSQTGxrg0xP9BjOw1pY1QMEdLcNe+t6N8Q', 'base64'),
-  rawArgon2d: Buffer.from('2+JCoQtY/2x5F0VB9pEVP3xBNguWP1T25Ui0PtZuk8o', 'base64'),
-  rawArgon2id: Buffer.from('qLml5cbqFAO6YxVHhrSBHP0UWdxrIxkNcM8aMX3blzU', 'base64')
+  argon2i: '$argon2i$v=19$m=4096,t=3,p=1$c2FsdHNhbHRzYWx0c2FsdA$Iv3dSMJ431p24TEj68Kxokm/ilAC9HfwREDIVPM/1/0',
+  withNull: '$argon2i$v=19$m=4096,t=3,p=1$c2FsdHNhbHRzYWx0c2FsdA$Z3fEValT7xBg6b585WOlY2gufWl95ZfkFA8mPtWJ3UM',
+  argon2d: '$argon2d$v=19$m=4096,t=3,p=1$c2FsdHNhbHRzYWx0c2FsdA$3CYaDoobFaprD02HTMVVRLsrSgJjZK5QmqYWnWDEAlw',
+  argon2id: '$argon2id$v=19$m=4096,t=3,p=1$c2FsdHNhbHRzYWx0c2FsdA$fxbFVdPGPQ1NJoy87CaTabyrXOKZepZ9SGBFwPkPJ28',
+  rawArgon2i: Buffer.from('22fddd48c278df5a76e13123ebc2b1a249bf8a5002f477f04440c854f33fd7fd', 'hex'),
+  rawWithNull: Buffer.from('6777c455a953ef1060e9be7ce563a563682e7d697de597e4140f263ed589dd43', 'hex'),
+  rawArgon2d: Buffer.from('dc261a0e8a1b15aa6b0f4d874cc55544bb2b4a026364ae509aa6169d60c4025c', 'hex'),
+  rawArgon2id: Buffer.from('7f16c555d3c63d0d4d268cbcec269369bcab5ce2997a967d486045c0f90f276f', 'hex')
+})
+
+mockery.registerMock('crypto', {
+  randomBytes (size, callback) {
+    callback(null, Buffer.alloc(size, 'salt'))
+  }
+})
+
+test.before(() => {
+  mockery.enable({useCleanCache: true, warnOnUnregistered: false})
+  argon2 = require('./')
+  defaults = argon2.defaults
+  limits = argon2.limits
+})
+
+test.after(() => {
+  mockery.disable()
 })
 
 test('defaults', t => {
@@ -33,150 +49,122 @@ test('defaults', t => {
 })
 
 test('basic hash', async t => {
-  t.is(await argon2.hash(password, salt), hashes.argon2i)
+  t.is(await argon2.hash(password), hashes.argon2i)
 })
 
 test('hash with null in password', async t => {
-  t.is(await argon2.hash('pass\0word', salt), hashes.withNull)
-})
-
-test('hash with null in salt', async t => {
-  const saltWithNull = Buffer.from('\0abcdefghijklmno')
-  const truncatedBase64 = buf => buf.toString('base64').replace(/=*$/, '')
-
-  const hash = await argon2.hash(password, saltWithNull)
-  const paramsLen = '$argon2i$v=19$m=4096,t=3,p=1$'.length
-  t.is(hash.substring(paramsLen, paramsLen + 22), truncatedBase64(saltWithNull))
+  t.is(await argon2.hash('pass\0word'), hashes.withNull)
 })
 
 test('with raw hash', async t => {
-  t.is((await argon2.hash(password, salt, {raw: true})).equals(hashes.raw), true)
+  t.is((await argon2.hash(password, {raw: true})).equals(hashes.rawArgon2i), true)
 })
 
 test('with raw hash, null in password', async t => {
-  t.is((await argon2.hash('pass\0word', salt, {raw: true})).equals(hashes.rawWithNull), true)
-})
-
-test('hash with longer salt', async t => {
-  /* Intentionally using a length that is not multiple of 3 */
-  const hash = await argon2.hash('password', await argon2.generateSalt(500))
-  t.regex(hash, /.*\$.{667}\$/)
-  t.true(await argon2.verify(hash, 'password'))
+  t.is((await argon2.hash('pass\0word', {raw: true})).equals(hashes.rawWithNull), true)
 })
 
 test('hash with argon2d', async t => {
-  t.is(await argon2.hash(password, salt, {type: argon2.argon2d}), hashes.argon2d)
+  t.is(await argon2.hash(password, {type: argon2.argon2d}), hashes.argon2d)
 })
 
 test('argon2d with raw hash', async t => {
-  t.is((await argon2.hash(password, salt, {type: argon2.argon2d, raw: true})).equals(hashes.rawArgon2d), true)
+  t.is((await argon2.hash(password, {type: argon2.argon2d, raw: true})).equals(hashes.rawArgon2d), true)
 })
 
 test('hash with argon2id', async t => {
-  t.is(await argon2.hash(password, salt, {type: argon2.argon2id}), hashes.argon2id)
+  t.is(await argon2.hash(password, {type: argon2.argon2id}), hashes.argon2id)
 })
 
 test('argon2id with raw hash', async t => {
-  t.is((await argon2.hash(password, salt, {type: argon2.argon2id, raw: true})).equals(hashes.rawArgon2id), true)
-})
-
-test('hash with short salt', async t => {
-  await t.throws(argon2.hash(password, salt.slice(0, 7)), /invalid salt.+with 8 or more bytes/i)
+  t.is((await argon2.hash(password, {type: argon2.argon2id, raw: true})).equals(hashes.rawArgon2id), true)
 })
 
 test('hash with time cost', async t => {
-  t.regex(await argon2.hash(password, salt, {timeCost: 4}), /t=4/)
+  t.regex(await argon2.hash(password, {timeCost: 4}), /t=4/)
 })
 
 test('hash with low time cost', async t => {
-  await t.throws(argon2.hash(password, salt, {timeCost: limits.timeCost.min - 1}), /invalid timeCost.+between \d+ and \d+/i)
+  await t.throws(argon2.hash(password, {timeCost: limits.timeCost.min - 1}), /invalid timeCost.+between \d+ and \d+/i)
 })
 
 test('hash with high time cost', async t => {
-  await t.throws(argon2.hash(password, salt, {timeCost: limits.timeCost.max + 1}), /invalid timeCost.+between \d+ and \d+/i)
+  await t.throws(argon2.hash(password, {timeCost: limits.timeCost.max + 1}), /invalid timeCost.+between \d+ and \d+/i)
 })
 
 test('hash with hash length', async t => {
   // 4 bytes ascii == 6 bytes base64
-  t.regex(await argon2.hash(password, salt, {hashLength: 4}), /\$\w{6}$/)
+  t.regex(await argon2.hash(password, {hashLength: 4}), /\$\w{6}$/)
 })
 
 test('hash with low hash length', async t => {
-  await t.throws(argon2.hash(password, salt, {hashLength: limits.hashLength.min - 1}), /invalid hashLength.+between \d+ and \d+/i)
+  await t.throws(argon2.hash(password, {hashLength: limits.hashLength.min - 1}), /invalid hashLength.+between \d+ and \d+/i)
 })
 
 test('hash with high hash length', async t => {
-  await t.throws(argon2.hash(password, salt, {hashLength: limits.hashLength.max + 1}), /invalid hashLength.+between \d+ and \d+/i)
+  await t.throws(argon2.hash(password, {hashLength: limits.hashLength.max + 1}), /invalid hashLength.+between \d+ and \d+/i)
 })
 
 test('hash with memory cost', async t => {
-  t.regex(await argon2.hash(password, salt, {memoryCost: 13}), /m=8192/)
+  t.regex(await argon2.hash(password, {memoryCost: 13}), /m=8192/)
 })
 
 test('hash with low memory cost', async t => {
-  await t.throws(argon2.hash(password, salt, {memoryCost: limits.memoryCost.min - 1}), /invalid memoryCost.+between \d+ and \d+/i)
+  await t.throws(argon2.hash(password, {memoryCost: limits.memoryCost.min - 1}), /invalid memoryCost.+between \d+ and \d+/i)
 })
 
 test('hash with high memory cost', async t => {
-  await t.throws(argon2.hash(password, salt, {memoryCost: limits.memoryCost.max + 1}), /invalid memoryCost.+between \d+ and \d+/i)
+  await t.throws(argon2.hash(password, {memoryCost: limits.memoryCost.max + 1}), /invalid memoryCost.+between \d+ and \d+/i)
 })
 
 test('hash with parallelism', async t => {
-  t.regex(await argon2.hash(password, salt, {parallelism: 2}), /p=2/)
+  t.regex(await argon2.hash(password, {parallelism: 2}), /p=2/)
 })
 
 test('hash with low parallelism', async t => {
-  await t.throws(argon2.hash(password, salt, {parallelism: limits.parallelism.min - 1}), /invalid parallelism.+between \d+ and \d+/i)
+  await t.throws(argon2.hash(password, {parallelism: limits.parallelism.min - 1}), /invalid parallelism.+between \d+ and \d+/i)
 })
 
 test('hash with high parallelism', async t => {
-  await t.throws(argon2.hash(password, salt, {parallelism: limits.parallelism.max + 1}), /invalid parallelism.+between \d+ and \d+/i)
+  await t.throws(argon2.hash(password, {parallelism: limits.parallelism.max + 1}), /invalid parallelism.+between \d+ and \d+/i)
 })
 
 test('hash with all options', async t => {
-  t.regex(await argon2.hash(password, salt, {timeCost: 4, memoryCost: 13, parallelism: 2}), /m=8192,t=4,p=2/)
-})
-
-test('async generate salt with default length', async t => {
-  t.is((await argon2.generateSalt()).length, 16)
-})
-
-test('async generate salt with specified length', async t => {
-  t.is((await argon2.generateSalt(32)).length, 32)
+  t.regex(await argon2.hash(password, {timeCost: 4, memoryCost: 13, parallelism: 2}), /m=8192,t=4,p=2/)
 })
 
 test('verify correct password', async t => {
-  t.true(await argon2.verify(await argon2.hash(password, await argon2.generateSalt()), password))
+  t.true(await argon2.verify(await argon2.hash(password), password))
 })
 
 test('verify wrong password', async t => {
-  t.false(await argon2.verify(await argon2.hash(password, await argon2.generateSalt()), 'passworld'))
+  t.false(await argon2.verify(await argon2.hash(password), 'passworld'))
 })
 
 test('verify invalid hash', async t => {
-  const hash = await argon2.hash(password, await argon2.generateSalt())
+  const hash = await argon2.hash(password)
   /* Cut just a piece of the hash making it invalid */
   await t.throws(argon2.verify(hash.slice(8), password), /invalid hash.+generated by argon2/i)
 })
 
 test('verify with null in password', async t => {
-  t.true(await argon2.verify(await argon2.hash('pass\0word', await argon2.generateSalt()), 'pass\0word'))
+  t.true(await argon2.verify(await argon2.hash('pass\0word'), 'pass\0word'))
 })
 
 test('verify argon2d correct password', async t => {
-  t.true(await argon2.verify(await argon2.hash(password, await argon2.generateSalt(), {type: argon2.argon2d}), password))
+  t.true(await argon2.verify(await argon2.hash(password, {type: argon2.argon2d}), password))
 })
 
 test('verify argon2d wrong password', async t => {
-  t.false(await argon2.verify(await argon2.hash(password, await argon2.generateSalt(), {type: argon2.argon2d}), 'passworld'))
+  t.false(await argon2.verify(await argon2.hash(password, {type: argon2.argon2d}), 'passworld'))
 })
 
 test('verify argon2id correct password', async t => {
-  t.true(await argon2.verify(await argon2.hash(password, await argon2.generateSalt(), {type: argon2.argon2id}), password))
+  t.true(await argon2.verify(await argon2.hash(password, {type: argon2.argon2id}), password))
 })
 
 test('verify argon2id wrong password', async t => {
-  t.false(await argon2.verify(await argon2.hash(password, await argon2.generateSalt(), {type: argon2.argon2id}), 'passworld'))
+  t.false(await argon2.verify(await argon2.hash(password, {type: argon2.argon2id}), 'passworld'))
 })
 
 test('js promise + setInterval', async t => {
@@ -185,7 +173,7 @@ test('js promise + setInterval', async t => {
     t.fail('Interval expired first')
   }, 5e3)
 
-  await argon2.hash(password, salt)
+  await argon2.hash(password)
   clearInterval(timer)
   t.pass()
 })
@@ -196,7 +184,7 @@ test('js promise + setTimeout', async t => {
     t.fail('Timeout expired first')
   }, 5e3)
 
-  await argon2.hash(password, salt)
+  await argon2.hash(password)
   clearTimeout(timer)
   t.pass()
 })

@@ -18,23 +18,6 @@ const defaults = Object.freeze({
 
 const limits = Object.freeze(bindings.limits)
 
-const validate = (salt, options) => new Promise((resolve, reject) => {
-  if (salt.length < 8) {
-    reject(new Error('Invalid salt, must be a buffer with 8 or more bytes.'))
-  }
-
-  for (let key of Object.keys(limits)) {
-    const max = limits[key].max
-    const min = limits[key].min
-    const value = options[key]
-    if (value > max || value < min) {
-      reject(new Error(`Invalid ${key}, must be between ${min} and ${max}.`))
-    }
-  }
-
-  resolve()
-})
-
 module.exports = {
   defaults,
   limits,
@@ -42,23 +25,24 @@ module.exports = {
   argon2i,
   argon2id,
 
-  hash (plain, salt, options) {
-    salt = Buffer.from(salt)
+  hash (plain, options) {
     options = Object.assign({}, defaults, options)
 
-    return validate(salt, options).then(() => new Promise((resolve, reject) => {
-      bindings.hash(Buffer.from(plain), salt, options, resolve, reject)
-    }))
-  },
-
-  generateSalt (length) {
     return new Promise((resolve, reject) => {
-      crypto.randomBytes(length || 16, (err, salt) => {
-        /* istanbul ignore if */
+      for (let key of Object.keys(limits)) {
+        const max = limits[key].max
+        const min = limits[key].min
+        const value = options[key]
+        if (value > max || value < min) {
+          reject(new Error(`Invalid ${key}, must be between ${min} and ${max}.`))
+        }
+      }
+
+      crypto.randomBytes(16, (err, salt) => {
         if (err) {
           reject(err)
         }
-        resolve(salt)
+        bindings.hash(Buffer.from(plain), salt, options, resolve, reject)
       })
     })
   },
