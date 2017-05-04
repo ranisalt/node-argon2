@@ -5,7 +5,7 @@
   "main": "index.js",
   "types": "index.d.ts",
   "scripts": {
-    "benchmark": "babel-node benchmark.js",
+    "benchmark": "node benchmark.js",
     "clean": "node-gyp clean",
     "test": "tsc -p . && node test-d.js && standard && nyc --reporter=lcov ava"
   },
