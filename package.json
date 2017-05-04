@@ -37,7 +37,7 @@
     "babel-plugin-transform-async-to-generator": "^6.16.0",
     "nyc": "^10.0.0",
     "object-assign": "^4.1.0",
-    "sandra": "^0.1.0",
+    "sandra": "^0.2.1",
     "standard": "^10.0.2",
     "typescript": "^2.1.5"
   },
