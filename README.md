@@ -13,15 +13,13 @@ implementation.
 
 ### Usage
 It's possible to hash a password using both Argon2i (default) Argon2d and Argon2id, sync
-and async, and to verify if a password matches a hash, and also generate random
-cryptographically-safe salts. Salts **must** be at least 8-byte long buffers.
+and async, and to verify if a password matches a hash.
 
 To hash a password:
 ```js
 const argon2 = require('argon2');
-const salt = new Buffer('somesalt');
 
-argon2.hash('password', salt).then(hash => {
+argon2.hash('password').then(hash => {
   // ...
 }).catch(err => {
   // ...
@@ -30,7 +28,7 @@ argon2.hash('password', salt).then(hash => {
 // ES7 or TypeScript
 
 try {
-  const hash = await argon2.hash("password", salt);
+  const hash = await argon2.hash("password");
 } catch (err) {
   //...
 }
@@ -38,7 +36,7 @@ try {
 You can choose between Argon2i, Argon2d and Argon2id by passing an object as the third
 argument with the `type` key set to which type you want to use:
 ```js
-argon2.hash('password', salt, {
+argon2.hash('password', {
   type: argon2.argon2d
 }).then(hash => {
   // ...
@@ -49,7 +47,7 @@ argon2.hash('password', salt, {
 // ES7 or TypeScript
 
 try {
-  const hash = await argon2.hash('password', salt, {
+  const hash = await argon2.hash('password', {
     type: argon2.argon2d
   });
 } catch (err) {
@@ -61,7 +59,7 @@ The `type` option is flexible and accepts 0, 1 or 2 for Argon2d, Argon2i and Arg
 You can also get the hash as a raw Node Buffer by passing 'true' to the 'raw' option:
 
 ```js
-argon2.hash('password', salt, {
+argon2.hash('password', {
   raw: true
 }).then(hash => {
   // ... hash is a Buffer
@@ -72,36 +70,12 @@ argon2.hash('password', salt, {
 // ES7 or TypeScript
 
 try {
-  const hash = await argon2.hash('password', salt, {
+  const hash = await argon2.hash('password', {
     raw: true
   });
 } catch (err) {
   // internal failure
 }
-```
-
-You can provide your own salt as the second parameter. It is **highly**
-recommended to use the salt generating methods instead of a hardcoded, constant
-salt:
-```js
-argon2.generateSalt().then(salt => {
-  // ...
-});
-
-// ES7 or TypeScript
-
-const salt = await argon2.generateSalt();
-```
-You can also pass a desired salt length as parameter. Although the default of 16
-is enough and very safe, Argon2 will use all salt bytes.
-```js
-argon2.generateSalt(32).then(salt => {
-  // ...
-});
-
-// ES7 or TypeScript
-
-const salt = await argon2.generateSalt(32);
 ```
 
 You can change the Promise with
@@ -116,15 +90,13 @@ const options = {
   timeCost: 4, memoryCost: 13, parallelism: 2, type: argon2.argon2d
 };
 
-argon2.generateSalt().then(salt => {
-  argon2.hash('password', salt, options).then(hash => {
-    // ...
-  });
+argon2.hash('password', options).then(hash => {
+  // ...
 });
 
 // ES7 or TypeScript
 
-const hash = await argon2.hash("password", await argon2.generateSalt(), options);
+const hash = await argon2.hash("password", options);
 ```
 
 The default parameters for Argon2 can be accessed with `defaults`:
@@ -167,8 +139,8 @@ you do not understand it, feel free to open an issue.
 A TypeScript type declaration file is published with this module. If you are
 using TypeScript >= 2.0.0 that means you do not need to install any additional
 typings in order to get access to the strongly typed interface. Simply use the
-library as mentioned above. This library uses Promises, so make sure you are 
-targeting ES6+, including the es2015.promise lib in your build, or globally 
+library as mentioned above. This library uses Promises, so make sure you are
+targeting ES6+, including the es2015.promise lib in your build, or globally
 importing a Promise typings library.
 
 Some example tsconfig.json compiler options:
@@ -203,8 +175,7 @@ language in another, and handles the type bindings (e.g. JS Number -> C++ int).
 
 The interface of both are very similar, notably node-argon2-ffi splits the
 argon2i and argon2d function set, but this module also has the argon2id option. Also, while
-node-argon2-ffi suggests you promisify `crypto.randomBytes`, this library has
-`generateSalt` which is exactly the same.
+node-argon2-ffi suggests you promisify `crypto.randomBytes, this library does that internally.
 
 Performance-wise, the libraries are equal. You can run the same benchmark suite
 if you are curious, but both can perform around 130 hashes/second on an Intel
