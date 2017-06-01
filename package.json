@@ -36,7 +36,7 @@
     "ava": "^0.19.1",
     "babel-plugin-transform-async-to-generator": "^6.16.0",
     "mockery": "^2.0.0",
-    "nyc": "^10.0.0",
+    "nyc": "^11.0.1",
     "sandra": "^0.2.1",
     "standard": "^10.0.2",
     "typescript": "^2.1.5"
