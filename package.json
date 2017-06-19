@@ -32,7 +32,7 @@
     "nan": "^2.4.0"
   },
   "devDependencies": {
-    "@types/node": "^7.0.5",
+    "@types/node": "^8.0.0",
     "ava": "^0.19.1",
     "babel-plugin-transform-async-to-generator": "^6.16.0",
     "mockery": "^2.0.0",
