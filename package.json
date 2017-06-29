@@ -33,7 +33,7 @@
   },
   "devDependencies": {
     "@types/node": "^8.0.0",
-    "ava": "^0.19.1",
+    "ava": "^0.20.0",
     "babel-plugin-transform-async-to-generator": "^6.16.0",
     "mockery": "^2.0.0",
     "nyc": "^11.0.1",
