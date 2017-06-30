@@ -9,6 +9,10 @@ module.exports = {
       "ecmaVersion": 2017
     },
     "rules": {
+        "comma-dangle": [
+            "error",
+            "never"
+        ],
         "indent": [
             "error",
             4
@@ -24,6 +28,6 @@ module.exports = {
         "semi": [
             "error",
             "always"
-        ]
+        ],
     }
 };

@@ -38,7 +38,7 @@ module.exports = {
         }
       }
 
-      crypto.randomBytes(16, (err, salt) => {
+      (options == null || options.saltGeneratorF == null ? crypto.randomBytes : options.saltGeneratorF)(16, (err, salt) => {
         if (err) {
           reject(err)
         }
