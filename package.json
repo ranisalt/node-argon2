@@ -6,7 +6,7 @@
   "types": "index.d.ts",
   "scripts": {
     "benchmark": "node benchmark.js",
-    "clean": "node-gyp clean",
+    "clean": "node-gyp clean && rm -r .nyc_output",
     "test": "tsc -p . && node test-d.js && standard && nyc --reporter=lcov ava"
   },
   "repository": {
