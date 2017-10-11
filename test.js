@@ -8,8 +8,7 @@ mockery.registerMock('crypto', {
 mockery.enable({useCleanCache: true, warnOnUnregistered: false})
 
 const argon2 = require('argon2')
-const defaults = argon2.defaults
-const limits = argon2.limits
+const {defaults, limits} = argon2
 const password = 'password'
 
 // Like argon2's modified base64 implementation, expect function truncates any

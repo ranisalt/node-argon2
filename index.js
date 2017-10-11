@@ -30,8 +30,7 @@ module.exports = {
 
     return new Promise((resolve, reject) => {
       for (let key of Object.keys(limits)) {
-        const max = limits[key].max
-        const min = limits[key].min
+        const {max, min} = limits[key]
         const value = options[key]
         if (value > max || value < min) {
           reject(new Error(`Invalid ${key}, must be between ${min} and ${max}.`))
