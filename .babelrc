@@ -1,5 +1,0 @@
-{
-  "ignore": ["index.js"],
-  "plugins": ["transform-async-to-generator"],
-  "sourceMaps": "inline"
-}

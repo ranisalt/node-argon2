@@ -7,7 +7,7 @@
   "scripts": {
     "benchmark": "node benchmark.js",
     "clean": "node-gyp clean && rm -r .nyc_output",
-    "test": "tsc -p . && node test-d.js && standard && nyc --reporter=lcov ava"
+    "test": "tsc -p . && node test-d.js && standard index.js && nyc --reporter=lcov jest"
   },
   "repository": {
     "type": "git",
@@ -33,8 +33,7 @@
   },
   "devDependencies": {
     "@types/node": "^8.0.0",
-    "ava": "^0.22.0",
-    "babel-plugin-transform-async-to-generator": "^6.16.0",
+    "jest": "^21.2.1",
     "mockery": "^2.0.0",
     "nyc": "^11.0.1",
     "sandra": "^0.2.1",
