@@ -159,27 +159,3 @@ test('verify argon2id correct password', () => {
 test('verify argon2id wrong password', () => {
   expect(argon2.hash(password, {type: argon2.argon2id}).then(hash => argon2.verify(hash, 'passworld'))).resolves.toBeFalsy()
 })
-
-test('js promise + setInterval', done => {
-  const timer = setInterval(() => {
-    /* istanbul ignore next */
-    done('Interval expired first')
-  }, 5e3)
-
-  argon2.hash(password).then(() => {
-    clearInterval(timer)
-    done()
-  })
-})
-
-test('js promise + setTimeout', done => {
-  const timer = setTimeout(() => {
-    /* istanbul ignore next */
-    done('Timeout expired first')
-  }, 5e3)
-
-  argon2.hash(password).then(() => {
-    clearTimeout(timer)
-    done()
-  })
-})
