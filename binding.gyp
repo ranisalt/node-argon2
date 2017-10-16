@@ -54,7 +54,7 @@
         "Debug": {
           "conditions": [
             ["OS == 'linux'", {
-              "cflags": ["--coverage", "-Wall", "-Wextra"],
+              "cflags": ["--coverage"],
               "ldflags": ["-fprofile-arcs", "-ftest-coverage"],
             }]
           ]
