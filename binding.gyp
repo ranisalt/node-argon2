@@ -10,6 +10,13 @@
           "MACOSX_DEPLOYMENT_TARGET": "10.9",
         }
       }]
+    ],
+    "target_configurations": [
+      [{
+        "Release": {
+          "defines+": ["NDEBUG"]
+        }
+      }]
     ]
   },
   "targets": [
@@ -51,9 +58,6 @@
               "ldflags": ["-fprofile-arcs", "-ftest-coverage"],
             }]
           ]
-        },
-        "Release": {
-          "defines+": ["NDEBUG"]
         }
       }
     }
