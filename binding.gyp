@@ -1,5 +1,6 @@
 {
   "target_defaults": {
+    "defines": ["_FORTIFY_SOURCE=2"],
     "include_dirs": ["argon2/include"],
     "target_conditions": [
       ["OS != 'win'", {
