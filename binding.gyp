@@ -1,5 +1,6 @@
 {
   "target_defaults": {
+    "include_dirs": ["argon2/include"],
     "target_conditions": [
       ["OS != 'win'", {
         "cflags+": ["-fdata-sections", "-ffunction-sections", "-fvisibility=hidden", "-march=native"],
@@ -29,7 +30,6 @@
         "argon2/src/thread.c",
         "argon2/src/encoding.c",
       ],
-      "include_dirs": ["argon2/include"],
       "cflags+": ["-Wno-type-limits"],
       "conditions": [
         ["target_arch == 'ia32' or target_arch == 'x64'", {
@@ -45,10 +45,7 @@
       "sources": [
         "src/argon2_node.cpp"
       ],
-      "include_dirs": [
-        "<!(node -e \"require('nan')\")",
-        "argon2/include"
-      ],
+      "include_dirs+": ["<!(node -e \"require('nan')\")"],
       "dependencies": ["libargon2"],
       "configurations": {
         "Debug": {
