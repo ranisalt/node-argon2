@@ -12,13 +12,11 @@
         }
       }]
     ],
-    "target_configurations": [
-      [{
-        "Release": {
-          "defines+": ["NDEBUG"]
-        }
-      }]
-    ]
+    "configurations": {
+      "Release": {
+        "defines+": ["NDEBUG"]
+      }
+    }
   },
   "targets": [
     {
