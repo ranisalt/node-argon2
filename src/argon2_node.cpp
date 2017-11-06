@@ -36,7 +36,8 @@ constexpr size_type base64Length(size_type length)
 size_type encodedLength(size_type hashLength, size_type saltLength)
 {
     /* statically calculate maximum encoded hash length */
-    constexpr size_type extraLength = sizeof "$argon2x$m=,t=,p=$$" +
+    constexpr size_type extraLength = sizeof "$argon2xx$v=$m=,t=,p=$$" +
+        log(static_cast<uint64_t>(ARGON2_VERSION_NUMBER) + 1u, 10u) +
         log(static_cast<uint64_t>(ARGON2_MAX_MEMORY) + 1u, 10u) +
         log(static_cast<uint64_t>(ARGON2_MAX_TIME) + 1u, 10u) +
         log(static_cast<uint64_t>(ARGON2_MAX_LANES) + 1u, 10u);
