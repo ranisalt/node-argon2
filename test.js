@@ -1,4 +1,4 @@
-'use strict'
+/* global expect, test */
 const mockery = require('mockery')
 mockery.registerMock('crypto', {
   randomBytes (size, callback) {
