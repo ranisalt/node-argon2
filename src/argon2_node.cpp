@@ -23,18 +23,15 @@ enum OBJECTS {
     REJECT,
 };
 
-constexpr uint32_t log(uint64_t number, uint64_t base = 2u)
-{
+constexpr uint32_t log(uint64_t number, uint64_t base = 2u) {
     return (number > 1) ? 1u + log(number / base, base) : 0u;
 }
 
-constexpr size_type base64Length(size_type length)
-{
+constexpr size_type base64Length(size_type length) {
     return ((length + 2u) / 3u) * 4u;
 }
 
-size_type encodedLength(size_type hashLength, size_type saltLength)
-{
+size_type encodedLength(size_type hashLength, size_type saltLength) {
     /* statically calculate maximum encoded hash length */
     constexpr size_type extraLength = sizeof "$argon2xx$v=$m=,t=,p=$$" +
         log(static_cast<uint64_t>(ARGON2_VERSION_NUMBER) + 1u, 10u) +
@@ -51,8 +48,7 @@ HashWorker::HashWorker(std::string&& plain, std::string&& salt,
     hash_length{l}, time_cost{t}, memory_cost{m}, parallelism{p}, type{a}, raw{raw}
 { }
 
-void HashWorker::Execute()
-{
+void HashWorker::Execute() {
     int result;
 
     if (raw) {
@@ -77,8 +73,7 @@ void HashWorker::Execute()
     }
 }
 
-void HashWorker::HandleOKCallback()
-{
+void HashWorker::HandleOKCallback() {
     using namespace v8;
     using std::strlen;
 
@@ -96,8 +91,7 @@ void HashWorker::HandleOKCallback()
 }
 
 /* LCOV_EXCL_START */
-void HashWorker::HandleErrorCallback()
-{
+void HashWorker::HandleErrorCallback() {
     using namespace v8;
 
     Nan::HandleScope scope;
@@ -139,11 +133,10 @@ NAN_METHOD(Hash) {
 }
 
 VerifyWorker::VerifyWorker(std::string&& hash, std::string&& plain):
-    Nan::AsyncWorker{nullptr}, hash{std::move(hash)}, plain{std::move(plain)}
-{ }
+    Nan::AsyncWorker{nullptr}, hash{std::move(hash)}, plain{std::move(plain)} {
+}
 
-void VerifyWorker::Execute()
-{
+void VerifyWorker::Execute() {
     argon2_type type;
 
     if(hash.at(7) == 'd') {
@@ -171,8 +164,7 @@ void VerifyWorker::Execute()
     }
 }
 
-void VerifyWorker::HandleOKCallback()
-{
+void VerifyWorker::HandleOKCallback() {
     using namespace v8;
 
     Nan::HandleScope scope;
@@ -183,8 +175,7 @@ void VerifyWorker::HandleOKCallback()
 }
 
 /* LCOV_EXCL_START */
-void VerifyWorker::HandleErrorCallback()
-{
+void VerifyWorker::HandleErrorCallback() {
     using namespace v8;
 
     Nan::HandleScope scope;

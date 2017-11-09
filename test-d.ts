@@ -10,20 +10,21 @@ const passwordBuffer = new Buffer("password");
 
 // hashes for argon2i and argon2d with default options
 const hashes = Object.freeze({
-    argon2i: "$argon2i$v=19$m=4096,t=3,p=1$c29tZXNhbHQ$iWh06vD8Fy27wf9npn6FXWiCX4K6pW6Ue1Bnzz07Z8A",
-    argon2d: "$argon2d$v=19$m=4096,t=3,p=1$c29tZXNhbHQ$2+JCoQtY/2x5F0VB9pEVP3xBNguWP1T25Ui0PtZuk8o"
+    argon2d: "$argon2d$v=19$m=4096,t=3,p=1$c29tZXNhbHQ$2+JCoQtY/2x5F0VB9pEVP3xBNguWP1T25Ui0PtZuk8o",
+    argon2i: "$argon2i$v=19$m=4096,t=3,p=1$c29tZXNhbHQ$iWh06vD8Fy27wf9npn6FXWiCX4K6pW6Ue1Bnzz07Z8A"
 });
 
 function test_options() {
-    const defaults: argon2.Options = {
+    const defaults: argon2.IOptions = {
         hashLength: 32,
-        timeCost: 3,
         memoryCost: 12,
         parallelism: 1,
+        raw: false,
+        timeCost: 3,
         type: argon2.argon2i,
-        raw: false
     };
 
+    /* tslint:disable:no-console */ // `t.deepEqual` rather than a `console.log`?
     console.log(argon2.defaults.hashLength === defaults.hashLength);
     console.log(argon2.defaults.timeCost === defaults.timeCost);
     console.log(argon2.defaults.memoryCost === defaults.memoryCost);
