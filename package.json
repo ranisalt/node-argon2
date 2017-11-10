@@ -34,7 +34,6 @@
   "devDependencies": {
     "@types/node": "^8.0.0",
     "jest": "^21.2.1",
-    "mockery": "^2.0.0",
     "nyc": "^11.0.1",
     "sandra": "^0.2.1",
     "standard": "^10.0.2",
