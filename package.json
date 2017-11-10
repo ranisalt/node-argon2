@@ -41,7 +41,7 @@
     "typescript": "^2.1.5"
   },
   "engines": {
-    "node": ">=4.0.0"
+    "node": ">=6.0.0"
   },
   "ava": {
     "files": [
