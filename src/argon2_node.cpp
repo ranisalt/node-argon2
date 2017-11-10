@@ -9,6 +9,8 @@
 
 namespace NodeArgon2 {
 
+namespace {
+
 template<class T = uint32_t>
 T fromJust(v8::Local<v8::Value> info) {
     return Nan::To<T>(info).FromJust();
@@ -23,58 +25,57 @@ enum OBJECTS {
     REJECT,
 };
 
-constexpr uint32_t log(uint64_t number, uint64_t base = 2u)
+constexpr uint32_t log2(uint64_t number)
 {
-    return (number > 1) ? 1u + log(number / base, base) : 0u;
+    return (number > 1) ? 1u + log2(number / 2) : 0u;
 }
 
-constexpr size_type base64Length(size_type length)
-{
-    return ((length + 2u) / 3u) * 4u;
 }
 
-size_type encodedLength(size_type hashLength, size_type saltLength)
-{
-    /* statically calculate maximum encoded hash length */
-    constexpr size_type extraLength = sizeof "$argon2xx$v=$m=,t=,p=$$" +
-        log(static_cast<uint64_t>(ARGON2_VERSION_NUMBER) + 1u, 10u) +
-        log(static_cast<uint64_t>(ARGON2_MAX_MEMORY) + 1u, 10u) +
-        log(static_cast<uint64_t>(ARGON2_MAX_TIME) + 1u, 10u) +
-        log(static_cast<uint64_t>(ARGON2_MAX_LANES) + 1u, 10u);
-
-    return extraLength + base64Length(hashLength) + base64Length(saltLength);
-}
-
-HashWorker::HashWorker(std::string&& plain, std::string&& salt,
-        uint32_t l, uint32_t t, uint32_t m, uint32_t p, argon2_type a, bool raw):
+HashWorker::HashWorker(std::string plain, std::string salt,
+        uint32_t hash_length, uint32_t time_cost, uint32_t memory_cost,
+        uint32_t parallelism, argon2_type type, bool raw):
     Nan::AsyncWorker{nullptr}, plain{std::move(plain)}, salt{std::move(salt)},
-    hash_length{l}, time_cost{t}, memory_cost{m}, parallelism{p}, type{a}, raw{raw}
+    hash_length{hash_length}, time_cost{time_cost},
+    memory_cost{1u << memory_cost}, parallelism{parallelism}, type{type},
+    raw{raw}
 { }
 
 void HashWorker::Execute()
 {
-    int result;
+    char buf[hash_length];
+    argon2_context ctx;
 
-    if (raw) {
-        output.reset(new char[hash_length]);
+    ctx.out = reinterpret_cast<uint8_t*>(buf);
+    ctx.outlen = hash_length;
+    ctx.pwd = reinterpret_cast<uint8_t*>(const_cast<char*>(plain.data()));
+    ctx.pwdlen = plain.size();
+    ctx.salt = reinterpret_cast<uint8_t*>(const_cast<char*>(salt.data()));
+    ctx.saltlen = salt.size();
+    ctx.secret = nullptr;
+    ctx.secretlen = 0;
+    ctx.ad = nullptr;
+    ctx.adlen = 0;
+    ctx.t_cost = time_cost;
+    ctx.m_cost = memory_cost;
+    ctx.lanes = parallelism;
+    ctx.threads = parallelism;
+    ctx.allocate_cbk = nullptr;
+    ctx.free_cbk = nullptr;
+    ctx.flags = ARGON2_DEFAULT_FLAGS;
+    ctx.version = ARGON2_VERSION_NUMBER;
 
-        result = argon2_hash(time_cost, 1u << memory_cost, parallelism,
-                plain.c_str(), plain.size(), salt.c_str(), salt.size(), output.get(),
-                hash_length, nullptr, 0, type, ARGON2_VERSION_NUMBER);
-    } else {
-        const auto ENCODED_LEN = encodedLength(hash_length, salt.size());
-        output.reset(new char[ENCODED_LEN]);
-
-        result = argon2_hash(time_cost, 1u << memory_cost, parallelism,
-                plain.c_str(), plain.size(), salt.c_str(), salt.size(), nullptr,
-                hash_length, output.get(), ENCODED_LEN, type, ARGON2_VERSION_NUMBER);
-    }
+    int result = argon2_ctx(&ctx, type);
 
     if (result != ARGON2_OK) {
         /* LCOV_EXCL_START */
         SetErrorMessage(argon2_error_message(result));
         /* LCOV_EXCL_STOP */
+    } else {
+        output.assign(buf, hash_length);
     }
+
+    std::fill_n(buf, hash_length, 0);
 }
 
 void HashWorker::HandleOKCallback()
@@ -84,15 +85,11 @@ void HashWorker::HandleOKCallback()
 
     Nan::HandleScope scope;
 
-    if (raw) {
-        Local<Value> argv[] = {Nan::NewBuffer(output.release(), hash_length).ToLocalChecked()};
-        Nan::MakeCallback(GetFromPersistent(THIS_OBJ).As<Object>(),
-            GetFromPersistent(RESOLVE).As<Function>(), 1, argv);
-    } else {
-        Local<Value> argv[] = {Nan::Encode(output.get(), strlen(output.get()))};
-        Nan::MakeCallback(GetFromPersistent(THIS_OBJ).As<Object>(),
-            GetFromPersistent(RESOLVE).As<Function>(), 1, argv);
-    }
+    Local<Value> argv[] = {
+        Nan::NewBuffer(strdup(output.c_str()), output.size()).ToLocalChecked()
+    };
+    Nan::MakeCallback(GetFromPersistent(THIS_OBJ).As<Object>(),
+        GetFromPersistent(RESOLVE).As<Function>(), 1, argv);
 }
 
 /* LCOV_EXCL_START */
@@ -112,11 +109,14 @@ NAN_METHOD(Hash) {
     using namespace node;
     using namespace v8;
 
-    assert(info.Length() >= 5);
+    assert(info.Length() >= 4);
 
     const auto plain = Nan::To<Object>(info[0]).ToLocalChecked();
-    const auto salt = Nan::To<Object>(info[1]).ToLocalChecked();
-    const auto options = Nan::To<Object>(info[2]).ToLocalChecked();
+    const auto options = Nan::To<Object>(info[1]).ToLocalChecked();
+
+    const auto saltKey = Nan::New("salt").ToLocalChecked();
+    const auto saltValue = Nan::Get(options, saltKey).ToLocalChecked();
+    const auto salt = Nan::To<Object>(saltValue).ToLocalChecked();
 
     const auto getArg = [&](const char* key) {
         auto localKey = Nan::New(key).ToLocalChecked();
@@ -132,8 +132,8 @@ NAN_METHOD(Hash) {
             };
 
     worker->SaveToPersistent(THIS_OBJ, info.This());
-    worker->SaveToPersistent(RESOLVE, Local<Function>::Cast(info[3]));
-    worker->SaveToPersistent(REJECT, Local<Function>::Cast(info[4]));
+    worker->SaveToPersistent(RESOLVE, Local<Function>::Cast(info[2]));
+    worker->SaveToPersistent(REJECT, Local<Function>::Cast(info[3]));
 
     Nan::AsyncQueueWorker(worker);
 }
@@ -227,11 +227,27 @@ NAN_MODULE_INIT(init) {
     };
 
     setMaxMin("hashLength", ARGON2_MAX_OUTLEN, ARGON2_MIN_OUTLEN);
-    setMaxMin("memoryCost", log(ARGON2_MAX_MEMORY), log(ARGON2_MIN_MEMORY));
+    setMaxMin("memoryCost", log2(ARGON2_MAX_MEMORY), log2(ARGON2_MIN_MEMORY));
     setMaxMin("timeCost", ARGON2_MAX_TIME, ARGON2_MIN_TIME);
     setMaxMin("parallelism", ARGON2_MAX_LANES, ARGON2_MIN_LANES);
 
+    auto types = Nan::New<Object>();
+
+    const auto setType = [&](argon2_type type) {
+        Nan::Set(types,
+                Nan::New(argon2_type2string(type, false)).ToLocalChecked(),
+                Nan::New<Number>(type));
+    };
+
+    setType(Argon2_d);
+    setType(Argon2_i);
+    setType(Argon2_id);
+
     Nan::Set(target, Nan::New("limits").ToLocalChecked(), limits);
+    Nan::Set(target, Nan::New("types").ToLocalChecked(), types);
+    Nan::Set(target, Nan::New("version").ToLocalChecked(),
+            Nan::New<Number>(ARGON2_VERSION_NUMBER));
+
     Nan::Export(target, "hash", Hash);
     Nan::Export(target, "verify", Verify);
 }

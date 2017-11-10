@@ -1,15 +1,8 @@
 /* global expect, test */
-const mockery = require('mockery')
-mockery.registerMock('crypto', {
-  randomBytes (size, callback) {
-    callback(null, Buffer.alloc(size, 'salt'))
-  }
-})
-mockery.enable({useCleanCache: true, warnOnUnregistered: false})
-
 const argon2 = require('argon2')
 const {defaults, limits} = argon2
 const password = 'password'
+const salt = Buffer.alloc(16, 'salt')
 
 // Like argon2's modified base64 implementation, expect function truncates any
 // trailing '=' characters for a more compact representation.
@@ -38,49 +31,49 @@ test('defaults', () => {
 })
 
 test('basic hash', () => {
-  return argon2.hash(password).then(hash => {
+  return argon2.hash(password, {salt}).then(hash => {
     expect(hash).toBe(hashes.argon2i)
   })
 })
 
 test('hash with null in password', () => {
-  return argon2.hash('pass\0word').then(hash => {
+  return argon2.hash('pass\0word', {salt}).then(hash => {
     expect(hash).toBe(hashes.withNull)
   })
 })
 
 test('with raw hash', () => {
-  return argon2.hash(password, {raw: true}).then(hash => {
+  return argon2.hash(password, {raw: true, salt}).then(hash => {
     expect(hash).toEqual(hashes.rawArgon2i)
   })
 })
 
 test('with raw hash, null in password', () => {
-  return argon2.hash('pass\0word', {raw: true}).then(hash => {
+  return argon2.hash('pass\0word', {raw: true, salt}).then(hash => {
     expect(hash).toEqual(hashes.rawWithNull)
   })
 })
 
 test('hash with argon2d', () => {
-  return argon2.hash(password, {type: argon2.argon2d}).then(hash => {
+  return argon2.hash(password, {type: argon2.argon2d, salt}).then(hash => {
     expect(hash).toBe(hashes.argon2d)
   })
 })
 
 test('argon2d with raw hash', () => {
-  return argon2.hash(password, {type: argon2.argon2d, raw: true}).then(hash => {
+  return argon2.hash(password, {type: argon2.argon2d, raw: true, salt}).then(hash => {
     expect(hash).toEqual(hashes.rawArgon2d)
   })
 })
 
 test('hash with argon2id', () => {
-  return argon2.hash(password, {type: argon2.argon2id}).then(hash => {
+  return argon2.hash(password, {type: argon2.argon2id, salt}).then(hash => {
     expect(hash).toBe(hashes.argon2id)
   })
 })
 
 test('argon2id with raw hash', () => {
-  return argon2.hash(password, {type: argon2.argon2id, raw: true}).then(hash => {
+  return argon2.hash(password, {type: argon2.argon2id, raw: true, salt}).then(hash => {
     expect(hash).toEqual(hashes.rawArgon2id)
   })
 })

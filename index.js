@@ -3,27 +3,24 @@ const crypto = require('crypto')
 const bindings = require('bindings')('argon2')
 const Promise = require('any-promise')
 
-const argon2d = 0
-const argon2i = 1
-const argon2id = 2
+const limits = Object.freeze(bindings.limits)
+const types = Object.freeze(bindings.types)
+const version = bindings.version
 
 const defaults = Object.freeze({
   hashLength: 32,
   timeCost: 3,
   memoryCost: 12,
   parallelism: 1,
-  type: argon2i,
+  type: types.argon2i,
   raw: false
 })
 
-const limits = Object.freeze(bindings.limits)
+const type2string = []
 
 module.exports = {
   defaults,
   limits,
-  argon2d,
-  argon2i,
-  argon2id,
 
   hash (plain, options) {
     options = Object.assign({}, defaults, options)
@@ -37,11 +34,34 @@ module.exports = {
         }
       }
 
+      if ('salt' in options) {
+        return resolve()
+      }
+
       crypto.randomBytes(16, (err, salt) => {
         if (err) {
           reject(err)
         }
-        bindings.hash(Buffer.from(plain), salt, options, resolve, reject)
+        options.salt = salt
+        resolve()
+      })
+    }).then(() => {
+      return new Promise((resolve, reject) => {
+        bindings.hash(Buffer.from(plain), options, resolve, reject)
+      })
+    }).then(hash => {
+      return new Promise((resolve, reject) => {
+        if (options.raw) {
+          resolve(hash)
+        }
+
+        const algo = `\$${type2string[options.type]}\$v=${version}`
+        const params = [`m=${1 << options.memoryCost}`,
+                        `t=${options.timeCost}`,
+                        `p=${options.parallelism}`].join(',')
+        const base64hash = hash.toString('base64').replace(/=/g, '')
+        const base64salt = options.salt.toString('base64').replace(/=/g, '')
+        resolve([algo, params, base64salt, base64hash].join('$'))
       })
     })
   },
@@ -51,4 +71,9 @@ module.exports = {
       bindings.verify(Buffer.from(hash), Buffer.from(plain), resolve, reject)
     })
   }
+}
+
+for (const k of Object.keys(types)) {
+  module.exports[k] = types[k]
+  type2string[types[k]] = k
 }
