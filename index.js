@@ -55,10 +55,12 @@ module.exports = {
           resolve(hash)
         }
 
-        const algo = `\$${type2string[options.type]}\$v=${version}`
-        const params = [`m=${1 << options.memoryCost}`,
-                        `t=${options.timeCost}`,
-                        `p=${options.parallelism}`].join(',')
+        const algo = `$${type2string[options.type]}$v=${version}`
+        const params = [
+          `m=${1 << options.memoryCost}`,
+          `t=${options.timeCost}`,
+          `p=${options.parallelism}`
+        ].join(',')
         const base64hash = hash.toString('base64').replace(/=/g, '')
         const base64salt = options.salt.toString('base64').replace(/=/g, '')
         resolve([algo, params, base64salt, base64hash].join('$'))
