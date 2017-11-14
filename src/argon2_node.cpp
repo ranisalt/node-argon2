@@ -29,10 +29,10 @@ constexpr uint32_t log2(uint64_t number)
 
 HashWorker::HashWorker(std::string plain, std::string salt,
         uint32_t hash_length, uint32_t time_cost, uint32_t memory_cost,
-        uint32_t parallelism, argon2_type type, bool raw):
+        uint32_t parallelism, argon2_type type):
     Nan::AsyncWorker{nullptr}, plain{std::move(plain)}, salt{std::move(salt)},
     hash_length{hash_length}, time_cost{time_cost}, memory_cost{memory_cost},
-    parallelism{parallelism}, type{type}, raw{raw}
+    parallelism{parallelism}, type{type}
 { }
 
 void HashWorker::Execute()
@@ -125,7 +125,6 @@ NAN_METHOD(Hash) {
         to_just<uint32_t>(from_object(options, "memoryCost")),
         to_just<uint32_t>(from_object(options, "parallelism")),
         argon2_type(to_just<uint32_t>(from_object(options, "type"))),
-        to_just<bool>(from_object(options, "raw"))
     };
 
     worker->SaveToPersistent(THIS_OBJ, info.This());

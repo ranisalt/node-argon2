@@ -10,7 +10,7 @@ class HashWorker final: public Nan::AsyncWorker {
 public:
     HashWorker(std::string plain, std::string salt, uint32_t hash_length,
             uint32_t time_cost, uint32_t memory_cost, uint32_t parallelism,
-            argon2_type, bool raw);
+            argon2_type);
 
     void Execute() override;
 
@@ -30,8 +30,6 @@ private:
     uint32_t parallelism;
 
     argon2_type type;
-
-    bool raw;
 };
 
 class VerifyWorker final: public Nan::AsyncWorker {
