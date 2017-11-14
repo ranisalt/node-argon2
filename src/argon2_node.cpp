@@ -11,11 +11,6 @@ namespace NodeArgon2 {
 
 namespace {
 
-template<class T = uint32_t>
-T fromJust(v8::Local<v8::Value> info) {
-    return Nan::To<T>(info).FromJust();
-}
-
 using size_type = std::string::size_type;
 
 enum OBJECTS {
@@ -36,9 +31,8 @@ HashWorker::HashWorker(std::string plain, std::string salt,
         uint32_t hash_length, uint32_t time_cost, uint32_t memory_cost,
         uint32_t parallelism, argon2_type type, bool raw):
     Nan::AsyncWorker{nullptr}, plain{std::move(plain)}, salt{std::move(salt)},
-    hash_length{hash_length}, time_cost{time_cost},
-    memory_cost{1u << memory_cost}, parallelism{parallelism}, type{type},
-    raw{raw}
+    hash_length{hash_length}, time_cost{time_cost}, memory_cost{memory_cost},
+    parallelism{parallelism}, type{type}, raw{raw}
 { }
 
 void HashWorker::Execute()
@@ -57,7 +51,7 @@ void HashWorker::Execute()
     ctx.ad = nullptr;
     ctx.adlen = 0;
     ctx.t_cost = time_cost;
-    ctx.m_cost = memory_cost;
+    ctx.m_cost = 1u << memory_cost;
     ctx.lanes = parallelism;
     ctx.threads = parallelism;
     ctx.allocate_cbk = nullptr;
@@ -80,60 +74,63 @@ void HashWorker::Execute()
 
 void HashWorker::HandleOKCallback()
 {
-    using namespace v8;
-    using std::strlen;
-
     Nan::HandleScope scope;
 
-    Local<Value> argv[] = {
-        Nan::NewBuffer(strdup(output.c_str()), output.size()).ToLocalChecked()
+    v8::Local<v8::Value> argv[] = {
+        Nan::NewBuffer(strdup(output.data()), output.size()).ToLocalChecked()
     };
-    Nan::MakeCallback(GetFromPersistent(THIS_OBJ).As<Object>(),
-        GetFromPersistent(RESOLVE).As<Function>(), 1, argv);
+    Nan::MakeCallback(GetFromPersistent(THIS_OBJ).As<v8::Object>(),
+        GetFromPersistent(RESOLVE).As<v8::Function>(), 1, argv);
 }
 
 /* LCOV_EXCL_START */
 void HashWorker::HandleErrorCallback()
 {
-    using namespace v8;
-
     Nan::HandleScope scope;
 
-    Local<Value> argv[] = {Nan::New(ErrorMessage()).ToLocalChecked()};
-    Nan::MakeCallback(GetFromPersistent(THIS_OBJ).As<Object>(),
-            GetFromPersistent(REJECT).As<Function>(), 1, argv);
+    v8::Local<v8::Value> argv[] = {Nan::New(ErrorMessage()).ToLocalChecked()};
+    Nan::MakeCallback(GetFromPersistent(THIS_OBJ).As<v8::Object>(),
+            GetFromPersistent(REJECT).As<v8::Function>(), 1, argv);
 }
 /* LCOV_EXCL_STOP */
 
+template<class Object>
+v8::Local<v8::Value> from_object(const Object& object, const char* key) {
+    return Nan::Get(object, Nan::New(key).ToLocalChecked()).ToLocalChecked();
+}
+
+template<class ReturnValue, class T>
+ReturnValue to_just(const T& object) {
+    return Nan::To<ReturnValue>(object).FromJust();
+}
+
+template<class T>
+std::string to_string(const T& object) {
+    auto&& conv = Nan::To<v8::Object>(object).ToLocalChecked();
+    return {node::Buffer::Data(conv), node::Buffer::Length(conv)};
+}
+
 NAN_METHOD(Hash) {
-    using namespace node;
-    using namespace v8;
+    assert(info.Length() == 4);
 
-    assert(info.Length() >= 4);
+    auto&& plain = to_string(info[0]);
+    auto&& options = Nan::To<v8::Object>(info[1]).ToLocalChecked();
 
-    const auto plain = Nan::To<Object>(info[0]).ToLocalChecked();
-    const auto options = Nan::To<Object>(info[1]).ToLocalChecked();
-
-    const auto saltKey = Nan::New("salt").ToLocalChecked();
-    const auto saltValue = Nan::Get(options, saltKey).ToLocalChecked();
-    const auto salt = Nan::To<Object>(saltValue).ToLocalChecked();
-
-    const auto getArg = [&](const char* key) {
-        auto localKey = Nan::New(key).ToLocalChecked();
-        return Nan::Get(options, localKey).ToLocalChecked();
-    };
+    auto&& salt = to_string(from_object(options, "salt"));
 
     auto worker = new HashWorker{
-            {Buffer::Data(plain), Buffer::Length(plain)},
-            {Buffer::Data(salt), Buffer::Length(salt)},
-            fromJust(getArg("hashLength")), fromJust(getArg("timeCost")),
-            fromJust(getArg("memoryCost")), fromJust(getArg("parallelism")),
-            argon2_type(fromJust(getArg("type"))), fromJust<bool>(getArg("raw"))
-            };
+        std::move(plain), std::move(salt),
+        to_just<uint32_t>(from_object(options, "hashLength")),
+        to_just<uint32_t>(from_object(options, "timeCost")),
+        to_just<uint32_t>(from_object(options, "memoryCost")),
+        to_just<uint32_t>(from_object(options, "parallelism")),
+        argon2_type(to_just<uint32_t>(from_object(options, "type"))),
+        to_just<bool>(from_object(options, "raw"))
+    };
 
     worker->SaveToPersistent(THIS_OBJ, info.This());
-    worker->SaveToPersistent(RESOLVE, Local<Function>::Cast(info[2]));
-    worker->SaveToPersistent(REJECT, Local<Function>::Cast(info[3]));
+    worker->SaveToPersistent(RESOLVE, v8::Local<v8::Function>::Cast(info[2]));
+    worker->SaveToPersistent(REJECT, v8::Local<v8::Function>::Cast(info[3]));
 
     Nan::AsyncQueueWorker(worker);
 }
@@ -144,19 +141,11 @@ VerifyWorker::VerifyWorker(std::string&& hash, std::string&& plain):
 
 void VerifyWorker::Execute()
 {
-    argon2_type type;
+    argon2_type type = hash.at(7) == 'd' ? Argon2_d
+                     : hash.at(8) == 'd' ? Argon2_id
+                     : Argon2_i;
 
-    if(hash.at(7) == 'd') {
-        type = Argon2_d;
-    }
-    else if(hash.at(8) == 'd') {
-        type = Argon2_id;
-    }
-    else {
-        type = Argon2_i;
-    }
-
-    auto result = argon2_verify(hash.c_str(), plain.c_str(), plain.size(), type);
+    auto result = argon2_verify(hash.data(), plain.data(), plain.size(), type);
 
     switch (result) {
         case ARGON2_OK:
@@ -173,56 +162,46 @@ void VerifyWorker::Execute()
 
 void VerifyWorker::HandleOKCallback()
 {
-    using namespace v8;
-
     Nan::HandleScope scope;
 
-    Local<Value> argv[] = {Nan::New(output)};
-    Nan::MakeCallback(GetFromPersistent(THIS_OBJ).As<Object>(),
-            GetFromPersistent(RESOLVE).As<Function>(), 1, argv);
+    v8::Local<v8::Value> argv[] = {Nan::New(output)};
+    Nan::MakeCallback(GetFromPersistent(THIS_OBJ).As<v8::Object>(),
+            GetFromPersistent(RESOLVE).As<v8::Function>(), 1, argv);
 }
 
 /* LCOV_EXCL_START */
 void VerifyWorker::HandleErrorCallback()
 {
-    using namespace v8;
-
     Nan::HandleScope scope;
 
-    Local<Value> argv[] = {Nan::New(ErrorMessage()).ToLocalChecked()};
-    Nan::MakeCallback(GetFromPersistent(THIS_OBJ).As<Object>(),
-            GetFromPersistent(REJECT).As<Function>(), 1, argv);
+    v8::Local<v8::Value> argv[] = {Nan::New(ErrorMessage()).ToLocalChecked()};
+    Nan::MakeCallback(GetFromPersistent(THIS_OBJ).As<v8::Object>(),
+            GetFromPersistent(REJECT).As<v8::Function>(), 1, argv);
 }
 /* LCOV_EXCL_STOP */
 
 NAN_METHOD(Verify) {
-    using namespace node;
-    using namespace v8;
+    assert(info.Length() == 4);
 
-    assert(info.Length() >= 4);
+    auto&& hash = to_string(info[0]);
+    auto&& plain = to_string(info[1]);
 
-    const auto hash = Nan::To<Object>(info[0]).ToLocalChecked();
-    const auto plain = Nan::To<Object>(info[1]).ToLocalChecked();
-
-    auto worker = new VerifyWorker{{Buffer::Data(hash), Buffer::Length(hash)},
-            {Buffer::Data(plain), Buffer::Length(plain)}};
+    auto worker = new VerifyWorker{std::move(hash), std::move(plain)};
 
     worker->SaveToPersistent(THIS_OBJ, info.This());
-    worker->SaveToPersistent(RESOLVE, Local<Function>::Cast(info[2]));
-    worker->SaveToPersistent(REJECT, Local<Function>::Cast(info[3]));
+    worker->SaveToPersistent(RESOLVE, v8::Local<v8::Function>::Cast(info[2]));
+    worker->SaveToPersistent(REJECT, v8::Local<v8::Function>::Cast(info[3]));
 
     Nan::AsyncQueueWorker(worker);
 }
 
 NAN_MODULE_INIT(init) {
-    using namespace v8;
-
-    auto limits = Nan::New<Object>();
+    auto limits = Nan::New<v8::Object>();
 
     const auto setMaxMin = [&](const char* name, uint32_t max, uint32_t min) {
-        auto obj = Nan::New<Object>();
-        Nan::Set(obj, Nan::New("max").ToLocalChecked(), Nan::New<Number>(max));
-        Nan::Set(obj, Nan::New("min").ToLocalChecked(), Nan::New<Number>(min));
+        auto obj = Nan::New<v8::Object>();
+        Nan::Set(obj, Nan::New("max").ToLocalChecked(), Nan::New<v8::Number>(max));
+        Nan::Set(obj, Nan::New("min").ToLocalChecked(), Nan::New<v8::Number>(min));
         Nan::Set(limits, Nan::New(name).ToLocalChecked(), obj);
     };
 
@@ -231,12 +210,12 @@ NAN_MODULE_INIT(init) {
     setMaxMin("timeCost", ARGON2_MAX_TIME, ARGON2_MIN_TIME);
     setMaxMin("parallelism", ARGON2_MAX_LANES, ARGON2_MIN_LANES);
 
-    auto types = Nan::New<Object>();
+    auto types = Nan::New<v8::Object>();
 
     const auto setType = [&](argon2_type type) {
         Nan::Set(types,
                 Nan::New(argon2_type2string(type, false)).ToLocalChecked(),
-                Nan::New<Number>(type));
+                Nan::New<v8::Number>(type));
     };
 
     setType(Argon2_d);
@@ -246,7 +225,7 @@ NAN_MODULE_INIT(init) {
     Nan::Set(target, Nan::New("limits").ToLocalChecked(), limits);
     Nan::Set(target, Nan::New("types").ToLocalChecked(), types);
     Nan::Set(target, Nan::New("version").ToLocalChecked(),
-            Nan::New<Number>(ARGON2_VERSION_NUMBER));
+            Nan::New<v8::Number>(ARGON2_VERSION_NUMBER));
 
     Nan::Export(target, "hash", Hash);
     Nan::Export(target, "verify", Verify);
