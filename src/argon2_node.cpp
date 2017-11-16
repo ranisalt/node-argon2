@@ -25,51 +25,75 @@ constexpr uint32_t log2(uint64_t number)
     return (number > 1) ? 1u + log2(number / 2) : 0u;
 }
 
+v8::Local<v8::Value> from_object(const v8::Local<v8::Object>& object, const char* key) {
+    return Nan::Get(object, Nan::New(key).ToLocalChecked()).ToLocalChecked();
 }
 
-HashWorker::HashWorker(std::string plain, std::string salt,
-        uint32_t hash_length, uint32_t time_cost, uint32_t memory_cost,
-        uint32_t parallelism, argon2_type type):
-    Nan::AsyncWorker{nullptr}, plain{std::move(plain)}, salt{std::move(salt)},
-    hash_length{hash_length}, time_cost{time_cost}, memory_cost{memory_cost},
-    parallelism{parallelism}, type{type}
-{ }
+template<class ReturnValue, class T>
+ReturnValue to_just(const T& object) {
+    return Nan::To<ReturnValue>(object).FromJust();
+}
+
+template<class T>
+std::string to_string(const T& object) {
+    auto&& conv = Nan::To<v8::Object>(object).ToLocalChecked();
+    return {node::Buffer::Data(conv), node::Buffer::Length(conv)};
+}
+
+Options extractOptions(const v8::Local<v8::Object>& options) {
+    Options ret;
+    ret.salt = to_string(from_object(options, "salt"));
+    ret.hash_length = to_just<uint32_t>(from_object(options, "hashLength"));
+    ret.time_cost = to_just<uint32_t>(from_object(options, "timeCost"));
+    ret.memory_cost = to_just<uint32_t>(from_object(options, "memoryCost"));
+    ret.parallelism = to_just<uint32_t>(from_object(options, "parallelism"));
+    ret.type = argon2_type(to_just<uint32_t>(from_object(options, "type")));
+    return ret;
+}
+
+}
+
+HashWorker::HashWorker(std::string plain, Options options):
+    Nan::AsyncWorker{nullptr},
+    plain{std::move(plain)},
+    options{std::move(options)}
+{}
 
 void HashWorker::Execute()
 {
-    char buf[hash_length];
+    char buf[options.hash_length];
     argon2_context ctx;
 
     ctx.out = reinterpret_cast<uint8_t*>(buf);
-    ctx.outlen = hash_length;
+    ctx.outlen = options.hash_length;
     ctx.pwd = reinterpret_cast<uint8_t*>(const_cast<char*>(plain.data()));
     ctx.pwdlen = plain.size();
-    ctx.salt = reinterpret_cast<uint8_t*>(const_cast<char*>(salt.data()));
-    ctx.saltlen = salt.size();
+    ctx.salt = reinterpret_cast<uint8_t*>(const_cast<char*>(options.salt.data()));
+    ctx.saltlen = options.salt.size();
     ctx.secret = nullptr;
     ctx.secretlen = 0;
     ctx.ad = nullptr;
     ctx.adlen = 0;
-    ctx.t_cost = time_cost;
-    ctx.m_cost = 1u << memory_cost;
-    ctx.lanes = parallelism;
-    ctx.threads = parallelism;
+    ctx.t_cost = options.time_cost;
+    ctx.m_cost = 1u << options.memory_cost;
+    ctx.lanes = options.parallelism;
+    ctx.threads = options.parallelism;
     ctx.allocate_cbk = nullptr;
     ctx.free_cbk = nullptr;
     ctx.flags = ARGON2_DEFAULT_FLAGS;
     ctx.version = ARGON2_VERSION_NUMBER;
 
-    int result = argon2_ctx(&ctx, type);
+    int result = argon2_ctx(&ctx, options.type);
 
     if (result != ARGON2_OK) {
         /* LCOV_EXCL_START */
         SetErrorMessage(argon2_error_message(result));
         /* LCOV_EXCL_STOP */
     } else {
-        output.assign(buf, hash_length);
+        output.assign(buf, options.hash_length);
     }
 
-    std::fill_n(buf, hash_length, 0);
+    std::fill_n(buf, options.hash_length, 0);
 }
 
 void HashWorker::HandleOKCallback()
@@ -94,37 +118,14 @@ void HashWorker::HandleErrorCallback()
 }
 /* LCOV_EXCL_STOP */
 
-template<class Object>
-v8::Local<v8::Value> from_object(const Object& object, const char* key) {
-    return Nan::Get(object, Nan::New(key).ToLocalChecked()).ToLocalChecked();
-}
-
-template<class ReturnValue, class T>
-ReturnValue to_just(const T& object) {
-    return Nan::To<ReturnValue>(object).FromJust();
-}
-
-template<class T>
-std::string to_string(const T& object) {
-    auto&& conv = Nan::To<v8::Object>(object).ToLocalChecked();
-    return {node::Buffer::Data(conv), node::Buffer::Length(conv)};
-}
-
 NAN_METHOD(Hash) {
     assert(info.Length() == 4);
 
     auto&& plain = to_string(info[0]);
     auto&& options = Nan::To<v8::Object>(info[1]).ToLocalChecked();
 
-    auto&& salt = to_string(from_object(options, "salt"));
-
     auto worker = new HashWorker{
-        std::move(plain), std::move(salt),
-        to_just<uint32_t>(from_object(options, "hashLength")),
-        to_just<uint32_t>(from_object(options, "timeCost")),
-        to_just<uint32_t>(from_object(options, "memoryCost")),
-        to_just<uint32_t>(from_object(options, "parallelism")),
-        argon2_type(to_just<uint32_t>(from_object(options, "type"))),
+        std::move(plain), extractOptions(options),
     };
 
     worker->SaveToPersistent(THIS_OBJ, info.This());
@@ -134,17 +135,39 @@ NAN_METHOD(Hash) {
     Nan::AsyncQueueWorker(worker);
 }
 
-VerifyWorker::VerifyWorker(std::string&& hash, std::string&& plain):
-    Nan::AsyncWorker{nullptr}, hash{std::move(hash)}, plain{std::move(plain)}
-{ }
+VerifyWorker::VerifyWorker(std::string hash, std::string plain, Options options):
+    Nan::AsyncWorker{nullptr},
+    hash{std::move(hash)},
+    plain{std::move(plain)},
+    options{std::move(options)}
+{}
 
 void VerifyWorker::Execute()
 {
-    argon2_type type = hash.at(7) == 'd' ? Argon2_d
-                     : hash.at(8) == 'd' ? Argon2_id
-                     : Argon2_i;
+    char buf[options.hash_length];
+    argon2_context ctx;
 
-    auto result = argon2_verify(hash.data(), plain.data(), plain.size(), type);
+    ctx.out = reinterpret_cast<uint8_t*>(buf);
+    ctx.outlen = plain.size();
+    ctx.pwd = reinterpret_cast<uint8_t*>(const_cast<char*>(plain.data()));
+    ctx.pwdlen = plain.size();
+    ctx.salt = reinterpret_cast<uint8_t*>(const_cast<char*>(options.salt.data()));
+    ctx.saltlen = options.salt.size();
+    ctx.secret = nullptr;
+    ctx.secretlen = 0;
+    ctx.ad = nullptr;
+    ctx.adlen = 0;
+    ctx.t_cost = options.time_cost;
+    ctx.m_cost = 1u << options.memory_cost;
+    ctx.lanes = options.parallelism;
+    ctx.threads = options.parallelism;
+    ctx.allocate_cbk = nullptr;
+    ctx.free_cbk = nullptr;
+    ctx.flags = ARGON2_DEFAULT_FLAGS;
+    ctx.version = ARGON2_VERSION_NUMBER;
+
+    int result = argon2_ctx(&ctx, options.type);
+
 
     switch (result) {
         case ARGON2_OK:
@@ -180,16 +203,19 @@ void VerifyWorker::HandleErrorCallback()
 /* LCOV_EXCL_STOP */
 
 NAN_METHOD(Verify) {
-    assert(info.Length() == 4);
+    assert(info.Length() == 5);
 
     auto&& hash = to_string(info[0]);
     auto&& plain = to_string(info[1]);
+    auto&& options = Nan::To<v8::Object>(info[2]).ToLocalChecked();
 
-    auto worker = new VerifyWorker{std::move(hash), std::move(plain)};
+    auto worker = new VerifyWorker{
+        std::move(hash), std::move(plain), extractOptions(options),
+    };
 
     worker->SaveToPersistent(THIS_OBJ, info.This());
-    worker->SaveToPersistent(RESOLVE, v8::Local<v8::Function>::Cast(info[2]));
-    worker->SaveToPersistent(REJECT, v8::Local<v8::Function>::Cast(info[3]));
+    worker->SaveToPersistent(RESOLVE, v8::Local<v8::Function>::Cast(info[3]));
+    worker->SaveToPersistent(REJECT, v8::Local<v8::Function>::Cast(info[4]));
 
     Nan::AsyncQueueWorker(worker);
 }
