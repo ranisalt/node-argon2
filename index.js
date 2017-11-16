@@ -18,6 +18,8 @@ const defaults = Object.freeze({
 
 const type2string = []
 
+const rightPad = encoded => encoded + '='.repeat(encoded.length % 4)
+
 module.exports = {
   defaults,
   limits,
@@ -40,10 +42,10 @@ module.exports = {
 
       crypto.randomBytes(16, (err, salt) => {
         if (err) {
-          reject(err)
+          return reject(err)
         }
         options.salt = salt
-        resolve()
+        return resolve()
       })
     }).then(() => {
       return new Promise((resolve, reject) => {
@@ -52,7 +54,7 @@ module.exports = {
     }).then(hash => {
       return new Promise((resolve, reject) => {
         if (options.raw) {
-          resolve(hash)
+          return resolve(hash)
         }
 
         const algo = `$${type2string[options.type]}$v=${version}`
@@ -63,14 +65,65 @@ module.exports = {
         ].join(',')
         const base64hash = hash.toString('base64').replace(/=/g, '')
         const base64salt = options.salt.toString('base64').replace(/=/g, '')
-        resolve([algo, params, base64salt, base64hash].join('$'))
+        return resolve([algo, params, base64salt, base64hash].join('$'))
       })
     })
   },
 
-  verify (hash, plain) {
+  verify (hash, plain, options) {
+    options = Object.assign({}, options)
+    const parsed = {}
+
+    const sections = hash.split('$')
     return new Promise((resolve, reject) => {
-      bindings.verify(Buffer.from(hash), Buffer.from(plain), resolve, reject)
+      if ('type' in options) {
+        return resolve()
+      }
+
+      parsed.type = types[sections[1]]
+      return resolve()
+    }).then(() => {
+      return new Promise((resolve, reject) => {
+        const params = sections[sections.length - 3]
+
+        if (!('memoryCost' in options)) {
+          const memoryCost = /m=(\d+)/.exec(params)
+          parsed.memoryCost = Math.log2(+memoryCost[1])
+        }
+
+        if (!('timeCost' in options)) {
+          const timeCost = /t=(\d+)/.exec(params)
+          parsed.timeCost = +timeCost[1]
+        }
+
+        if (!('parallelism' in options)) {
+          const parallelism = /p=(\d+)/.exec(params)
+          parsed.parallelism = +parallelism[1]
+        }
+
+        return resolve()
+      })
+    }).then(() => {
+      return new Promise((resolve, reject) => {
+        if ('salt' in options) {
+          return resolve()
+        }
+
+        const salt = sections[sections.length - 2]
+        parsed.salt = Buffer.from(rightPad(salt), 'base64')
+        return resolve()
+      })
+    }).then(() => {
+      options = Object.assign({}, defaults, parsed, options)
+
+      return new Promise((resolve, reject) => {
+        return bindings.hash(Buffer.from(plain), options, resolve, reject)
+      })
+    }).then(raw => {
+      const expected = sections[sections.length - 1]
+
+      const base64hash = raw.toString('base64').replace(/=/g, '')
+      return Promise.resolve(base64hash == expected)
     })
   }
 }
