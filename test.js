@@ -158,29 +158,57 @@ test('hash with all options', () => {
 })
 
 test('verify correct password', () => {
-  expect(argon2.hash(password).then(hash => argon2.verify(hash, password))).resolves.toBeTruthy()
+  return argon2.hash(password).then(hash => {
+    return argon2.verify(hash, password).then(matches => {
+      expect(matches).toBeTruthy()
+    })
+  })
 })
 
 test('verify wrong password', () => {
-  expect(argon2.hash(password).then(hash => argon2.verify(hash, 'passworld'))).resolves.toBeFalsy()
+  return argon2.hash(password).then(hash => {
+    return argon2.verify(hash, 'passworld').then(matches => {
+      expect(matches).toBeFalsy()
+    })
+  })
 })
 
 test('verify with null in password', () => {
-  expect(argon2.hash('pass\0word').then(hash => argon2.verify(hash, 'pass\0word'))).resolves.toBeTruthy()
+  return argon2.hash('pass\0word').then(hash => {
+    return argon2.verify(hash, 'pass\0word').then(matches => {
+      expect(matches).toBeTruthy()
+    })
+  })
 })
 
 test('verify argon2d correct password', () => {
-  expect(argon2.hash(password, {type: argon2.argon2d}).then(hash => argon2.verify(hash, password))).resolves.toBeTruthy()
+  return argon2.hash(password, {type: argon2.argon2d}).then(hash => {
+    return argon2.verify(hash, password).then(matches => {
+      expect(matches).toBeTruthy()
+    })
+  })
 })
 
 test('verify argon2d wrong password', () => {
-  expect(argon2.hash(password, {type: argon2.argon2d}).then(hash => argon2.verify(hash, 'passworld'))).resolves.toBeFalsy()
+  return argon2.hash(password, {type: argon2.argon2d}).then(hash => {
+    return argon2.verify(hash, 'passworld').then(matches => {
+      expect(matches).toBeFalsy()
+    })
+  })
 })
 
 test('verify argon2id correct password', () => {
-  expect(argon2.hash(password, {type: argon2.argon2id}).then(hash => argon2.verify(hash, password))).resolves.toBeTruthy()
+  return argon2.hash(password, {type: argon2.argon2id}).then(hash => {
+    return argon2.verify(hash, password).then(matches => {
+      expect(matches).toBeTruthy()
+    })
+  })
 })
 
 test('verify argon2id wrong password', () => {
-  expect(argon2.hash(password, {type: argon2.argon2id}).then(hash => argon2.verify(hash, 'passworld'))).resolves.toBeFalsy()
+  return argon2.hash(password, {type: argon2.argon2id}).then(hash => {
+    return argon2.verify(hash, 'passworld').then(matches => {
+      expect(matches).toBeFalsy()
+    })
+  })
 })
