@@ -4,7 +4,7 @@
     "include_dirs": ["argon2/include"],
     "target_conditions": [
       ["OS != 'win'", {
-        "cflags+": ["-fdata-sections", "-ffunction-sections", "-fvisibility=hidden", "-march=native"],
+        "cflags+": ["-fdata-sections", "-ffunction-sections", "-fvisibility=hidden"],
         "ldflags+": ["-Wl,--gc-sections"]
       }],
       ["OS == 'mac'", {
@@ -32,7 +32,7 @@
       "cflags+": ["-Wno-type-limits"],
       "conditions": [
         ["target_arch == 'ia32' or target_arch == 'x64'", {
-          "cflags+": ["-msse", "-msse2"],
+          "cflags+": ["-march=native", "-msse", "-msse2"],
           "sources+": ["argon2/src/opt.c"]
         }, {
           "sources+": ["argon2/src/ref.c"]
@@ -46,6 +46,11 @@
       ],
       "include_dirs+": ["<!(node -e \"require('nan')\")"],
       "dependencies": ["libargon2"],
+      "conditions": [
+        ["target_arch == 'ia32' or target_arch == 'x64'", {
+          "cflags+": ["-march=native"]
+        }]
+      ],
       "configurations": {
         "Debug": {
           "conditions": [
