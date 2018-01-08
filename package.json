@@ -32,7 +32,7 @@
     "nan": "^2.4.0"
   },
   "devDependencies": {
-    "@types/node": "^8.0.0",
+    "@types/node": "^9.3.0",
     "jest": "^21.2.1",
     "nyc": "^11.0.1",
     "sandra": "^0.2.1",
