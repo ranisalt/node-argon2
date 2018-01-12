@@ -123,7 +123,7 @@ module.exports = {
       const expected = sections[sections.length - 1]
 
       const base64hash = raw.toString('base64').replace(/=/g, '')
-      return Promise.resolve(base64hash == expected)
+      return Promise.resolve(base64hash === expected)
     })
   }
 }
