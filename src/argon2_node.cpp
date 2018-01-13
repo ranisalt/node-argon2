@@ -51,22 +51,8 @@ Options extractOptions(const v8::Local<v8::Object>& options) {
     return ret;
 }
 
-}
-
-HashWorker::HashWorker(std::string plain, Options options):
-    Nan::AsyncWorker{nullptr},
-    plain{std::move(plain)},
-    options{std::move(options)}
-{}
-
-void HashWorker::Execute()
-{
-#ifdef _MSC_VER
-    char* buf = new char[options.hash_length];
-#else
-    char buf[options.hash_length];
-#endif
-
+argon2_context make_context(char* buf, const std::string& plain,
+        const Options& options) {
     argon2_context ctx;
 
     ctx.out = reinterpret_cast<uint8_t*>(buf);
@@ -88,6 +74,26 @@ void HashWorker::Execute()
     ctx.flags = ARGON2_DEFAULT_FLAGS;
     ctx.version = ARGON2_VERSION_NUMBER;
 
+    return ctx;
+}
+
+}
+
+HashWorker::HashWorker(std::string plain, Options options):
+    Nan::AsyncWorker{nullptr},
+    plain{std::move(plain)},
+    options{std::move(options)}
+{}
+
+void HashWorker::Execute()
+{
+#ifdef _MSC_VER
+    char* buf = new char[options.hash_length];
+#else
+    char buf[options.hash_length];
+#endif
+
+    auto ctx = make_context(buf, plain, options);
     int result = argon2_ctx(&ctx, options.type);
 
     if (result != ARGON2_OK) {
@@ -159,29 +165,8 @@ void VerifyWorker::Execute()
     char buf[options.hash_length];
 #endif
 
-    argon2_context ctx;
-
-    ctx.out = reinterpret_cast<uint8_t*>(buf);
-    ctx.outlen = plain.size();
-    ctx.pwd = reinterpret_cast<uint8_t*>(const_cast<char*>(plain.data()));
-    ctx.pwdlen = plain.size();
-    ctx.salt = reinterpret_cast<uint8_t*>(const_cast<char*>(options.salt.data()));
-    ctx.saltlen = options.salt.size();
-    ctx.secret = nullptr;
-    ctx.secretlen = 0;
-    ctx.ad = nullptr;
-    ctx.adlen = 0;
-    ctx.t_cost = options.time_cost;
-    ctx.m_cost = 1u << options.memory_cost;
-    ctx.lanes = options.parallelism;
-    ctx.threads = options.parallelism;
-    ctx.allocate_cbk = nullptr;
-    ctx.free_cbk = nullptr;
-    ctx.flags = ARGON2_DEFAULT_FLAGS;
-    ctx.version = ARGON2_VERSION_NUMBER;
-
+    auto ctx = make_context(buf, plain, options);
     int result = argon2_ctx(&ctx, options.type);
-
 
     switch (result) {
         case ARGON2_OK:
