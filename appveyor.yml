@@ -14,10 +14,9 @@ skip_commits:
 # environment variables
 environment:
   matrix:
-  - nodejs_version: 4
-  - nodejs_version: 5
   - nodejs_version: 6
-  - nodejs_version: 7
+  - nodejs_version: 8
+  - nodejs_version: 9
 
 # scripts that run after cloning repository
 install:
@@ -30,8 +29,8 @@ install:
 #       build configuration       #
 #---------------------------------#
 
-# to disable automatic builds
-build: off
+build_script:
+  - cmd: npm install
 
 #---------------------------------#
 #       tests configuration       #
