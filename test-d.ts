@@ -47,6 +47,7 @@ function test_hashOptions() {
         argon2.hash(password, {hashLength: 4}),
         argon2.hash(password, {memoryCost: 13}),
         argon2.hash(password, {parallelism: 2}),
+        argon2.hash(password, {salt: Buffer.from('1234567890abcdef')}),
         argon2.hash(password, {timeCost: 4, memoryCost: 13, parallelism: 2})
     ]);
 }
@@ -57,4 +58,8 @@ function test_verify() {
         argon2.verify(hashes.argon2d, password),
         argon2.verify(hashes.argon2i, passwordBuffer)
     ]);
+}
+
+function test_raw(): Promise<Buffer> {
+    return argon2.hash(password, {raw: true});
 }
