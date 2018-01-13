@@ -7,8 +7,6 @@
 namespace NodeArgon2 {
 
 struct Options {
-    Options() = default;
-
     std::string salt;
 
     uint32_t hash_length;
