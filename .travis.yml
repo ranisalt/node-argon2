@@ -8,12 +8,11 @@ addons:
     packages:
       - lcov
 env:
-  - CXX=clang++
-before_script: npm install -g coveralls node-gyp
+  - CXX=clang++ npm_config_debug=yes
+before_install: npm install -g node-gyp
 after_success:
-  - node-gyp --debug rebuild
-  - npm test
   - lcov -c -d . --no-external -o lcov-cpp.info
   - lcov -r lcov-cpp.info "*/node_modules/*" -o lcov-cpp.info
   - lcov -a lcov-cpp.info -a coverage/lcov.info -o lcov.info
+  - npm install -g coveralls
   - coveralls < lcov.info
