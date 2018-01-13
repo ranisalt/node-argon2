@@ -1,11 +1,14 @@
-sudo: required
-dist: trusty
 language: node_js
 node_js:
   - "6"
   - "8"
   - "9"
-before_install: sudo apt-get update && sudo apt-get install lcov -y
+addons:
+  apt:
+    packages:
+      - lcov
+env:
+  - CXX=clang++
 before_script: npm install -g coveralls node-gyp
 after_success:
   - node-gyp --debug rebuild
