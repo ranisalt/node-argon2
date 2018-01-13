@@ -19,6 +19,7 @@ const defaults = Object.freeze({
 const type2string = []
 
 const rightPad = encoded => encoded + '='.repeat(encoded.length % 4)
+const rightTrim = encoded => encoded.replace(/=+$/, '')
 
 module.exports = {
   defaults,
@@ -63,8 +64,8 @@ module.exports = {
           `t=${options.timeCost}`,
           `p=${options.parallelism}`
         ].join(',')
-        const base64hash = hash.toString('base64').replace(/=/g, '')
-        const base64salt = options.salt.toString('base64').replace(/=/g, '')
+        const base64hash = rightTrim(hash.toString('base64'))
+        const base64salt = rightTrim(options.salt.toString('base64'))
         return resolve([algo, params, base64salt, base64hash].join('$'))
       })
     })
@@ -122,7 +123,7 @@ module.exports = {
     }).then(raw => {
       const expected = sections[sections.length - 1]
 
-      const base64hash = raw.toString('base64').replace(/=/g, '')
+      const base64hash = rightTrim(raw.toString('base64'))
       return Promise.resolve(base64hash === expected)
     })
   }
