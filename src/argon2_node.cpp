@@ -61,7 +61,12 @@ HashWorker::HashWorker(std::string plain, Options options):
 
 void HashWorker::Execute()
 {
+#ifdef _MSC_VER
+    char* buf = new char[options.hash_length];
+#else
     char buf[options.hash_length];
+#endif
+
     argon2_context ctx;
 
     ctx.out = reinterpret_cast<uint8_t*>(buf);
@@ -94,6 +99,10 @@ void HashWorker::Execute()
     }
 
     std::fill_n(buf, options.hash_length, 0);
+
+#ifdef _MSC_VER
+    delete[] buf;
+#endif
 }
 
 void HashWorker::HandleOKCallback()
@@ -144,7 +153,12 @@ VerifyWorker::VerifyWorker(std::string hash, std::string plain, Options options)
 
 void VerifyWorker::Execute()
 {
+#ifdef _MSC_VER
+    char* buf = new char[options.hash_length];
+#else
     char buf[options.hash_length];
+#endif
+
     argon2_context ctx;
 
     ctx.out = reinterpret_cast<uint8_t*>(buf);
@@ -180,6 +194,10 @@ void VerifyWorker::Execute()
             break;
             /* LCOV_EXCL_STOP */
     }
+
+#ifdef _MSC_VER
+    delete[] buf;
+#endif
 }
 
 void VerifyWorker::HandleOKCallback()
