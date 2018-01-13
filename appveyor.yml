@@ -29,8 +29,8 @@ install:
 #       build configuration       #
 #---------------------------------#
 
-# to disable automatic builds
-build: on
+build_script:
+  - cmd: npm install
 
 #---------------------------------#
 #       tests configuration       #
