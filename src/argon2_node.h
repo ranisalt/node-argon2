@@ -34,24 +34,6 @@ private:
     std::string output;
 };
 
-class VerifyWorker final: public Nan::AsyncWorker {
-public:
-    VerifyWorker(std::string hash, std::string plain, Options options);
-
-    void Execute() override;
-
-    void HandleOKCallback() override;
-
-    void HandleErrorCallback() override;
-
-private:
-    std::string hash;
-    std::string plain;
-    Options options;
-
-    bool output = false;
-};
-
 NAN_METHOD(Hash);
 
 NAN_METHOD(Verify);

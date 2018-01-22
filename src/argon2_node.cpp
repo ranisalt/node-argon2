@@ -150,79 +150,6 @@ NAN_METHOD(Hash) {
     Nan::AsyncQueueWorker(worker);
 }
 
-VerifyWorker::VerifyWorker(std::string hash, std::string plain, Options options):
-    Nan::AsyncWorker{nullptr},
-    hash{std::move(hash)},
-    plain{std::move(plain)},
-    options{std::move(options)}
-{}
-
-void VerifyWorker::Execute()
-{
-#ifdef _MSC_VER
-    char* buf = new char[options.hash_length];
-#else
-    char buf[options.hash_length];
-#endif
-
-    auto ctx = make_context(buf, plain, options);
-    int result = argon2_ctx(&ctx, options.type);
-
-    switch (result) {
-        case ARGON2_OK:
-        case ARGON2_VERIFY_MISMATCH:
-            output = result == ARGON2_OK;
-            break;
-        default:
-            /* LCOV_EXCL_START */
-            SetErrorMessage(argon2_error_message(result));
-            break;
-            /* LCOV_EXCL_STOP */
-    }
-
-#ifdef _MSC_VER
-    delete[] buf;
-#endif
-}
-
-void VerifyWorker::HandleOKCallback()
-{
-    Nan::HandleScope scope;
-
-    v8::Local<v8::Value> argv[] = {Nan::New(output)};
-    Nan::MakeCallback(GetFromPersistent(THIS_OBJ).As<v8::Object>(),
-            GetFromPersistent(RESOLVE).As<v8::Function>(), 1, argv);
-}
-
-/* LCOV_EXCL_START */
-void VerifyWorker::HandleErrorCallback()
-{
-    Nan::HandleScope scope;
-
-    v8::Local<v8::Value> argv[] = {Nan::New(ErrorMessage()).ToLocalChecked()};
-    Nan::MakeCallback(GetFromPersistent(THIS_OBJ).As<v8::Object>(),
-            GetFromPersistent(REJECT).As<v8::Function>(), 1, argv);
-}
-/* LCOV_EXCL_STOP */
-
-NAN_METHOD(Verify) {
-    assert(info.Length() == 5);
-
-    auto&& hash = to_string(info[0]);
-    auto&& plain = to_string(info[1]);
-    auto&& options = Nan::To<v8::Object>(info[2]).ToLocalChecked();
-
-    auto worker = new VerifyWorker{
-        std::move(hash), std::move(plain), extractOptions(options),
-    };
-
-    worker->SaveToPersistent(THIS_OBJ, info.This());
-    worker->SaveToPersistent(RESOLVE, v8::Local<v8::Function>::Cast(info[3]));
-    worker->SaveToPersistent(REJECT, v8::Local<v8::Function>::Cast(info[4]));
-
-    Nan::AsyncQueueWorker(worker);
-}
-
 NAN_MODULE_INIT(init) {
     auto limits = Nan::New<v8::Object>();
 
@@ -256,7 +183,6 @@ NAN_MODULE_INIT(init) {
             Nan::New<v8::Number>(ARGON2_VERSION_NUMBER));
 
     Nan::Export(target, "hash", Hash);
-    Nan::Export(target, "verify", Verify);
 }
 
 }
