@@ -7,7 +7,8 @@
   "scripts": {
     "benchmark": "node benchmark.js",
     "clean": "node-gyp clean && rm -rf coverage .nyc_output",
-    "test": "tsc -p . && node test-d.js && standard index.js && nyc --reporter=lcov jest"
+    "lint": "standard --verbose | snazzy",
+    "test": "tsc -p . && node test-d.js && nyc --reporter=lcov jest"
   },
   "repository": {
     "type": "git",
@@ -36,16 +37,9 @@
     "jest": "^22.0.6",
     "nyc": "^11.0.1",
     "sandra": "^0.2.1",
-    "standard": "^10.0.2",
     "typescript": "^2.1.5"
   },
   "engines": {
     "node": ">=6.0.0"
-  },
-  "ava": {
-    "files": [
-      "test.js"
-    ],
-    "babel": "inherit"
   }
 }
