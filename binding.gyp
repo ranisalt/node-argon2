@@ -1,4 +1,15 @@
 {
+  "conditions": [
+    ["target_arch == 'ia32' or target_arch == 'x64'", {
+      "variables": {
+        "arch_optimizations%": "-march=native"
+      }
+     }, {
+      "variables": {
+        "arch_optimizations%": ""
+      }
+     }]
+  ],
   "target_defaults": {
     "include_dirs": ["argon2/include"],
     "target_conditions": [
@@ -10,18 +21,14 @@
     ],
     "configurations": {
       "Release": {
-        "conditions": [
-          ["target_arch == 'ia32' or target_arch == 'x64'", {
-            "cflags+": ["-march=native"]
-          }]
-        ],
         "target_conditions": [
           ["OS != 'win'", {
             "cflags+": ["-fdata-sections", "-ffunction-sections", "-fvisibility=hidden"],
             "ldflags+": ["-Wl,--gc-sections"]
           }]
         ],
-        "defines+": ["_FORTIFY_SOURCE=2", "NDEBUG"]
+        "defines+": ["_FORTIFY_SOURCE=2", "NDEBUG"],
+        "cflags+": ["<(arch_optimizations)"]
       }
     }
   },
