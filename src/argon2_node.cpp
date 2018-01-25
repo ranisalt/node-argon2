@@ -116,7 +116,7 @@ void HashWorker::HandleOKCallback()
     Nan::HandleScope scope;
 
     v8::Local<v8::Value> argv[] = {
-        Nan::NewBuffer(strdup(output.data()), output.size()).ToLocalChecked()
+        Nan::CopyBuffer(output.data(), output.size()).ToLocalChecked()
     };
     Nan::MakeCallback(GetFromPersistent(THIS_OBJ).As<v8::Object>(),
         GetFromPersistent(RESOLVE).As<v8::Function>(), 1, argv);
