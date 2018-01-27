@@ -13,13 +13,37 @@ const defaults = Object.freeze({
   memoryCost: 12,
   parallelism: 1,
   type: types.argon2i,
-  raw: false
+  version
 })
 
 const type2string = []
 
 const rightPad = encoded => encoded + '='.repeat(encoded.length % 4)
 const rightTrim = encoded => encoded.replace(/=+$/, '')
+
+class Hash {
+  constructor (hash, options) {
+    Object.assign(this, {hash}, options)
+  }
+
+  get digest () {
+    const {type, version, memoryCost, timeCost, parallelism, salt, hash} = this
+    console.log(type, version, memoryCost, timeCost, parallelism, salt, hash)
+    return `$${type2string[type]}$v=${version}`
+      + `$m=${1 << memoryCost},t=${timeCost},p=${parallelism}`
+      + `$${rightTrim(salt.toString('base64'))}`
+      + `$${rightTrim(hash.toString('base64'))}`
+  }
+
+  verify(plain) {
+    const expected = this.hash
+    return new Promise((resolve, reject) => {
+      bindings.hash(Buffer.from(plain), this, resolve, reject)
+    }).then(hash => {
+      return expected === hash
+    })
+  }
+}
 
 const hash = (plain, options) => {
   options = Object.assign({}, defaults, options)
@@ -50,19 +74,7 @@ const hash = (plain, options) => {
     })
   }).then(hash => {
     return new Promise((resolve, reject) => {
-      if (options.raw) {
-        return resolve(hash)
-      }
-
-      const algo = `$${type2string[options.type]}$v=${version}`
-      const params = [
-        `m=${1 << options.memoryCost}`,
-        `t=${options.timeCost}`,
-        `p=${options.parallelism}`
-      ].join(',')
-      const base64hash = rightTrim(hash.toString('base64'))
-      const base64salt = rightTrim(options.salt.toString('base64'))
-      return resolve([algo, params, base64salt, base64hash].join('$'))
+      return resolve(new Hash(hash, options))
     })
   })
 }

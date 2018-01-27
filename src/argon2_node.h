@@ -17,6 +17,7 @@ struct Options {
     uint32_t time_cost = {};
     uint32_t memory_cost = {};
     uint32_t parallelism = {};
+    uint32_t version = {};
 
     argon2_type type = {};
 };
