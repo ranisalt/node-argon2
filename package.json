@@ -1,6 +1,6 @@
 {
   "name": "argon2",
-  "version": "0.17.0",
+  "version": "0.17.1",
   "description": "An Argon2 library for Node",
   "main": "index.js",
   "types": "index.d.ts",
