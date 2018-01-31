@@ -30,6 +30,6 @@ export const argon2id: 2;
 
 export const defaults: Options;
 export const limits: OptionLimits;
-export function hash(plain: Buffer | string, options?: Options & {raw: true}): Promise<Buffer>;
+export function hash(plain: Buffer | string, options: Options & {raw: true}): Promise<Buffer>;
 export function hash(plain: Buffer | string, options?: Options & {raw?: false}): Promise<string>;
 export function verify(hash: string, plain: Buffer | string): Promise<boolean>;
