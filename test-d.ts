@@ -63,3 +63,11 @@ function test_verify() {
 function test_raw(): Promise<Buffer> {
     return argon2.hash(password, {raw: true});
 }
+
+function test_string_1(): Promise<string> {
+    return argon2.hash(password);
+}
+
+function test_string_2(): Promise<string> {
+    return argon2.hash(password, {raw: false});
+}
