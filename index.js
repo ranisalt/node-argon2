@@ -2,6 +2,7 @@
 const crypto = require('crypto')
 const bindings = require('bindings')('argon2')
 const Promise = require('any-promise')
+const phc = require('@phc/format')
 
 const limits = Object.freeze(bindings.limits)
 const types = Object.freeze(bindings.types)
@@ -28,11 +29,16 @@ class Hash {
 
   get digest () {
     const {type, version, memoryCost, timeCost, parallelism, salt, hash} = this
-    console.log(type, version, memoryCost, timeCost, parallelism, salt, hash)
-    return `$${type2string[type]}$v=${version}`
-      + `$m=${1 << memoryCost},t=${timeCost},p=${parallelism}`
-      + `$${rightTrim(salt.toString('base64'))}`
-      + `$${rightTrim(hash.toString('base64'))}`
+    return phc.serialize({
+      id: type2string[type],
+      raw: `v=${version}`,
+      params: {
+        m: (1 << memoryCost).toString(),
+        t: timeCost.toString(),
+        p: parallelism.toString(),
+      },
+      salt, hash
+    })
   }
 
   verify(plain) {
