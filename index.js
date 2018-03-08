@@ -41,13 +41,28 @@ class Hash {
     })
   }
 
+  static from(digest) {
+    const {
+      id: type, raw, params: {
+        m: memoryCost, t: timeCost, p: parallelism
+      }, salt, hash
+    } = phc.deserialize(digest)
+    const [, version] = /\bv=(\d+)/.exec(raw)
+    return new Hash(hash, {
+      type: module.exports[type],
+      version: +version,
+      hashLength: Math.floor(hash.length / 4 * 3),
+      memoryCost: Math.log2(+memoryCost),
+      timeCost: +timeCost,
+      parallelism: +parallelism,
+      salt,
+    })
+  }
+
   verify(plain) {
-    const expected = this.hash
     return new Promise((resolve, reject) => {
       bindings.hash(Buffer.from(plain), this, resolve, reject)
-    }).then(hash => {
-      return expected === hash
-    })
+    }).then(hash => this.hash.equals(hash))
   }
 }
 
@@ -85,23 +100,9 @@ const hash = (plain, options) => {
   })
 }
 
-const parser = /\$(argon2(?:i|d|id))\$v=(\d+)\$m=(\d+),t=(\d+),p=(\d+)(?:,[^$]+)?\$([^$]+)\$([^$]+)/
-const verify = (hash, plain) => {
-  const [_, type, version, memoryCost, timeCost, parallelism, salt, encoded] = hash.match(parser)
-  return new Promise((resolve, reject) => {
-    const options = {
-      type: module.exports[type],
-      version: +version,
-      memoryCost: Math.log2(+memoryCost),
-      timeCost: +timeCost,
-      parallelism: +parallelism,
-      salt: Buffer.from(rightPad(salt), 'base64'),
-      hashLength: Math.floor(encoded.length / 4 * 3)
-    }
-    bindings.hash(Buffer.from(plain), options, resolve, reject)
-  }).then(expected => {
-    return encoded === rightTrim(expected.toString('base64'))
-  })
+const verify = (digest, plain) => {
+  const hash = Hash.from(digest)
+  return hash.verify(plain)
 }
 
 module.exports = {
