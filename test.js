@@ -197,7 +197,7 @@ test('verify argon2id wrong password', () => {
 })
 
 test('verify from digest', () => {
-  const hash = argon2.verify(hashes.argon2i, 'password').then(matches => {
+  return argon2.verify(hashes.argon2i, password).then(matches => {
     expect(matches).toBeTruthy()
   })
 })

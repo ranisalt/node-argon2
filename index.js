@@ -51,7 +51,7 @@ class Hash {
     return new Hash(hash, {
       type: module.exports[type],
       version: +version,
-      hashLength: Math.floor(hash.length / 4 * 3),
+      hashLength: Math.floor(hash.length),
       memoryCost: Math.log2(+memoryCost),
       timeCost: +timeCost,
       parallelism: +parallelism,
