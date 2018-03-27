@@ -10,11 +10,6 @@
     ],
     "configurations": {
       "Release": {
-        "conditions": [
-          ["target_arch == 'ia32' or target_arch == 'x64'", {
-            "cflags+": ["-march=native"]
-          }]
-        ],
         "target_conditions": [
           ["OS != 'win'", {
             "cflags+": ["-fdata-sections", "-ffunction-sections", "-fvisibility=hidden"],
