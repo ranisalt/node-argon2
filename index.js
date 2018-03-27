@@ -19,9 +19,6 @@ const defaults = Object.freeze({
 
 const type2string = []
 
-const rightPad = encoded => encoded + '='.repeat(encoded.length % 4)
-const rightTrim = encoded => encoded.replace(/=+$/, '')
-
 class Hash {
   constructor (hash, options) {
     Object.assign(this, {hash}, options)
