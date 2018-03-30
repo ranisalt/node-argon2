@@ -84,7 +84,7 @@ Q for enhanced functionality.
 
 You can also modify time, memory and parallelism constraints passing the object
 as the third parameter, with keys `timeCost`, `memoryCost` and `parallelism`,
-respectively defaulted to 3, 12 (meaning 2^12 KB) and 1 (threads):
+respectively defaulted to 3, 12 (meaning 2^12 KiB) and 1 (threads):
 ```js
 const options = {
   timeCost: 4, memoryCost: 13, parallelism: 2, type: argon2.argon2d
