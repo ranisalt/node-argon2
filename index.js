@@ -12,6 +12,7 @@ const defaults = Object.freeze({
   timeCost: 3,
   memoryCost: 12,
   parallelism: 1,
+  saltSize: 16,
   type: types.argon2i,
   raw: false
 })
@@ -37,7 +38,7 @@ const hash = (plain, options) => {
       return resolve()
     }
 
-    crypto.randomBytes(16, (err, salt) => {
+    crypto.randomBytes(options.saltSize, (err, salt) => {
       if (err) {
         return reject(err)
       }
