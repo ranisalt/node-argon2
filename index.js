@@ -2,6 +2,7 @@
 const crypto = require('crypto')
 const bindings = require('bindings')('argon2')
 const Promise = require('any-promise')
+const phc = require('@phc/format')
 
 const limits = Object.freeze(bindings.limits)
 const types = Object.freeze(bindings.types)
@@ -13,13 +14,54 @@ const defaults = Object.freeze({
   memoryCost: 12,
   parallelism: 1,
   type: types.argon2i,
-  raw: false
+  version
 })
 
 const type2string = []
 
-const rightPad = encoded => encoded + '='.repeat(encoded.length % 4)
-const rightTrim = encoded => encoded.replace(/=+$/, '')
+class Hash {
+  constructor (hash, options) {
+    Object.assign(this, {hash}, options)
+  }
+
+  get digest () {
+    const {type, version, memoryCost, timeCost, parallelism, salt, hash} = this
+    return phc.serialize({
+      id: type2string[type],
+      raw: `v=${version}`,
+      params: {
+        m: (1 << memoryCost).toString(),
+        t: timeCost.toString(),
+        p: parallelism.toString(),
+      },
+      salt, hash
+    })
+  }
+
+  static from(digest) {
+    const {
+      id: type, raw, params: {
+        m: memoryCost, t: timeCost, p: parallelism
+      }, salt, hash
+    } = phc.deserialize(digest)
+    const [, version] = /\bv=(\d+)/.exec(raw)
+    return new Hash(hash, {
+      type: module.exports[type],
+      version: +version,
+      hashLength: Math.floor(hash.length),
+      memoryCost: Math.log2(+memoryCost),
+      timeCost: +timeCost,
+      parallelism: +parallelism,
+      salt,
+    })
+  }
+
+  verify(plain) {
+    return new Promise((resolve, reject) => {
+      bindings.hash(Buffer.from(plain), this, resolve, reject)
+    }).then(hash => this.hash.equals(hash))
+  }
+}
 
 const hash = (plain, options) => {
   options = Object.assign({}, defaults, options)
@@ -50,40 +92,14 @@ const hash = (plain, options) => {
     })
   }).then(hash => {
     return new Promise((resolve, reject) => {
-      if (options.raw) {
-        return resolve(hash)
-      }
-
-      const algo = `$${type2string[options.type]}$v=${version}`
-      const params = [
-        `m=${1 << options.memoryCost}`,
-        `t=${options.timeCost}`,
-        `p=${options.parallelism}`
-      ].join(',')
-      const base64hash = rightTrim(hash.toString('base64'))
-      const base64salt = rightTrim(options.salt.toString('base64'))
-      return resolve([algo, params, base64salt, base64hash].join('$'))
+      return resolve(new Hash(hash, options))
     })
   })
 }
 
-const parser = /\$(argon2(?:i|d|id))\$v=(\d+)\$m=(\d+),t=(\d+),p=(\d+)(?:,[^$]+)?\$([^$]+)\$([^$]+)/
-const verify = (hash, plain) => {
-  const [_, type, version, memoryCost, timeCost, parallelism, salt, encoded] = hash.match(parser)
-  return new Promise((resolve, reject) => {
-    const options = {
-      type: module.exports[type],
-      version: +version,
-      memoryCost: Math.log2(+memoryCost),
-      timeCost: +timeCost,
-      parallelism: +parallelism,
-      salt: Buffer.from(rightPad(salt), 'base64'),
-      hashLength: Math.floor(encoded.length / 4 * 3)
-    }
-    bindings.hash(Buffer.from(plain), options, resolve, reject)
-  }).then(expected => {
-    return encoded === rightTrim(expected.toString('base64'))
-  })
+const verify = (digest, plain) => {
+  const hash = Hash.from(digest)
+  return hash.verify(plain)
 }
 
 module.exports = {

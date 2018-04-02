@@ -47,6 +47,7 @@ Options extractOptions(const v8::Local<v8::Object>& options) {
     ret.time_cost = to_just<uint32_t>(from_object(options, "timeCost"));
     ret.memory_cost = to_just<uint32_t>(from_object(options, "memoryCost"));
     ret.parallelism = to_just<uint32_t>(from_object(options, "parallelism"));
+    ret.version = to_just<uint32_t>(from_object(options, "version"));
     ret.type = argon2_type(to_just<uint32_t>(from_object(options, "type")));
     return ret;
 }
