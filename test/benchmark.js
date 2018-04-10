@@ -1,5 +1,5 @@
 const {Suite} = require('sandra')
-const argon2 = require('./')
+const argon2 = require('../argon2')
 
 const main = async () => {
   const defaults = argon2.defaults

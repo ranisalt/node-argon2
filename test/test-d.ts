@@ -3,7 +3,7 @@
 
 /// <reference types="node" />
 
-import * as argon2 from "./index";
+import * as argon2 from "../argon2";
 
 const password = "password";
 const passwordBuffer = new Buffer("password");

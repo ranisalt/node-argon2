@@ -2,13 +2,13 @@
   "name": "argon2",
   "version": "0.17.3",
   "description": "An Argon2 library for Node",
-  "main": "index.js",
-  "types": "index.d.ts",
+  "main": "argon2.js",
+  "types": "argon2.d.ts",
   "scripts": {
-    "benchmark": "node benchmark.js",
+    "benchmark": "node test/benchmark.js",
     "clean": "node-gyp clean && rm -rf coverage .nyc_output",
     "lint": "standard --verbose | snazzy",
-    "test": "tsc -p . && node test-d.js && nyc --reporter=lcov jest"
+    "test": "tsc -p . && node test/test-d.js && nyc --reporter=lcov jest"
   },
   "repository": {
     "type": "git",

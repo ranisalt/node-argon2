@@ -1,5 +1,5 @@
 /* global expect, test */
-const argon2 = require('argon2')
+const argon2 = require('../argon2')
 const {defaults, limits} = argon2
 const password = 'password'
 const salt = Buffer.alloc(16, 'salt')

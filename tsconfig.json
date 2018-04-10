@@ -5,6 +5,6 @@
         "moduleResolution": "node"
     },
     "files": [
-        "test-d.ts"
+        "test/test-d.ts"
     ]
 }
