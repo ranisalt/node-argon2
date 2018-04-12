@@ -61,7 +61,7 @@ argon2_context make_context(char* buf, const std::string& plain,
 class HashWorker final: public Nan::AsyncWorker {
 public:
     HashWorker(std::string plain, Options options) :
-        Nan::AsyncWorker{nullptr},
+        Nan::AsyncWorker{nullptr, "argon2:HashWorker"},
         plain{std::move(plain)},
         options{std::move(options)}
     {}
@@ -99,8 +99,12 @@ public:
         v8::Local<v8::Value> argv[] = {
             Nan::CopyBuffer(output.data(), output.size()).ToLocalChecked()
         };
-        Nan::MakeCallback(GetFromPersistent(CONTEXT).As<v8::Object>(),
-            GetFromPersistent(RESOLVE).As<v8::Function>(), 1, argv);
+
+        auto resolve = GetFromPersistent(RESOLVE).As<v8::Function>();
+        Nan::Callback(resolve).Call(
+                /*target =*/ GetFromPersistent(CONTEXT).As<v8::Object>(),
+                /*argc =*/ 1, /*argv =*/ argv,
+                /*async_resource =*/ async_resource);
     }
 
     void HandleErrorCallback() override
@@ -108,9 +112,15 @@ public:
         /* LCOV_EXCL_START */
         Nan::HandleScope scope;
 
-        v8::Local<v8::Value> argv[] = {Nan::New(ErrorMessage()).ToLocalChecked()};
-        Nan::MakeCallback(GetFromPersistent(CONTEXT).As<v8::Object>(),
-                GetFromPersistent(REJECT).As<v8::Function>(), 1, argv);
+        v8::Local<v8::Value> argv[] = {
+            v8::Exception::Error(Nan::New(ErrorMessage()).ToLocalChecked())
+        };
+
+        auto reject = GetFromPersistent(REJECT).As<v8::Function>();
+        Nan::Callback(reject).Call(
+                /*target =*/ GetFromPersistent(CONTEXT).As<v8::Object>(),
+                /*argc =*/ 1, /*argv =*/ argv,
+                /*async_resource =*/ async_resource);
         /* LCOV_EXCL_STOP */
     }
 
