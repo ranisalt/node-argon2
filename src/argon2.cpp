@@ -1,4 +1,4 @@
-#include <stdint.h>
+#include <cstdint>
 #include <cstring>
 #include <memory>
 #include <string>
@@ -7,6 +7,15 @@
 #include "../argon2/include/argon2.h"
 
 namespace {
+
+namespace detail {
+
+constexpr uint32_t log2(uint64_t number)
+{
+    return (number > 1) ? 1u + log2(number / 2) : 0u;
+}
+
+}
 
 struct Options {
     // TODO: remove ctors and initializers when GCC<5 stops shipping on Ubuntu
@@ -131,11 +140,6 @@ private:
 
 using size_type = std::string::size_type;
 
-constexpr uint32_t log2(uint64_t number)
-{
-    return (number > 1) ? 1u + log2(number / 2) : 0u;
-}
-
 v8::Local<v8::Value> from_object(const v8::Local<v8::Object>& object, const char* key)
 {
     return Nan::Get(object, Nan::New(key).ToLocalChecked()).ToLocalChecked();
@@ -196,7 +200,7 @@ NAN_MODULE_INIT(init) {
     };
 
     setMaxMin("hashLength", ARGON2_MAX_OUTLEN, ARGON2_MIN_OUTLEN);
-    setMaxMin("memoryCost", log2(ARGON2_MAX_MEMORY), log2(ARGON2_MIN_MEMORY));
+    setMaxMin("memoryCost", detail::log2(ARGON2_MAX_MEMORY), detail::log2(ARGON2_MIN_MEMORY));
     setMaxMin("timeCost", ARGON2_MAX_TIME, ARGON2_MIN_TIME);
     setMaxMin("parallelism", ARGON2_MAX_LANES, ARGON2_MIN_LANES);
 
