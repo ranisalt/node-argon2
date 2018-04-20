@@ -2,6 +2,7 @@
 const crypto = require('crypto')
 const bindings = require('bindings')('argon2')
 const Promise = require('any-promise')
+const phc = require('@phc/format')
 
 const limits = Object.freeze(bindings.limits)
 const types = Object.freeze(bindings.types)
@@ -13,7 +14,8 @@ const defaults = Object.freeze({
   memoryCost: 12,
   parallelism: 1,
   type: types.argon2i,
-  raw: false
+  raw: false,
+  version,
 })
 
 const type2string = []
@@ -49,41 +51,41 @@ const hash = (plain, options) => {
       bindings.hash(Buffer.from(plain), options, resolve, reject)
     })
   }).then(hash => {
-    return new Promise((resolve, reject) => {
-      if (options.raw) {
-        return resolve(hash)
-      }
+    if (options.raw) {
+      return hash
+    }
 
-      const algo = `$${type2string[options.type]}$v=${version}`
-      const params = [
-        `m=${1 << options.memoryCost}`,
-        `t=${options.timeCost}`,
-        `p=${options.parallelism}`
-      ].join(',')
-      const base64hash = rightTrim(hash.toString('base64'))
-      const base64salt = rightTrim(options.salt.toString('base64'))
-      return resolve([algo, params, base64salt, base64hash].join('$'))
+    return phc.serialize({
+      id: type2string[options.type],
+      version: options.version,
+      params: {
+        m: (1 << options.memoryCost),
+        t: options.timeCost,
+        p: options.parallelism,
+      },
+      salt: options.salt, hash,
     })
   })
 }
 
-const parser = /\$(argon2(?:i|d|id))\$v=(\d+)\$m=(\d+),t=(\d+),p=(\d+)(?:,[^$]+)?\$([^$]+)\$([^$]+)/
-const verify = (hash, plain) => {
-  const [_, type, version, memoryCost, timeCost, parallelism, salt, encoded] = hash.match(parser)
+const verify = (digest, plain) => {
+  const {
+    id: type, version, params: {
+      m: memoryCost, t: timeCost, p: parallelism
+    }, salt, hash
+  } = phc.deserialize(digest)
   return new Promise((resolve, reject) => {
     const options = {
       type: module.exports[type],
       version: +version,
+      hashLength: hash.length,
       memoryCost: Math.log2(+memoryCost),
       timeCost: +timeCost,
       parallelism: +parallelism,
-      salt: Buffer.from(rightPad(salt), 'base64'),
-      hashLength: Math.floor(encoded.length / 4 * 3)
+      salt,
     }
     bindings.hash(Buffer.from(plain), options, resolve, reject)
-  }).then(expected => {
-    return encoded === rightTrim(expected.toString('base64'))
-  })
+  }).then(expected => expected.equals(hash))
 }
 
 module.exports = {
