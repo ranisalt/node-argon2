@@ -6,8 +6,6 @@
 #include <nan.h>
 #include "../argon2/include/argon2.h"
 
-namespace NodeArgon2 {
-
 namespace {
 
 struct Options {
@@ -222,6 +220,4 @@ NAN_MODULE_INIT(init) {
     Nan::Export(target, "hash", Hash);
 }
 
-}
-
-NODE_MODULE(argon2_lib, NodeArgon2::init);
+NODE_MODULE(argon2_lib, init);
