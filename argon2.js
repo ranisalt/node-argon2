@@ -11,7 +11,7 @@ const version = bindings.version
 const defaults = Object.freeze({
   hashLength: 32,
   timeCost: 3,
-  memoryCost: 12,
+  memoryCost: 2 ** 12,
   parallelism: 1,
   type: types.argon2i,
   raw: false,
@@ -33,6 +33,16 @@ const hash = (plain, options) => {
       if (value > max || value < min) {
         reject(new Error(`Invalid ${key}, must be between ${min} and ${max}.`))
       }
+    }
+
+    // TODO: after transition time, drop this check
+    if (options.memoryCost < 32) {
+      const exp = options.memoryCost
+      process.emitWarning('[argon2] deprecated usage of options.memoryCost', {
+        detail: 'The argon2 package now uses value of memory cost instead of exponent.\n'+
+                `Replacing memoryCost ${exp} with 2**${exp}=${2 ** exp}.\n`
+      })
+      options.memoryCost = 2 ** exp
     }
 
     if ('salt' in options) {
@@ -59,7 +69,7 @@ const hash = (plain, options) => {
       id: type2string[options.type],
       version: options.version,
       params: {
-        m: (1 << options.memoryCost),
+        m: options.memoryCost,
         t: options.timeCost,
         p: options.parallelism,
       },
@@ -79,7 +89,7 @@ const verify = (digest, plain) => {
       type: module.exports[type],
       version: +version,
       hashLength: hash.length,
-      memoryCost: Math.log2(+memoryCost),
+      memoryCost: +memoryCost,
       timeCost: +timeCost,
       parallelism: +parallelism,
       salt,

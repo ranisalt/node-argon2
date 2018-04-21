@@ -8,15 +8,6 @@
 
 namespace {
 
-namespace detail {
-
-constexpr uint32_t log2(uint64_t number)
-{
-    return (number > 1) ? 1u + log2(number / 2) : 0u;
-}
-
-}
-
 struct Options {
     // TODO: remove ctors and initializers when GCC<5 stops shipping on Ubuntu
     Options() = default;
@@ -54,7 +45,7 @@ argon2_context make_context(char* buf, const std::string& plain,
     ctx.ad = nullptr;
     ctx.adlen = 0;
     ctx.t_cost = options.time_cost;
-    ctx.m_cost = 1u << options.memory_cost;
+    ctx.m_cost = options.memory_cost;
     ctx.lanes = options.parallelism;
     ctx.threads = options.parallelism;
     ctx.allocate_cbk = nullptr;
@@ -200,7 +191,7 @@ NAN_MODULE_INIT(init) {
     };
 
     setMaxMin("hashLength", ARGON2_MAX_OUTLEN, ARGON2_MIN_OUTLEN);
-    setMaxMin("memoryCost", detail::log2(ARGON2_MAX_MEMORY), detail::log2(ARGON2_MIN_MEMORY));
+    setMaxMin("memoryCost", ARGON2_MAX_MEMORY, 64 /*ARGON2_MIN_MEMORY*/);
     setMaxMin("timeCost", ARGON2_MAX_TIME, ARGON2_MIN_TIME);
     setMaxMin("parallelism", ARGON2_MAX_LANES, ARGON2_MIN_LANES);
 
