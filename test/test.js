@@ -23,7 +23,7 @@ test('defaults', () => {
   expect(defaults).toEqual({
     hashLength: 32,
     timeCost: 3,
-    memoryCost: 2 ** 12,
+    memoryCost: 1 << 12,
     parallelism: 1,
     type: argon2.argon2i,
     raw: false,
@@ -117,7 +117,7 @@ test('hash with high hash length', () => {
 })
 
 test('hash with memory cost', () => {
-  return argon2.hash(password, {memoryCost: 2 ** 13}).then(hash => {
+  return argon2.hash(password, {memoryCost: 1 << 13}).then(hash => {
     expect(hash).toMatch(/m=8192/)
   })
 })
@@ -153,7 +153,7 @@ test('hash with high parallelism', () => {
 })
 
 test('hash with all options', () => {
-  return argon2.hash(password, {timeCost: 4, memoryCost: 2 ** 13, parallelism: 2}).then(hash => {
+  return argon2.hash(password, {timeCost: 4, memoryCost: 1 << 13, parallelism: 2}).then(hash => {
     expect(hash).toMatch(/m=8192,t=4,p=2/)
   })
 })
