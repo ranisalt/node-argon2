@@ -11,7 +11,7 @@ const version = bindings.version
 const defaults = Object.freeze({
   hashLength: 32,
   timeCost: 3,
-  memoryCost: 2 ** 12,
+  memoryCost: 1 << 12,
   parallelism: 1,
   type: types.argon2i,
   raw: false,
@@ -37,9 +37,9 @@ const hash = (plain, options) => {
       const exp = options.memoryCost
       process.emitWarning('[argon2] deprecated usage of options.memoryCost', {
         detail: 'The argon2 package now uses value of memory cost instead of exponent.\n' +
-                `Replacing memoryCost ${exp} with 2**${exp}=${2 ** exp}.\n`
+                `Replacing memoryCost ${exp} with 2**${exp}=${1 << exp}.\n`
       })
-      options.memoryCost = 2 ** exp
+      options.memoryCost = 1 << exp
     }
 
     if ('salt' in options) {
