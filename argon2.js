@@ -15,13 +15,10 @@ const defaults = Object.freeze({
   parallelism: 1,
   type: types.argon2i,
   raw: false,
-  version,
+  version
 })
 
 const type2string = []
-
-const rightPad = encoded => encoded + '='.repeat(encoded.length % 4)
-const rightTrim = encoded => encoded.replace(/=+$/, '')
 
 const hash = (plain, options) => {
   options = Object.assign({}, defaults, options)
@@ -39,7 +36,7 @@ const hash = (plain, options) => {
     if (options.memoryCost < 32) {
       const exp = options.memoryCost
       process.emitWarning('[argon2] deprecated usage of options.memoryCost', {
-        detail: 'The argon2 package now uses value of memory cost instead of exponent.\n'+
+        detail: 'The argon2 package now uses value of memory cost instead of exponent.\n' +
                 `Replacing memoryCost ${exp} with 2**${exp}=${2 ** exp}.\n`
       })
       options.memoryCost = 2 ** exp
@@ -71,9 +68,10 @@ const hash = (plain, options) => {
       params: {
         m: options.memoryCost,
         t: options.timeCost,
-        p: options.parallelism,
+        p: options.parallelism
       },
-      salt: options.salt, hash,
+      salt: options.salt,
+      hash
     })
   })
 }
@@ -92,7 +90,7 @@ const verify = (digest, plain) => {
       memoryCost: +memoryCost,
       timeCost: +timeCost,
       parallelism: +parallelism,
-      salt,
+      salt
     }
     bindings.hash(Buffer.from(plain), options, resolve, reject)
   }).then(expected => expected.equals(hash))

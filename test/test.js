@@ -27,7 +27,7 @@ test('defaults', () => {
     parallelism: 1,
     type: argon2.argon2i,
     raw: false,
-    version: 0x13,
+    version: 0x13
   })
 })
 
