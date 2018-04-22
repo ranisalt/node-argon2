@@ -43,7 +43,7 @@
     }, {
       "target_name": "argon2",
       "sources": [
-        "src/argon2.cpp"
+        "src/argon2_node.cpp"
       ],
       "include_dirs+": ["<!(node -e \"require('nan')\")"],
       "dependencies": ["libargon2"],
