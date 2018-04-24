@@ -55,7 +55,12 @@ const hash = (plain, options) => {
     })
   }).then(() => {
     return new Promise((resolve, reject) => {
-      bindings.hash(Buffer.from(plain), options, resolve, reject)
+      bindings.hash(Buffer.from(plain), options, (err, value) => {
+        if (err) {
+          return reject(err)
+        }
+        return resolve(value)
+      })
     })
   }).then(hash => {
     if (options.raw) {
@@ -92,7 +97,12 @@ const verify = (digest, plain) => {
       parallelism: +parallelism,
       salt
     }
-    bindings.hash(Buffer.from(plain), options, resolve, reject)
+    bindings.hash(Buffer.from(plain), options, (err, value) => {
+      if (err) {
+        return reject(err)
+      }
+      return resolve(value)
+    })
   }).then(expected => expected.equals(hash))
 }
 

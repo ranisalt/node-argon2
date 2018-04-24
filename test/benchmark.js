@@ -13,7 +13,7 @@ const main = async () => {
   suite.push('sensitive hash', argon2.hash, password, {memoryCost: 29, timeCost: 8})
   suite.push('basic raw hash', argon2.hash, password, {raw: true})
   suite.push('time cost', argon2.hash, password, {timeCost: defaults.timeCost + 1})
-  suite.push('memory cost', argon2.hash, password, {memoryCost: defaults.memoryCost + 1})
+  suite.push('memory cost', argon2.hash, password, {memoryCost: defaults.memoryCost * 2})
   suite.push('parallelism', argon2.hash, password, {parallelism: defaults.parallelism + 1})
   suite.push('argon2d', argon2.hash, password, {type: argon2.argon2d})
   suite.push('argon2d raw hash', argon2.hash, password, {type: argon2.argon2d, raw: true})

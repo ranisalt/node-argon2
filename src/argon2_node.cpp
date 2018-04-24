@@ -23,13 +23,6 @@ struct Options {
     argon2_type type = {};
 };
 
-enum OBJECTS {
-    RESERVED = 0,
-    CONTEXT,
-    RESOLVE,
-    REJECT,
-};
-
 argon2_context make_context(char* buf, const std::string& plain,
         const Options& options) {
     argon2_context ctx;
@@ -58,8 +51,8 @@ argon2_context make_context(char* buf, const std::string& plain,
 
 class HashWorker final: public Nan::AsyncWorker {
 public:
-    HashWorker(std::string plain, Options options) :
-        Nan::AsyncWorker{nullptr, "argon2:HashWorker"},
+    HashWorker(Nan::Callback* callback, std::string plain, Options options) :
+        Nan::AsyncWorker{callback, "argon2:HashWorker"},
         plain{std::move(plain)},
         options{std::move(options)}
     {}
@@ -95,31 +88,13 @@ public:
         Nan::HandleScope scope;
 
         v8::Local<v8::Value> argv[] = {
+            Nan::Null(),
             Nan::CopyBuffer(output.data(), output.size()).ToLocalChecked()
         };
 
-        auto resolve = GetFromPersistent(RESOLVE).As<v8::Function>();
-        Nan::Callback(resolve).Call(
-                /*target =*/ GetFromPersistent(CONTEXT).As<v8::Object>(),
-                /*argc =*/ 1, /*argv =*/ argv,
+        callback->Call(
+                /*argc =*/ 2, /*argv =*/ argv,
                 /*async_resource =*/ async_resource);
-    }
-
-    void HandleErrorCallback() override
-    {
-        /* LCOV_EXCL_START */
-        Nan::HandleScope scope;
-
-        v8::Local<v8::Value> argv[] = {
-            v8::Exception::Error(Nan::New(ErrorMessage()).ToLocalChecked())
-        };
-
-        auto reject = GetFromPersistent(REJECT).As<v8::Function>();
-        Nan::Callback(reject).Call(
-                /*target =*/ GetFromPersistent(CONTEXT).As<v8::Object>(),
-                /*argc =*/ 1, /*argv =*/ argv,
-                /*async_resource =*/ async_resource);
-        /* LCOV_EXCL_STOP */
     }
 
 private:
@@ -164,18 +139,17 @@ Options extract_options(const v8::Local<v8::Object>& options)
 }
 
 NAN_METHOD(Hash) {
-    assert(info.Length() == 4);
+    assert(info.Length() == 3);
 
     auto&& plain = to_string(info[0]);
     auto&& options = Nan::To<v8::Object>(info[1]).ToLocalChecked();
-
-    auto worker = new HashWorker{
-        std::move(plain), extract_options(options),
+    auto callback = new Nan::Callback{
+        Nan::To<v8::Function>(info[2]).ToLocalChecked()
     };
 
-    worker->SaveToPersistent(CONTEXT, info.This());
-    worker->SaveToPersistent(RESOLVE, v8::Local<v8::Function>::Cast(info[2]));
-    worker->SaveToPersistent(REJECT, v8::Local<v8::Function>::Cast(info[3]));
+    auto worker = new HashWorker{
+        callback, std::move(plain), extract_options(options),
+    };
 
     Nan::AsyncQueueWorker(worker);
 }
@@ -191,7 +165,7 @@ NAN_MODULE_INIT(init) {
     };
 
     setMaxMin("hashLength", ARGON2_MAX_OUTLEN, ARGON2_MIN_OUTLEN);
-    setMaxMin("memoryCost", ARGON2_MAX_MEMORY, 64 /*ARGON2_MIN_MEMORY*/);
+    setMaxMin("memoryCost", ARGON2_MAX_MEMORY, ARGON2_MIN_MEMORY);
     setMaxMin("timeCost", ARGON2_MAX_TIME, ARGON2_MIN_TIME);
     setMaxMin("parallelism", ARGON2_MAX_LANES, ARGON2_MIN_LANES);
 

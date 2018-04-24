@@ -18,7 +18,7 @@ function test_options() {
     const defaults: argon2.Options = {
         hashLength: 32,
         timeCost: 3,
-        memoryCost: 12,
+        memoryCost: 1 << 12,
         parallelism: 1,
         type: argon2.argon2i,
         raw: false
@@ -45,10 +45,10 @@ function test_hashOptions() {
         argon2.hash(password, {type: argon2.argon2d}),
         argon2.hash(password, {timeCost: 4}),
         argon2.hash(password, {hashLength: 4}),
-        argon2.hash(password, {memoryCost: 13}),
+        argon2.hash(password, {memoryCost: 1 << 13}),
         argon2.hash(password, {parallelism: 2}),
         argon2.hash(password, {salt: Buffer.from('1234567890abcdef')}),
-        argon2.hash(password, {timeCost: 4, memoryCost: 13, parallelism: 2})
+        argon2.hash(password, {timeCost: 4, memoryCost: 1 << 13, parallelism: 2})
     ]);
 }
 
