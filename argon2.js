@@ -75,6 +75,17 @@ const hash = (plain, options) => {
   })
 }
 
+const needsRehash = (digest, options) => {
+  options = Object.assign({}, defaults, options)
+
+  const {
+    version, params: {m: memoryCost, t: timeCost}
+  } = phc.deserialize(digest)
+  return +version !== +options.version ||
+    +memoryCost !== +options.memoryCost ||
+    +timeCost !== +options.timeCost
+}
+
 const verify = (digest, plain) => {
   const {
     id: type, version, params: {
@@ -104,6 +115,7 @@ module.exports = {
   defaults,
   limits,
   hash,
+  needsRehash,
   verify
 }
 

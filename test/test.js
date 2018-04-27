@@ -158,6 +158,27 @@ test('hash with all options', () => {
   })
 })
 
+test('needs rehash old version', () => {
+  return argon2.hash(password, {version: 0x10}).then(hash => {
+    expect(argon2.needsRehash(hash)).toBeTruthy()
+    expect(argon2.needsRehash(hash, {version: 0x10})).toBeFalsy()
+  })
+})
+
+test('needs rehash low memory cost', () => {
+  return argon2.hash(password, {memoryCost: defaults.memoryCost / 2}).then(hash => {
+    expect(argon2.needsRehash(hash)).toBeTruthy()
+    expect(argon2.needsRehash(hash, {memoryCost: defaults.memoryCost / 2})).toBeFalsy()
+  })
+})
+
+test('needs rehash low time cost', () => {
+  return argon2.hash(password, {timeCost: defaults.timeCost - 1}).then(hash => {
+    expect(argon2.needsRehash(hash)).toBeTruthy()
+    expect(argon2.needsRehash(hash, {timeCost: defaults.timeCost - 1})).toBeFalsy()
+  })
+})
+
 test('verify correct password', () => {
   return argon2.hash(password).then(hash => {
     return argon2.verify(hash, password).then(matches => {
