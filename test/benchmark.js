@@ -8,9 +8,9 @@ const main = async () => {
   const suite = new Suite('argon2')
 
   suite.push('basic hash', argon2.hash, password)
-  suite.push('interactive hash', argon2.hash, password, {memoryCost: 25, timeCost: 4})
-  suite.push('moderate hash', argon2.hash, password, {memoryCost: 27, timeCost: 6})
-  suite.push('sensitive hash', argon2.hash, password, {memoryCost: 29, timeCost: 8})
+  suite.push('interactive hash', argon2.hash, password, {memoryCost: 2 ** 15, timeCost: 4})
+  suite.push('moderate hash', argon2.hash, password, {memoryCost: 2 ** 17, timeCost: 6})
+  suite.push('sensitive hash', argon2.hash, password, {memoryCost: 2 ** 19, timeCost: 8})
   suite.push('basic raw hash', argon2.hash, password, {raw: true})
   suite.push('time cost', argon2.hash, password, {timeCost: defaults.timeCost + 1})
   suite.push('memory cost', argon2.hash, password, {memoryCost: defaults.memoryCost * 2})
