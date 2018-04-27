@@ -37,25 +37,24 @@ const hash = (plain, options) => {
       const exp = options.memoryCost
       process.emitWarning('[argon2] deprecated usage of options.memoryCost', {
         detail: 'The argon2 package now uses value of memory cost instead of exponent.\n' +
-                `Replacing memoryCost ${exp} with 2**${exp}=${1 << exp}.\n`
+        `Replacing memoryCost ${exp} with 2**${exp}=${1 << exp}.\n`
       })
       options.memoryCost = 1 << exp
     }
 
     if ('salt' in options) {
-      return resolve()
+      return resolve(options.salt)
     }
 
     crypto.randomBytes(16, (err, salt) => {
       if (err) {
         return reject(err)
       }
-      options.salt = salt
-      return resolve()
+      return resolve(salt)
     })
-  }).then(() => {
+  }).then(salt => {
     return new Promise((resolve, reject) => {
-      bindings.hash(Buffer.from(plain), options, (err, value) => {
+      bindings.hash(Buffer.from(plain), Object.assign(options, {salt}), (err, value) => {
         if (err) {
           return reject(err)
         }
@@ -67,16 +66,11 @@ const hash = (plain, options) => {
       return hash
     }
 
+    const {
+      type, version, memoryCost: m, timeCost: t, parallelism: p, salt
+    } = options
     return phc.serialize({
-      id: type2string[options.type],
-      version: options.version,
-      params: {
-        m: options.memoryCost,
-        t: options.timeCost,
-        p: options.parallelism
-      },
-      salt: options.salt,
-      hash
+      id: type2string[type], version, params: {m, t, p}, salt, hash
     })
   })
 }
