@@ -6,9 +6,9 @@
   "types": "argon2.d.ts",
   "scripts": {
     "benchmark": "node test/benchmark.js",
-    "clean": "node-gyp clean && nyc --clean",
+    "clean": "node-gyp clean && rm -rf coverage .nyc_output",
     "lint": "standard --verbose | snazzy",
-    "test": "tsc -p . && node test/test-d.js && nyc --reporter=lcov jest"
+    "test": "tsc -p . && node test/test-d.js && nyc mocha test/test.js"
   },
   "repository": {
     "type": "git",
@@ -35,12 +35,15 @@
   },
   "devDependencies": {
     "@types/node": "^9.3.0",
-    "jest": "^22.0.6",
+    "mocha": "^5.1.1",
     "nyc": "^11.0.1",
     "sandra": "^0.3.0",
     "typescript": "^2.1.5"
   },
   "engines": {
     "node": ">=6.0.0"
+  },
+  "standard": {
+    "env": "mocha"
   }
 }

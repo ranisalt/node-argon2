@@ -1,11 +1,8 @@
-/* global expect, test */
+const assert = require('assert')
 const argon2 = require('../argon2')
 const {defaults, limits} = argon2
 const password = 'password'
 const salt = Buffer.alloc(16, 'salt')
-
-// Like argon2's modified base64 implementation, expect function truncates any
-// trailing '=' characters for a more compact representation.
 
 // hashes for argon2i and argon2d with default options
 const hashes = Object.freeze({
@@ -19,218 +16,229 @@ const hashes = Object.freeze({
   rawArgon2id: Buffer.from('7f16c555d3c63d0d4d268cbcec269369bcab5ce2997a967d486045c0f90f276f', 'hex')
 })
 
-test('defaults', () => {
-  expect(defaults).toEqual({
-    hashLength: 32,
-    timeCost: 3,
-    memoryCost: 1 << 12,
-    parallelism: 1,
-    type: argon2.argon2i,
-    raw: false,
-    version: 0x13
+describe('Argon2', () => {
+  it('defaults', () => {
+    assert.deepStrictEqual({
+      hashLength: 32,
+      timeCost: 3,
+      memoryCost: 1 << 12,
+      parallelism: 1,
+      type: argon2.argon2i,
+      raw: false,
+      version: 0x13
+    }, defaults)
   })
-})
 
-test('basic hash', () => {
-  return argon2.hash(password, {salt}).then(hash => {
-    expect(hash).toBe(hashes.argon2i)
-  })
-})
+  describe('hash', () => {
+    it('hash with argon2i', () => {
+      return argon2.hash(password, {salt}).then(hash => {
+        assert.strictEqual(hashes.argon2i, hash)
+      })
+    })
 
-test('hash with null in password', () => {
-  return argon2.hash('pass\0word', {salt}).then(hash => {
-    expect(hash).toBe(hashes.withNull)
-  })
-})
+    it('argon2i with raw hash', () => {
+      return argon2.hash(password, {raw: true, salt}).then(hash => {
+        assert(hashes.rawArgon2i.equals(hash))
+      })
+    })
 
-test('with raw hash', () => {
-  return argon2.hash(password, {raw: true, salt}).then(hash => {
-    expect(hash).toEqual(hashes.rawArgon2i)
-  })
-})
+    it('hash with argon2d', () => {
+      return argon2.hash(password, {type: argon2.argon2d, salt}).then(hash => {
+        assert.strictEqual(hashes.argon2d, hash)
+      })
+    })
 
-test('with raw hash, null in password', () => {
-  return argon2.hash('pass\0word', {raw: true, salt}).then(hash => {
-    expect(hash).toEqual(hashes.rawWithNull)
-  })
-})
+    it('argon2d with raw hash', () => {
+      return argon2.hash(password, {type: argon2.argon2d, raw: true, salt}).then(hash => {
+        assert(hashes.rawArgon2d.equals(hash))
+      })
+    })
 
-test('hash with argon2d', () => {
-  return argon2.hash(password, {type: argon2.argon2d, salt}).then(hash => {
-    expect(hash).toBe(hashes.argon2d)
-  })
-})
+    it('hash with argon2id', () => {
+      return argon2.hash(password, {type: argon2.argon2id, salt}).then(hash => {
+        assert.strictEqual(hashes.argon2id, hash)
+      })
+    })
 
-test('argon2d with raw hash', () => {
-  return argon2.hash(password, {type: argon2.argon2d, raw: true, salt}).then(hash => {
-    expect(hash).toEqual(hashes.rawArgon2d)
-  })
-})
+    it('argon2id with raw hash', () => {
+      return argon2.hash(password, {type: argon2.argon2id, raw: true, salt}).then(hash => {
+        assert(hashes.rawArgon2id.equals(hash))
+      })
+    })
 
-test('hash with argon2id', () => {
-  return argon2.hash(password, {type: argon2.argon2id, salt}).then(hash => {
-    expect(hash).toBe(hashes.argon2id)
-  })
-})
+    it('hash with null in password', () => {
+      return argon2.hash('pass\0word', {salt}).then(hash => {
+        assert.strictEqual(hashes.withNull, hash)
+      })
+    })
 
-test('argon2id with raw hash', () => {
-  return argon2.hash(password, {type: argon2.argon2id, raw: true, salt}).then(hash => {
-    expect(hash).toEqual(hashes.rawArgon2id)
-  })
-})
 
-test('hash with time cost', () => {
-  return argon2.hash(password, {timeCost: 4}).then(hash => {
-    expect(hash).toMatch(/t=4/)
-  })
-})
-
-test('hash with low time cost', () => {
-  return argon2.hash(password, {timeCost: limits.timeCost.min - 1}).catch(err => {
-    expect(err.message).toMatch(/invalid timeCost.+between \d+ and \d+/i)
-  })
-})
-
-test('hash with high time cost', () => {
-  return argon2.hash(password, {timeCost: limits.timeCost.max + 1}).catch(err => {
-    expect(err.message).toMatch(/invalid timeCost.+between \d+ and \d+/i)
-  })
-})
-
-test('hash with hash length', () => {
-  // 4 bytes ascii == 6 bytes base64
-  return argon2.hash(password, {hashLength: 4}).catch(err => {
-    expect(err.message).toMatch(/\$\w{6}$/)
-  })
-})
-
-test('hash with low hash length', () => {
-  return argon2.hash(password, {hashLength: limits.hashLength.min - 1}).catch(err => {
-    expect(err.message).toMatch(/invalid hashLength.+between \d+ and \d+/i)
-  })
-})
-
-test('hash with high hash length', () => {
-  return argon2.hash(password, {hashLength: limits.hashLength.max + 1}).catch(err => {
-    expect(err.message).toMatch(/invalid hashLength.+between \d+ and \d+/i)
-  })
-})
-
-test('hash with memory cost', () => {
-  return argon2.hash(password, {memoryCost: 1 << 13}).then(hash => {
-    expect(hash).toMatch(/m=8192/)
-  })
-})
-
-test('hash with low memory cost', () => {
-  return argon2.hash(password, {memoryCost: limits.memoryCost.min / 2}).catch(err => {
-    expect(err.message).toMatch(/invalid memoryCost.+between \d+ and \d+/i)
-  })
-})
-
-test('hash with high memory cost', () => {
-  return argon2.hash(password, {memoryCost: limits.memoryCost.max * 2}).catch(err => {
-    expect(err.message).toMatch(/invalid memoryCost.+between \d+ and \d+/i)
-  })
-})
-
-test('hash with parallelism', () => {
-  return argon2.hash(password, {parallelism: 2}).then(hash => {
-    expect(hash).toMatch(/p=2/)
-  })
-})
-
-test('hash with low parallelism', () => {
-  return argon2.hash(password, {parallelism: limits.parallelism.min - 1}).catch(err => {
-    expect(err.message).toMatch(/invalid parallelism.+between \d+ and \d+/i)
-  })
-})
-
-test('hash with high parallelism', () => {
-  return argon2.hash(password, {parallelism: limits.parallelism.max + 1}).catch(err => {
-    expect(err.message).toMatch(/invalid parallelism.+between \d+ and \d+/i)
-  })
-})
-
-test('hash with all options', () => {
-  return argon2.hash(password, {timeCost: 4, memoryCost: 1 << 13, parallelism: 2}).then(hash => {
-    expect(hash).toMatch(/m=8192,t=4,p=2/)
-  })
-})
-
-test('needs rehash old version', () => {
-  return argon2.hash(password, {version: 0x10}).then(hash => {
-    expect(argon2.needsRehash(hash)).toBeTruthy()
-    expect(argon2.needsRehash(hash, {version: 0x10})).toBeFalsy()
-  })
-})
-
-test('needs rehash low memory cost', () => {
-  return argon2.hash(password, {memoryCost: defaults.memoryCost / 2}).then(hash => {
-    expect(argon2.needsRehash(hash)).toBeTruthy()
-    expect(argon2.needsRehash(hash, {memoryCost: defaults.memoryCost / 2})).toBeFalsy()
-  })
-})
-
-test('needs rehash low time cost', () => {
-  return argon2.hash(password, {timeCost: defaults.timeCost - 1}).then(hash => {
-    expect(argon2.needsRehash(hash)).toBeTruthy()
-    expect(argon2.needsRehash(hash, {timeCost: defaults.timeCost - 1})).toBeFalsy()
-  })
-})
-
-test('verify correct password', () => {
-  return argon2.hash(password).then(hash => {
-    return argon2.verify(hash, password).then(matches => {
-      expect(matches).toBeTruthy()
+    it('with raw hash, null in password', () => {
+      return argon2.hash('pass\0word', {raw: true, salt}).then(hash => {
+        assert(hashes.rawWithNull.equals(hash))
+      })
     })
   })
-})
 
-test('verify wrong password', () => {
-  return argon2.hash(password).then(hash => {
-    return argon2.verify(hash, 'passworld').then(matches => {
-      expect(matches).toBeFalsy()
+  describe('set options', () => {
+    it('hash with time cost', () => {
+      return argon2.hash(password, {timeCost: 4}).then(hash => {
+        assert(/t=4/.test(hash))
+      })
+    })
+
+    it('hash with low time cost', () => {
+      return argon2.hash(password, {timeCost: limits.timeCost.min - 1}).catch(err => {
+        assert(/invalid timeCost.+between \d+ and \d+/i.test(err.message))
+      })
+    })
+
+    it('hash with high time cost', () => {
+      return argon2.hash(password, {timeCost: limits.timeCost.max + 1}).catch(err => {
+        assert(/invalid timeCost.+between \d+ and \d+/i.test(err.message))
+      })
+    })
+
+    it('hash with hash length', () => {
+      // 4 bytes ascii == 6 bytes base64
+      return argon2.hash(password, {hashLength: 4}).catch(err => {
+        assert(/\$\w{6}$/.test(err.message))
+      })
+    })
+
+    it('hash with low hash length', () => {
+      return argon2.hash(password, {hashLength: limits.hashLength.min - 1}).catch(err => {
+        assert(/invalid hashLength.+between \d+ and \d+/i.test(err.message))
+      })
+    })
+
+    it('hash with high hash length', () => {
+      return argon2.hash(password, {hashLength: limits.hashLength.max + 1}).catch(err => {
+        assert(/invalid hashLength.+between \d+ and \d+/i.test(err.message))
+      })
+    })
+
+    it('hash with memory cost', () => {
+      return argon2.hash(password, {memoryCost: 1 << 13}).then(hash => {
+        assert(/m=8192/.test(hash))
+      })
+    })
+
+    it('hash with low memory cost', () => {
+      return argon2.hash(password, {memoryCost: limits.memoryCost.min / 2}).catch(err => {
+        assert(/invalid memoryCost.+between \d+ and \d+/i.test(err.message))
+      })
+    })
+
+    it('hash with high memory cost', () => {
+      return argon2.hash(password, {memoryCost: limits.memoryCost.max * 2}).catch(err => {
+        assert(/invalid memoryCost.+between \d+ and \d+/i.test(err.message))
+      })
+    })
+
+    it('hash with parallelism', () => {
+      return argon2.hash(password, {parallelism: 2}).then(hash => {
+        assert(/p=2/.test(hash))
+      })
+    })
+
+    it('hash with low parallelism', () => {
+      return argon2.hash(password, {parallelism: limits.parallelism.min - 1}).catch(err => {
+        assert(/invalid parallelism.+between \d+ and \d+/i.test(err.message))
+      })
+    })
+
+    it('hash with high parallelism', () => {
+      return argon2.hash(password, {parallelism: limits.parallelism.max + 1}).catch(err => {
+        assert(/invalid parallelism.+between \d+ and \d+/i.test(err.message))
+      })
+    })
+
+    it('hash with all options', () => {
+      return argon2.hash(password, {timeCost: 4, memoryCost: 1 << 13, parallelism: 2}).then(hash => {
+        assert(/m=8192,t=4,p=2/.test(hash))
+      })
     })
   })
-})
 
-test('verify with null in password', () => {
-  return argon2.hash('pass\0word').then(hash => {
-    return argon2.verify(hash, 'pass\0word').then(matches => {
-      expect(matches).toBeTruthy()
+  describe('needsRehash', () => {
+    it('needs rehash old version', () => {
+      return argon2.hash(password, {version: 0x10}).then(hash => {
+        assert(argon2.needsRehash(hash))
+        assert(!argon2.needsRehash(hash, {version: 0x10}))
+      })
+    })
+
+    it('needs rehash low memory cost', () => {
+      return argon2.hash(password, {memoryCost: defaults.memoryCost / 2}).then(hash => {
+        assert(argon2.needsRehash(hash))
+        assert(!argon2.needsRehash(hash, {memoryCost: defaults.memoryCost / 2}))
+      })
+    })
+
+    it('needs rehash low time cost', () => {
+      return argon2.hash(password, {timeCost: defaults.timeCost - 1}).then(hash => {
+        assert(argon2.needsRehash(hash))
+        assert(!argon2.needsRehash(hash, {timeCost: defaults.timeCost - 1}))
+      })
     })
   })
-})
 
-test('verify argon2d correct password', () => {
-  return argon2.hash(password, {type: argon2.argon2d}).then(hash => {
-    return argon2.verify(hash, password).then(matches => {
-      expect(matches).toBeTruthy()
+  describe('verify', () => {
+    it('verify correct password', () => {
+      return argon2.hash(password).then(hash => {
+        return argon2.verify(hash, password).then(matches => {
+          assert(matches)
+        })
+      })
     })
-  })
-})
 
-test('verify argon2d wrong password', () => {
-  return argon2.hash(password, {type: argon2.argon2d}).then(hash => {
-    return argon2.verify(hash, 'passworld').then(matches => {
-      expect(matches).toBeFalsy()
+    it('verify wrong password', () => {
+      return argon2.hash(password).then(hash => {
+        return argon2.verify(hash, 'passworld').then(matches => {
+          assert(!matches)
+        })
+      })
     })
-  })
-})
 
-test('verify argon2id correct password', () => {
-  return argon2.hash(password, {type: argon2.argon2id}).then(hash => {
-    return argon2.verify(hash, password).then(matches => {
-      expect(matches).toBeTruthy()
+    it('verify with null in password', () => {
+      return argon2.hash('pass\0word').then(hash => {
+        return argon2.verify(hash, 'pass\0word').then(matches => {
+          assert(matches)
+        })
+      })
     })
-  })
-})
 
-test('verify argon2id wrong password', () => {
-  return argon2.hash(password, {type: argon2.argon2id}).then(hash => {
-    return argon2.verify(hash, 'passworld').then(matches => {
-      expect(matches).toBeFalsy()
+    it('verify argon2d correct password', () => {
+      return argon2.hash(password, {type: argon2.argon2d}).then(hash => {
+        return argon2.verify(hash, password).then(matches => {
+          assert(matches)
+        })
+      })
+    })
+
+    it('verify argon2d wrong password', () => {
+      return argon2.hash(password, {type: argon2.argon2d}).then(hash => {
+        return argon2.verify(hash, 'passworld').then(matches => {
+          assert(!matches)
+        })
+      })
+    })
+
+    it('verify argon2id correct password', () => {
+      return argon2.hash(password, {type: argon2.argon2id}).then(hash => {
+        return argon2.verify(hash, password).then(matches => {
+          assert(matches)
+        })
+      })
+    })
+
+    it('verify argon2id wrong password', () => {
+      return argon2.hash(password, {type: argon2.argon2id}).then(hash => {
+        return argon2.verify(hash, 'passworld').then(matches => {
+          assert(!matches)
+        })
+      })
     })
   })
 })
