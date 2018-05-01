@@ -47,6 +47,7 @@ const hash = (plain, options) => {
     }
 
     crypto.randomBytes(16, (err, salt) => {
+      /* istanbul ignore if */
       if (err) {
         return reject(err)
       }
@@ -55,6 +56,7 @@ const hash = (plain, options) => {
   }).then(salt => {
     return new Promise((resolve, reject) => {
       bindings.hash(Buffer.from(plain), Object.assign(options, {salt}), (err, value) => {
+        /* istanbul ignore if */
         if (err) {
           return reject(err)
         }
@@ -103,6 +105,7 @@ const verify = (digest, plain) => {
       salt
     }
     bindings.hash(Buffer.from(plain), options, (err, value) => {
+      /* istanbul ignore if */
       if (err) {
         return reject(err)
       }
