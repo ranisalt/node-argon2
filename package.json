@@ -6,7 +6,8 @@
   "types": "argon2.d.ts",
   "scripts": {
     "benchmark": "node test/benchmark.js",
-    "clean": "node-gyp clean && rm -rf coverage .nyc_output",
+    "clean": "node-gyp clean && rm -rf .nyc_output",
+    "coverage": "nyc report --reporter=text-lcov",
     "lint": "standard --verbose | snazzy",
     "test": "tsc -p . && node test/test-d.js && nyc mocha test/test.js"
   },
