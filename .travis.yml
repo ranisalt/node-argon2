@@ -10,10 +10,10 @@ addons:
       - lcov
 env:
   - npm_config_debug=yes
-before_install: npm install -g node-gyp
+before_install: npm install -g node-gyp nyc
+script: nyc npm test && npm run test-ts
 after_success:
-  - npm install -g standard snazzy && npm run lint
-  - npm run coverage > lcov-js.info
+  - nyc report --reporter=text-lcov > lcov-js.info
   - lcov -c -d . --no-external -o lcov-cpp.info
   - lcov -r lcov-cpp.info "*/node_modules/*" -o lcov-cpp.info
   - lcov -a lcov-cpp.info -a lcov-js.info -o lcov.info
