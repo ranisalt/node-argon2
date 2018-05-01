@@ -32,6 +32,7 @@ public:
     }
 
     std::string salt;
+    std::string secret;
 
     uint32_t hash_length = {};
     uint32_t time_cost = {};
@@ -121,36 +122,48 @@ private:
     std::string hash;
 };
 
-using size_type = std::string::size_type;
-
-v8::Local<v8::Value> from_object(const v8::Local<v8::Object>& object, const char* key)
+Nan::MaybeLocal<v8::Value> from_object(const v8::Local<v8::Object>& object, const char* key)
 {
-    return Nan::Get(object, Nan::New(key).ToLocalChecked()).ToLocalChecked();
+    auto&& _key = Nan::New(key).ToLocalChecked();
+    if (Nan::Has(object, _key).FromMaybe(false)) {
+        return Nan::Get(object, _key);
+    }
+    return {};
 }
 
-template<class ReturnValue, class T>
-ReturnValue to_just(const T& object)
+std::string optional_string(const v8::Local<v8::Object>& obj, const char* key)
 {
-    return Nan::To<ReturnValue>(object).FromJust();
+    auto&& maybe = from_object(obj, key);
+    if (maybe.IsEmpty()) {
+        return {};
+    }
+    auto&& local = maybe.ToLocalChecked();
+    return {node::Buffer::Data(local), node::Buffer::Length(local)};
 }
 
-template<class T>
-std::string to_string(const T& object)
+uint32_t require_uint32(const v8::Local<v8::Object>& obj, const char* key)
 {
-    auto&& conv = Nan::To<v8::Object>(object).ToLocalChecked();
-    return {node::Buffer::Data(conv), node::Buffer::Length(conv)};
+    auto&& local = from_object(obj, key).ToLocalChecked();
+    return Nan::To<uint32_t>(local).FromJust();
+}
+
+std::string require_string(const v8::Local<v8::Object>& obj, const char* key)
+{
+    auto&& local = from_object(obj, key).ToLocalChecked();
+    return {node::Buffer::Data(local), node::Buffer::Length(local)};
 }
 
 Options extract_options(const v8::Local<v8::Object>& options)
 {
     Options ret;
-    ret.salt = to_string(from_object(options, "salt"));
-    ret.hash_length = to_just<uint32_t>(from_object(options, "hashLength"));
-    ret.time_cost = to_just<uint32_t>(from_object(options, "timeCost"));
-    ret.memory_cost = to_just<uint32_t>(from_object(options, "memoryCost"));
-    ret.parallelism = to_just<uint32_t>(from_object(options, "parallelism"));
-    ret.version = to_just<uint32_t>(from_object(options, "version"));
-    ret.type = argon2_type(to_just<uint32_t>(from_object(options, "type")));
+    ret.salt = require_string(options, "salt");
+    ret.secret = optional_string(options, "secret");
+    ret.hash_length = require_uint32(options, "hashLength");
+    ret.time_cost = require_uint32(options, "timeCost");
+    ret.memory_cost = require_uint32(options, "memoryCost");
+    ret.parallelism = require_uint32(options, "parallelism");
+    ret.version = require_uint32(options, "version");
+    ret.type = static_cast<argon2_type>(require_uint32(options, "type"));
     return ret;
 }
 
@@ -159,14 +172,14 @@ Options extract_options(const v8::Local<v8::Object>& options)
 NAN_METHOD(Hash) {
     assert(info.Length() == 3);
 
-    auto&& plain = to_string(info[0]);
+    auto&& plain = Nan::To<v8::Object>(info[0]).ToLocalChecked();
     auto&& options = Nan::To<v8::Object>(info[1]).ToLocalChecked();
-    auto callback = new Nan::Callback{
-        Nan::To<v8::Function>(info[2]).ToLocalChecked()
-    };
+    auto&& callback = Nan::To<v8::Function>(info[2]).ToLocalChecked();
 
     auto worker = new HashWorker{
-        callback, std::move(plain), extract_options(options),
+        new Nan::Callback{callback},
+        {node::Buffer::Data(plain), node::Buffer::Length(plain)},
+        extract_options(options),
     };
 
     Nan::AsyncQueueWorker(worker);
