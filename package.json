@@ -35,7 +35,7 @@
     "nan": "^2.10.0"
   },
   "devDependencies": {
-    "@types/node": "^9.3.0",
+    "@types/node": "^10.0.3",
     "mocha": "^5.1.1",
     "sandra": "^0.3.0",
     "typescript": "^2.1.5"
