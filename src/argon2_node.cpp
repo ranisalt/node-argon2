@@ -8,10 +8,28 @@
 
 namespace {
 
-struct Options {
+class Options {
+public:
     // TODO: remove ctors and initializers when GCC<5 stops shipping on Ubuntu
     Options() = default;
     Options(Options&&) = default;
+
+    v8::Local<v8::Object> dump(const std::string& hash) const
+    {
+        auto out = Nan::New<v8::Object>();
+        Nan::Set(out, Nan::New("id").ToLocalChecked(), Nan::New(argon2_type2string(type, false)).ToLocalChecked());
+        Nan::Set(out, Nan::New("version").ToLocalChecked(), Nan::New(version));
+
+        auto params = Nan::New<v8::Object>();
+        Nan::Set(params, Nan::New("m").ToLocalChecked(), Nan::New(memory_cost));
+        Nan::Set(params, Nan::New("t").ToLocalChecked(), Nan::New(time_cost));
+        Nan::Set(params, Nan::New("p").ToLocalChecked(), Nan::New(parallelism));
+        Nan::Set(out, Nan::New("params").ToLocalChecked(), params);
+
+        Nan::Set(out, Nan::New("salt").ToLocalChecked(), Nan::CopyBuffer(salt.c_str(), salt.size()).ToLocalChecked());
+        Nan::Set(out, Nan::New("hash").ToLocalChecked(), Nan::CopyBuffer(hash.c_str(), hash.size()).ToLocalChecked());
+        return out;
+    }
 
     std::string salt;
 
@@ -19,6 +37,7 @@ struct Options {
     uint32_t time_cost = {};
     uint32_t memory_cost = {};
     uint32_t parallelism = {};
+    uint32_t version = {};
 
     argon2_type type = {};
 };
@@ -44,7 +63,7 @@ argon2_context make_context(char* buf, const std::string& plain,
     ctx.allocate_cbk = nullptr;
     ctx.free_cbk = nullptr;
     ctx.flags = ARGON2_DEFAULT_FLAGS;
-    ctx.version = ARGON2_VERSION_NUMBER;
+    ctx.version = options.version;
 
     return ctx;
 }
@@ -73,7 +92,7 @@ public:
             SetErrorMessage(argon2_error_message(result));
             /* LCOV_EXCL_STOP */
         } else {
-            output.assign(buf, options.hash_length);
+            hash.assign(buf, options.hash_length);
         }
 
         std::fill_n(buf, options.hash_length, 0);
@@ -89,19 +108,17 @@ public:
 
         v8::Local<v8::Value> argv[] = {
             Nan::Null(),
-            Nan::CopyBuffer(output.data(), output.size()).ToLocalChecked()
+            options.dump(hash),
         };
 
-        callback->Call(
-                /*argc =*/ 2, /*argv =*/ argv,
-                /*async_resource =*/ async_resource);
+        callback->Call(2, argv, async_resource);
     }
 
 private:
     std::string plain;
     Options options;
 
-    std::string output;
+    std::string hash;
 };
 
 using size_type = std::string::size_type;
@@ -132,6 +149,7 @@ Options extract_options(const v8::Local<v8::Object>& options)
     ret.time_cost = to_just<uint32_t>(from_object(options, "timeCost"));
     ret.memory_cost = to_just<uint32_t>(from_object(options, "memoryCost"));
     ret.parallelism = to_just<uint32_t>(from_object(options, "parallelism"));
+    ret.version = to_just<uint32_t>(from_object(options, "version"));
     ret.type = argon2_type(to_just<uint32_t>(from_object(options, "type")));
     return ret;
 }

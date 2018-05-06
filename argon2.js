@@ -14,7 +14,6 @@ const defaults = Object.freeze({
   memoryCost: 1 << 12,
   parallelism: 1,
   type: types.argon2i,
-  raw: false,
   version
 })
 
@@ -63,17 +62,12 @@ const hash = (plain, options) => {
         return resolve(value)
       })
     })
-  }).then(hash => {
+  }).then(output => {
     if (options.raw) {
-      return hash
+      return output.hash
     }
 
-    const {
-      type, version, memoryCost: m, timeCost: t, parallelism: p, salt
-    } = options
-    return phc.serialize({
-      id: type2string[type], version, params: {m, t, p}, salt, hash
-    })
+    return phc.serialize(output)
   })
 }
 
@@ -109,9 +103,11 @@ const verify = (digest, plain) => {
       if (err) {
         return reject(err)
       }
-      return resolve(value)
+      return resolve(value.hash)
     })
-  }).then(expected => expected.equals(hash))
+  }).then(expected => {
+    return expected.equals(hash)
+  })
 }
 
 module.exports = {
