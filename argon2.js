@@ -23,7 +23,7 @@ const hash = (plain, options) => {
   options = Object.assign({}, defaults, options)
 
   return new Promise((resolve, reject) => {
-    for (let key of Object.keys(limits)) {
+    for (const key of Object.keys(limits)) {
       const {max, min} = limits[key]
       const value = options[key]
       if (value > max || value < min) {
