@@ -105,9 +105,7 @@ const verify = (digest, plain) => {
       }
       return resolve(value.hash)
     })
-  }).then(expected => {
-    return expected.equals(hash)
-  })
+  }).then(expected => expected.equals(hash))
 }
 
 module.exports = {
