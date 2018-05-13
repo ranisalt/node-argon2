@@ -13,7 +13,8 @@ const hashes = Object.freeze({
   rawArgon2i: Buffer.from('22fddd48c278df5a76e13123ebc2b1a249bf8a5002f477f04440c854f33fd7fd', 'hex'),
   rawWithNull: Buffer.from('6777c455a953ef1060e9be7ce563a563682e7d697de597e4140f263ed589dd43', 'hex'),
   rawArgon2d: Buffer.from('dc261a0e8a1b15aa6b0f4d874cc55544bb2b4a026364ae509aa6169d60c4025c', 'hex'),
-  rawArgon2id: Buffer.from('7f16c555d3c63d0d4d268cbcec269369bcab5ce2997a967d486045c0f90f276f', 'hex')
+  rawArgon2id: Buffer.from('7f16c555d3c63d0d4d268cbcec269369bcab5ce2997a967d486045c0f90f276f', 'hex'),
+  oldFormat: '$argon2i$m=4096,t=3,p=1$tbagT6b1YH33niCo9lVzuA$htv/k+OqWk1V9zD9k5DOBi2kcfcZ6Xu3tWmwEPV3/nc'
 })
 
 describe('Argon2', () => {
@@ -237,6 +238,13 @@ describe('Argon2', () => {
         return argon2.verify(hash, 'passworld').then(matches => {
           assert(!matches)
         })
+      })
+    })
+
+    it('verify old hash format', () => {
+      // older hashes did not contain the v (version) parameter
+      return argon2.verify(hashes.oldFormat, 'password').then(matches => {
+        assert(matches)
       })
     })
   })

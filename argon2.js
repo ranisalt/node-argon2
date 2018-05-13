@@ -91,7 +91,7 @@ const verify = (digest, plain) => {
   return new Promise((resolve, reject) => {
     const options = {
       type: module.exports[type],
-      version: +version,
+      version: version ? +version : 0x10,
       hashLength: hash.length,
       memoryCost: +memoryCost,
       timeCost: +timeCost,
