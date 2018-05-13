@@ -84,14 +84,14 @@ const needsRehash = (digest, options) => {
 
 const verify = (digest, plain) => {
   const {
-    id: type, version, params: {
+    id: type, version = 0x10, params: {
       m: memoryCost, t: timeCost, p: parallelism
     }, salt, hash
   } = phc.deserialize(digest)
   return new Promise((resolve, reject) => {
     const options = {
       type: module.exports[type],
-      version: version ? +version : 0x10,
+      version: +version,
       hashLength: hash.length,
       memoryCost: +memoryCost,
       timeCost: +timeCost,
