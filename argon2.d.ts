@@ -1,4 +1,4 @@
-// Type definitions for argon2 v0.14.0
+// Type definitions for argon2 v0.19.2
 
 /// <reference types="node" />
 
@@ -8,6 +8,7 @@ export interface Options {
     memoryCost?: number;
     parallelism?: number;
     type?: 0 | 1 | 2;
+    version?: number;
     salt?: Buffer;
     raw?: boolean;
 }
