@@ -84,10 +84,10 @@ Q for enhanced functionality.
 
 You can also modify time, memory and parallelism constraints passing the object
 as the third parameter, with keys `timeCost`, `memoryCost` and `parallelism`,
-respectively defaulted to 3, 12 (meaning 2^12 KiB) and 1 (threads):
+respectively defaulted to 3, 4096 (KiB) and 1 (threads):
 ```js
 const options = {
-  timeCost: 4, memoryCost: 13, parallelism: 2, type: argon2.argon2d
+  timeCost: 4, memoryCost: 2 ** 13, parallelism: 2, type: argon2.argon2d
 };
 
 argon2.hash('password', options).then(hash => {
@@ -102,7 +102,7 @@ const hash = await argon2.hash("password", options);
 The default parameters for Argon2 can be accessed with `defaults`:
 ```js
 console.log(argon2.defaults);
-// => { timeCost: 3, memoryCost: 12, parallelism: 1, type: argon2.argon2i }
+// => { timeCost: 3, memoryCost: 4096, parallelism: 1, type: argon2.argon2i }
 ```
 
 To verify a password:
