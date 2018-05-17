@@ -10,6 +10,7 @@ const version = bindings.version
 
 const defaults = Object.freeze({
   hashLength: 32,
+  saltLength: 16,
   timeCost: 3,
   memoryCost: 1 << 12,
   parallelism: 1,
@@ -45,7 +46,7 @@ const hash = (plain, options) => {
       return resolve(options.salt)
     }
 
-    crypto.randomBytes(16, (err, salt) => {
+    crypto.randomBytes(options.saltLength, (err, salt) => {
       /* istanbul ignore if */
       if (err) {
         return reject(err)

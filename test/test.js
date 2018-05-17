@@ -21,6 +21,7 @@ describe('Argon2', () => {
   it('defaults', () => {
     assert.deepStrictEqual({
       hashLength: 32,
+      saltLength: 16,
       timeCost: 3,
       memoryCost: 1 << 12,
       parallelism: 1,
