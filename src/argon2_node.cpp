@@ -53,8 +53,8 @@ argon2_context make_context(char* buf, const std::string& plain,
     ctx.pwdlen = plain.size();
     ctx.salt = reinterpret_cast<uint8_t*>(const_cast<char*>(options.salt.data()));
     ctx.saltlen = options.salt.size();
-    ctx.secret = nullptr;
-    ctx.secretlen = 0;
+    ctx.secret = reinterpret_cast<uint8_t*>(const_cast<char*>(options.secret.data()));
+    ctx.secretlen = options.secret.size();
     ctx.ad = nullptr;
     ctx.adlen = 0;
     ctx.t_cost = options.time_cost;

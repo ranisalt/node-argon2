@@ -18,7 +18,7 @@ const defaults = Object.freeze({
   version
 })
 
-const type2string = []
+const secrets = new Map()
 
 const hash = (plain, options) => {
   options = Object.assign({}, defaults, options)
@@ -40,6 +40,10 @@ const hash = (plain, options) => {
         `Replacing memoryCost ${exp} with 2**${exp}=${1 << exp}.\n`
       })
       options.memoryCost = 1 << exp
+    }
+
+    if ('keyid' in options) {
+      options.secret = secrets.get(options.keyid)
     }
 
     if ('salt' in options) {
@@ -68,6 +72,9 @@ const hash = (plain, options) => {
       return output.hash
     }
 
+    if ('keyid' in options) {
+      output.params.keyid = options.keyid
+    }
     return phc.serialize(output)
   })
 }
@@ -87,7 +94,7 @@ const verify = (digest, plain) => {
   const {
     id: type, version = 0x10, params: {
       m: memoryCost, t: timeCost, p: parallelism
-    }, salt, hash
+    }, keyid, salt, hash
   } = phc.deserialize(digest)
   return new Promise((resolve, reject) => {
     const options = {
@@ -97,6 +104,7 @@ const verify = (digest, plain) => {
       memoryCost: +memoryCost,
       timeCost: +timeCost,
       parallelism: +parallelism,
+      keyid,
       salt
     }
     bindings.hash(Buffer.from(plain), options, (err, value) => {
@@ -114,10 +122,10 @@ module.exports = {
   limits,
   hash,
   needsRehash,
+  secrets,
   verify
 }
 
 for (const k of Object.keys(types)) {
   module.exports[k] = types[k]
-  type2string[types[k]] = k
 }
