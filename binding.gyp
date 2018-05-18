@@ -45,6 +45,7 @@
       "sources": [
         "src/argon2_node.cpp"
       ],
+      "cflags+": ["-Wno-cast-function-type"],
       "include_dirs+": ["<!(node -e \"require('nan')\")"],
       "dependencies": ["libargon2"],
       "configurations": {
