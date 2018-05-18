@@ -33,6 +33,7 @@ public:
 
     std::string salt;
     std::string secret;
+    std::string data;
 
     uint32_t hash_length = {};
     uint32_t time_cost = {};
@@ -55,8 +56,8 @@ argon2_context make_context(char* buf, const std::string& plain,
     ctx.saltlen = options.salt.size();
     ctx.secret = reinterpret_cast<uint8_t*>(const_cast<char*>(options.secret.data()));
     ctx.secretlen = options.secret.size();
-    ctx.ad = nullptr;
-    ctx.adlen = 0;
+    ctx.ad = reinterpret_cast<uint8_t*>(const_cast<char*>(options.data.data()));
+    ctx.adlen = options.data.size();
     ctx.t_cost = options.time_cost;
     ctx.m_cost = options.memory_cost;
     ctx.lanes = options.parallelism;
@@ -158,6 +159,7 @@ Options extract_options(const v8::Local<v8::Object>& options)
     Options ret;
     ret.salt = require_string(options, "salt");
     ret.secret = optional_string(options, "secret");
+    ret.data = optional_string(options, "data");
     ret.hash_length = require_uint32(options, "hashLength");
     ret.time_cost = require_uint32(options, "timeCost");
     ret.memory_cost = require_uint32(options, "memoryCost");

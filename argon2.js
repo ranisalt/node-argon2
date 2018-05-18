@@ -75,6 +75,11 @@ const hash = (plain, options) => {
     if ('keyid' in options) {
       output.params.keyid = options.keyid
     }
+
+    if ('data' in options) {
+      output.params.data = options.data.toString('base64').split('=')[0]
+    }
+
     return phc.serialize(output)
   })
 }
@@ -93,8 +98,8 @@ const needsRehash = (digest, options) => {
 const verify = (digest, plain) => {
   const {
     id: type, version = 0x10, params: {
-      m: memoryCost, t: timeCost, p: parallelism
-    }, keyid, salt, hash
+      m: memoryCost, t: timeCost, p: parallelism, keyid, data
+    }, salt, hash
   } = phc.deserialize(digest)
   return new Promise((resolve, reject) => {
     const options = {
@@ -104,9 +109,17 @@ const verify = (digest, plain) => {
       memoryCost: +memoryCost,
       timeCost: +timeCost,
       parallelism: +parallelism,
-      keyid,
       salt
     }
+
+    if (keyid !== undefined) {
+      options.secret = secrets.get(keyid)
+    }
+
+    if (data !== undefined) {
+      options.data = Buffer.from(data, 'base64')
+    }
+
     bindings.hash(Buffer.from(plain), options, (err, value) => {
       /* istanbul ignore if */
       if (err) {
