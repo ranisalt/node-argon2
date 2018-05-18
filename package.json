@@ -37,7 +37,7 @@
   "devDependencies": {
     "@types/node": "^10.0.8",
     "mocha": "^5.1.1",
-    "sandra": "^0.3.1",
+    "sandra": "^0.3.2",
     "typescript": "^2.8.3"
   },
   "engines": {
