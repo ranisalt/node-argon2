@@ -14,6 +14,9 @@ const hashes = Object.freeze({
   rawWithNull: Buffer.from('6777c455a953ef1060e9be7ce563a563682e7d697de597e4140f263ed589dd43', 'hex'),
   rawArgon2d: Buffer.from('dc261a0e8a1b15aa6b0f4d874cc55544bb2b4a026364ae509aa6169d60c4025c', 'hex'),
   rawArgon2id: Buffer.from('7f16c555d3c63d0d4d268cbcec269369bcab5ce2997a967d486045c0f90f276f', 'hex'),
+  vectorArgon2i: Buffer.from('b8521368599f4b5f9595ab4a678464a46bb59d428c821bf164c96056c6a31a', 'hex'),
+  vectorArgon2d: Buffer.from('0a1a76a9e891fca7891a50712878283f5c5dc1c98436e6b516bcbb18a334ae3e', 'hex'),
+  vectorArgon2id: Buffer.from('afd2cece865d3cb0ac6a3ac9b5af84f15c7ffec721aca1ea97bfea30c5337b', 'hex'),
   oldFormat: '$argon2i$m=4096,t=3,p=1$tbagT6b1YH33niCo9lVzuA$htv/k+OqWk1V9zD9k5DOBi2kcfcZ6Xu3tWmwEPV3/nc'
 })
 
@@ -247,6 +250,40 @@ describe('Argon2', () => {
       return argon2.verify(hashes.oldFormat, 'password').then(matches => {
         assert(matches)
       })
+    })
+  })
+
+  describe('test vectors', () => {
+    const password = Buffer.alloc(32, 0x01)
+
+    const options = {
+      raw: true,
+      memoryCost: 32768,
+      timeCost: 3,
+      parallelism: 4,
+      hashLength: 32,
+      salt: Buffer.alloc(16, 0x02),
+      keyid: 'test-vector',
+      data: Buffer.alloc(12, 0x04)
+    }
+
+    argon2.secrets.set(options.keyid, Buffer.alloc(8, 0x03))
+
+    // TODO: decipher what the test vectors actually mean and compare against
+
+    it('validate argon2d', () => {
+      return argon2.hash(password, Object.assign({type: argon2d}, options))
+        .then(hash => hash.equals(hashes.vectorArgon2d))
+    })
+
+    it('validate argon2i', () => {
+      return argon2.hash(password, Object.assign({type: argon2i}, options))
+        .then(hash => hash.equals(hashes.vectorArgon2i))
+    })
+
+    it('validate argon2id', () => {
+      return argon2.hash(password, Object.assign({type: argon2id}, options))
+        .then(hash => hash.equals(hashes.vectorArgon2id))
     })
   })
 })
