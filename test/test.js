@@ -1,6 +1,6 @@
 const assert = require('assert')
 const argon2 = require('../argon2')
-const {defaults, limits} = argon2
+const {argon2i, argon2d, argon2id, defaults, limits} = argon2
 const password = 'password'
 const salt = Buffer.alloc(16, 'salt')
 
@@ -25,7 +25,7 @@ describe('Argon2', () => {
       timeCost: 3,
       memoryCost: 1 << 12,
       parallelism: 1,
-      type: argon2.argon2i,
+      type: argon2i,
       version: 0x13
     }, defaults)
   })
@@ -44,25 +44,25 @@ describe('Argon2', () => {
     })
 
     it('hash with argon2d', () => {
-      return argon2.hash(password, {type: argon2.argon2d, salt}).then(hash => {
+      return argon2.hash(password, {type: argon2d, salt}).then(hash => {
         assert.strictEqual(hashes.argon2d, hash)
       })
     })
 
     it('argon2d with raw hash', () => {
-      return argon2.hash(password, {type: argon2.argon2d, raw: true, salt}).then(hash => {
+      return argon2.hash(password, {type: argon2d, raw: true, salt}).then(hash => {
         assert(hashes.rawArgon2d.equals(hash))
       })
     })
 
     it('hash with argon2id', () => {
-      return argon2.hash(password, {type: argon2.argon2id, salt}).then(hash => {
+      return argon2.hash(password, {type: argon2id, salt}).then(hash => {
         assert.strictEqual(hashes.argon2id, hash)
       })
     })
 
     it('argon2id with raw hash', () => {
-      return argon2.hash(password, {type: argon2.argon2id, raw: true, salt}).then(hash => {
+      return argon2.hash(password, {type: argon2id, raw: true, salt}).then(hash => {
         assert(hashes.rawArgon2id.equals(hash))
       })
     })
@@ -211,7 +211,7 @@ describe('Argon2', () => {
     })
 
     it('verify argon2d correct password', () => {
-      return argon2.hash(password, {type: argon2.argon2d}).then(hash => {
+      return argon2.hash(password, {type: argon2d}).then(hash => {
         return argon2.verify(hash, password).then(matches => {
           assert(matches)
         })
@@ -219,7 +219,7 @@ describe('Argon2', () => {
     })
 
     it('verify argon2d wrong password', () => {
-      return argon2.hash(password, {type: argon2.argon2d}).then(hash => {
+      return argon2.hash(password, {type: argon2d}).then(hash => {
         return argon2.verify(hash, 'passworld').then(matches => {
           assert(!matches)
         })
@@ -227,7 +227,7 @@ describe('Argon2', () => {
     })
 
     it('verify argon2id correct password', () => {
-      return argon2.hash(password, {type: argon2.argon2id}).then(hash => {
+      return argon2.hash(password, {type: argon2id}).then(hash => {
         return argon2.verify(hash, password).then(matches => {
           assert(matches)
         })
@@ -235,7 +235,7 @@ describe('Argon2', () => {
     })
 
     it('verify argon2id wrong password', () => {
-      return argon2.hash(password, {type: argon2.argon2id}).then(hash => {
+      return argon2.hash(password, {type: argon2id}).then(hash => {
         return argon2.verify(hash, 'passworld').then(matches => {
           assert(!matches)
         })
