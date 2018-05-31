@@ -6,7 +6,9 @@
 #include <nan.h>
 #include "../argon2/include/argon2.h"
 
+#ifndef _MSC_VER
 namespace {
+#endif
 
 class Options {
 public:
@@ -154,7 +156,9 @@ Options extract_options(const v8::Local<v8::Object>& options)
     return ret;
 }
 
+#ifndef _MSC_VER
 }
+#endif
 
 NAN_METHOD(Hash) {
     assert(info.Length() == 3);
