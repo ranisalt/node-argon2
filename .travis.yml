@@ -5,6 +5,9 @@ node_js:
   - "8"
   - "10"
   - "11"
+os:
+  - linux
+  - mac
 addons:
   apt:
     packages:
@@ -12,10 +15,11 @@ addons:
 env:
   - npm_config_debug=yes
 before_install: npm install -g node-gyp nyc
-script: nyc npm test && npm run test-ts
 after_success:
   - nyc report --reporter=text-lcov > lcov-js.info
   - lcov -c -d . --no-external -o lcov-cpp.info
   - lcov -r lcov-cpp.info "*/node_modules/*" -o lcov-cpp.info
   - lcov -a lcov-cpp.info -a lcov-js.info -o lcov.info
   - npm install -g coveralls && coveralls < lcov.info
+  - npm run prebuild-node && npm run prebuild-electron
+  - if [[ -n "$TRAVIS_TAG" ]]; then npm run upload; fi

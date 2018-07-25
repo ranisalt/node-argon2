@@ -34,7 +34,10 @@ bower_components
 .lock-wscript
 
 # Compiled binary addons (http://nodejs.org/api/addons.html)
-build/Release
+build/
+
+# Prebuild binaries (https://www.npmjs.com/package/prebuild)
+prebuilds/
 
 # Dependency directories
 node_modules/
