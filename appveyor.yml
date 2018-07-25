@@ -25,11 +25,9 @@ install:
 #---------------------------------#
 
 build_script:
-  - npm install
-  - npm run prebuild-node
-  - npm run prebuild-electron
-  - if defined APPVEYOR_REPO_TAG_NAME (npm run upload)
-  - npm install # Rerun to compile correct binary target for running tests
+  - cmd: npm install
+  - if defined APPVEYOR_REPO_TAG_NAME (npm run prebuild)
+  - if defined APPVEYOR_REPO_TAG_NAME (npm install) # Rerun to compile correct binary target for running tests
 
 #---------------------------------#
 #       tests configuration       #

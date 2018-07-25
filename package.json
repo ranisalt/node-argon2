@@ -14,7 +14,7 @@
     "rebuild": "prebuild --compile",
     "prebuild-node": "prebuild -t 6.11.0 -t 7.9.0 -t 8.9.0 -t 9.4.0 --strip --debug",
     "prebuild-electron": "prebuild -t 1.6.11 -t 1.7.10 -t 1.8.0 -t 2.0.0 -r electron --strip --debug",
-    "upload": "node ./script/upload.js"
+    "prebuild": "npm run prebuild-node && npm run prebuild-electron && node ./script/upload.js"
   },
   "repository": {
     "type": "git",

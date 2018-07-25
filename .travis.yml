@@ -21,5 +21,4 @@ after_success:
   - lcov -r lcov-cpp.info "*/node_modules/*" -o lcov-cpp.info
   - lcov -a lcov-cpp.info -a lcov-js.info -o lcov.info
   - npm install -g coveralls && coveralls < lcov.info
-  - npm run prebuild-node && npm run prebuild-electron
-  - if [[ -n "$TRAVIS_TAG" ]]; then npm run upload; fi
+  - if [[ -n "$TRAVIS_TAG" ]]; then npm run prebuild; fi
