@@ -10,6 +10,7 @@ export interface Options {
     type?: 0 | 1 | 2;
     version?: number;
     salt?: Buffer;
+    saltLength?: number;
     raw?: boolean;
 }
 
