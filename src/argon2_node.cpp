@@ -161,7 +161,10 @@ Options extract_options(const v8::Local<v8::Object>& options)
 #endif
 
 NAN_METHOD(Hash) {
-    assert(info.Length() == 3);
+    assert(info.Length() == 3 and
+           node::Buffer::HasInstance(info[0]) and
+           info[1]->IsObject() and
+           info[2]->IsFnction());
 
     auto&& plain = to_string(info[0]);
     auto&& options = Nan::To<v8::Object>(info[1]).ToLocalChecked();
