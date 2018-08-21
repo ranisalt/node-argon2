@@ -164,7 +164,7 @@ NAN_METHOD(Hash) {
     assert(info.Length() == 3 and
            node::Buffer::HasInstance(info[0]) and
            info[1]->IsObject() and
-           info[2]->IsFnction());
+           info[2]->IsFunction());
 
     auto&& plain = to_string(info[0]);
     auto&& options = Nan::To<v8::Object>(info[1]).ToLocalChecked();
