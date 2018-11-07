@@ -1,9 +1,10 @@
+#include <cassert>
 #include <cstdint>
 #include <cstring>
 #include <memory>
 #include <string>
 
-#include <nan.h>
+#include <napi.h>
 #include "../argon2/include/argon2.h"
 
 #ifndef _MSC_VER
@@ -16,20 +17,21 @@ public:
     Options() = default;
     Options(Options&&) = default;
 
-    v8::Local<v8::Object> dump(const std::string& hash) const
+    Napi::Object dump(const std::string& hash,
+                      const Napi::Env&   env) const
     {
-        auto out = Nan::New<v8::Object>();
-        Nan::Set(out, Nan::New("id").ToLocalChecked(), Nan::New(argon2_type2string(type, false)).ToLocalChecked());
-        Nan::Set(out, Nan::New("version").ToLocalChecked(), Nan::New(version));
+        Napi::Object out = Napi::Object::New(env);
+        out.Set(Napi::String::New(env, "id"), Napi::String::New(env, argon2_type2string(type, false)));
+        out.Set(Napi::String::New(env, "version"), Napi::Number::New(env, version));
 
-        auto params = Nan::New<v8::Object>();
-        Nan::Set(params, Nan::New("m").ToLocalChecked(), Nan::New(memory_cost));
-        Nan::Set(params, Nan::New("t").ToLocalChecked(), Nan::New(time_cost));
-        Nan::Set(params, Nan::New("p").ToLocalChecked(), Nan::New(parallelism));
-        Nan::Set(out, Nan::New("params").ToLocalChecked(), params);
+        auto params = Napi::Object::New(env);
+        params.Set(Napi::String::New(env, "m"), Napi::Number::New(env, memory_cost));
+        params.Set(Napi::String::New(env, "t"), Napi::Number::New(env, time_cost));
+        params.Set(Napi::String::New(env, "p"), Napi::Number::New(env, parallelism));
+        out.Set(Napi::String::New(env, "params"), params);
 
-        Nan::Set(out, Nan::New("salt").ToLocalChecked(), Nan::CopyBuffer(salt.c_str(), salt.size()).ToLocalChecked());
-        Nan::Set(out, Nan::New("hash").ToLocalChecked(), Nan::CopyBuffer(hash.c_str(), hash.size()).ToLocalChecked());
+        out.Set(Napi::String::New(env, "salt"), Napi::Buffer<char>::Copy(env, salt.c_str(), salt.size()));
+        out.Set(Napi::String::New(env, "hash"), Napi::Buffer<char>::Copy(env, hash.c_str(), hash.size()));
         return out;
     }
 
@@ -70,12 +72,16 @@ argon2_context make_context(char* buf, const std::string& plain,
     return ctx;
 }
 
-class HashWorker final: public Nan::AsyncWorker {
+class HashWorker final: public Napi::AsyncWorker {
 public:
-    HashWorker(Nan::Callback* callback, std::string plain, Options options) :
-        Nan::AsyncWorker{callback, "argon2:HashWorker"},
+    HashWorker(const Napi::Function& callback,
+               std::string plain,
+               Options options,
+               Napi::Env env) :
+        Napi::AsyncWorker{callback, "argon2:HashWorker"},
         plain{std::move(plain)},
-        options{std::move(options)}
+        options{std::move(options)},
+        env{std::move(env)}
     {}
 
     void Execute() override
@@ -91,7 +97,7 @@ public:
 
         if (result != ARGON2_OK) {
             /* LCOV_EXCL_START */
-            SetErrorMessage(argon2_error_message(result));
+            SetError(argon2_error_message(result));
             /* LCOV_EXCL_STOP */
         } else {
             hash.assign(buf, options.hash_length);
@@ -104,16 +110,10 @@ public:
 #endif
     }
 
-    void HandleOKCallback() override
+    void OnOK() override
     {
-        Nan::HandleScope scope;
-
-        v8::Local<v8::Value> argv[] = {
-            Nan::Null(),
-            options.dump(hash),
-        };
-
-        callback->Call(2, argv, async_resource);
+        Napi::HandleScope scope(env);
+        Callback().Call({env.Null(), options.dump(hash, env)});
     }
 
 private:
@@ -121,38 +121,34 @@ private:
     Options options;
 
     std::string hash;
+    Napi::Env env;
 };
 
 using size_type = std::string::size_type;
 
-v8::Local<v8::Value> from_object(const v8::Local<v8::Object>& object, const char* key)
+Napi::Value from_object(const Napi::Object& object, const char* key)
 {
-    return Nan::Get(object, Nan::New(key).ToLocalChecked()).ToLocalChecked();
+    return object.Get(Napi::Value::From(object.Env(), key));
 }
 
-template<class ReturnValue, class T>
-ReturnValue to_just(const T& object)
+std::string buffer_to_string(const Napi::Value& value)
 {
-    return Nan::To<ReturnValue>(object).FromJust();
+    auto buffer = value.As<Napi::Buffer<char> >();
+    return {buffer.Data(), buffer.Length()};
 }
 
-template<class T>
-std::string to_string(const T& object)
-{
-    auto&& conv = Nan::To<v8::Object>(object).ToLocalChecked();
-    return {node::Buffer::Data(conv), node::Buffer::Length(conv)};
-}
-
-Options extract_options(const v8::Local<v8::Object>& options)
+Options extract_options(const Napi::Object& options)
 {
     Options ret;
-    ret.salt = to_string(from_object(options, "salt"));
-    ret.hash_length = to_just<uint32_t>(from_object(options, "hashLength"));
-    ret.time_cost = to_just<uint32_t>(from_object(options, "timeCost"));
-    ret.memory_cost = to_just<uint32_t>(from_object(options, "memoryCost"));
-    ret.parallelism = to_just<uint32_t>(from_object(options, "parallelism"));
-    ret.version = to_just<uint32_t>(from_object(options, "version"));
-    ret.type = argon2_type(to_just<uint32_t>(from_object(options, "type")));
+    ret.salt = buffer_to_string(from_object(options, "salt"));
+    ret.hash_length = from_object(options, "hashLength").ToNumber();
+    ret.time_cost = from_object(options, "timeCost").ToNumber();
+    ret.memory_cost = from_object(options, "memoryCost").ToNumber();
+    ret.parallelism = from_object(options, "parallelism").ToNumber();
+    ret.version = from_object(options, "version").ToNumber();
+    uint32_t type = from_object(options, "type").ToNumber();
+    ret.type = static_cast<argon2_type>(type);
+
     return ret;
 }
 
@@ -160,33 +156,32 @@ Options extract_options(const v8::Local<v8::Object>& options)
 }
 #endif
 
-NAN_METHOD(Hash) {
+Napi::Value Hash(const Napi::CallbackInfo& info) {
     assert(info.Length() == 3 and
-           node::Buffer::HasInstance(info[0]) and
-           info[1]->IsObject() and
-           info[2]->IsFunction());
+           info[0].IsBuffer() and
+           info[1].IsObject() and
+           info[2].IsFunction());
 
-    auto&& plain = to_string(info[0]);
-    auto&& options = Nan::To<v8::Object>(info[1]).ToLocalChecked();
-    auto callback = new Nan::Callback{
-        Nan::To<v8::Function>(info[2]).ToLocalChecked()
-    };
+    std::string plain = buffer_to_string(info[0]);
+    auto options = info[1].As<Napi::Object>();
+    auto callback = info[2].As<Napi::Function>();
 
     auto worker = new HashWorker{
-        callback, std::move(plain), extract_options(options),
+        callback, std::move(plain), extract_options(options), info.Env()
     };
 
-    Nan::AsyncQueueWorker(worker);
+    worker->Queue();
+    return info.Env().Undefined();
 }
 
-NAN_MODULE_INIT(init) {
-    auto limits = Nan::New<v8::Object>();
+Napi::Object init(Napi::Env env, Napi::Object exports) {
+    auto limits = Napi::Object::New(env);
 
     const auto setMaxMin = [&](const char* name, uint32_t max, uint32_t min) {
-        auto obj = Nan::New<v8::Object>();
-        Nan::Set(obj, Nan::New("max").ToLocalChecked(), Nan::New<v8::Number>(max));
-        Nan::Set(obj, Nan::New("min").ToLocalChecked(), Nan::New<v8::Number>(min));
-        Nan::Set(limits, Nan::New(name).ToLocalChecked(), obj);
+        auto obj = Napi::Object::New(env);
+        (obj).Set(Napi::String::New(env, "max"), Napi::Number::New(env, max));
+        (obj).Set(Napi::String::New(env, "min"), Napi::Number::New(env, min));
+        (limits).Set(Napi::String::New(env, name), obj);
     };
 
     setMaxMin("hashLength", ARGON2_MAX_OUTLEN, ARGON2_MIN_OUTLEN);
@@ -194,24 +189,25 @@ NAN_MODULE_INIT(init) {
     setMaxMin("timeCost", ARGON2_MAX_TIME, ARGON2_MIN_TIME);
     setMaxMin("parallelism", ARGON2_MAX_LANES, ARGON2_MIN_LANES);
 
-    auto types = Nan::New<v8::Object>();
+    auto types = Napi::Object::New(env);
 
     const auto setType = [&](argon2_type type) {
-        Nan::Set(types,
-                Nan::New(argon2_type2string(type, false)).ToLocalChecked(),
-                Nan::New<v8::Number>(type));
+        types.Set(Napi::String::New(env, argon2_type2string(type, false)),
+                  Napi::Number::New(env, type));
     };
 
     setType(Argon2_d);
     setType(Argon2_i);
     setType(Argon2_id);
 
-    Nan::Set(target, Nan::New("limits").ToLocalChecked(), limits);
-    Nan::Set(target, Nan::New("types").ToLocalChecked(), types);
-    Nan::Set(target, Nan::New("version").ToLocalChecked(),
-            Nan::New<v8::Number>(ARGON2_VERSION_NUMBER));
+    auto hashFunc = Napi::Function::New(env, Hash);
 
-    Nan::Export(target, "hash", Hash);
+    exports.Set(Napi::String::New(env, "limits"), limits);
+    exports.Set(Napi::String::New(env, "types"), types);
+    exports.Set(Napi::String::New(env, "version"),
+            Napi::Number::New(env, ARGON2_VERSION_NUMBER));
+    exports.Set(Napi::String::New(env, "hash"), hashFunc);
+    return exports;
 }
 
-NODE_MODULE(argon2_lib, init);
+NODE_API_MODULE(argon2_lib, init);
