@@ -1,11 +1,11 @@
 {
   "target_defaults": {
-    "include_dirs": [
-      "<!@(node -p \"require('node-addon-api').include\")","argon2/include"],
+    "include_dirs": ["argon2/include"],
     "target_conditions": [
       ["OS == 'mac'", {
         "xcode_settings": {
-          "MACOSX_DEPLOYMENT_TARGET": "10.9",
+          "CLANG_CXX_LIBRARY": "libc++",
+          "MACOSX_DEPLOYMENT_TARGET": "10.7",
         }
       }]
     ],
@@ -24,15 +24,6 @@
   "targets": [
     {
       "target_name": "libargon2",
-      "cflags!": [ "-fno-exceptions" ],
-      "cflags_cc!": [ "-fno-exceptions" ],
-      "xcode_settings": { "GCC_ENABLE_CPP_EXCEPTIONS": "YES",
-        "CLANG_CXX_LIBRARY": "libc++",
-        "MACOSX_DEPLOYMENT_TARGET": "10.7",
-      },
-      "msvs_settings": {
-        "VCCLCompilerTool": { "ExceptionHandling": 1 },
-      },
       "sources": [
         "argon2/src/argon2.c",
         "argon2/src/core.c",
@@ -52,11 +43,8 @@
       "type": "static_library"
     }, {
       "target_name": "argon2",
-      "cflags!": [ "-fno-exceptions" ],
-      "cflags_cc!": [ "-fno-exceptions" ],
-      "xcode_settings": { "GCC_ENABLE_CPP_EXCEPTIONS": "YES",
-        "CLANG_CXX_LIBRARY": "libc++",
-        "MACOSX_DEPLOYMENT_TARGET": "10.7",
+      "xcode_settings": {
+        "GCC_ENABLE_CPP_EXCEPTIONS": "YES",
       },
       "msvs_settings": {
         "VCCLCompilerTool": { "ExceptionHandling": 1 },
@@ -64,10 +52,9 @@
       "sources": [
         "src/argon2_node.cpp"
       ],
-      "cflags+": ["-Wno-cast-function-type"],
-      "include_dirs+": ["<!@(node -p \"require('node-addon-api').include\")"],
-      "dependencies": [
-        "<!(node -p 'require(\"node-addon-api\").gyp')","libargon2"],
+      "cflags_cc!": ["-fno-exceptions"],
+      "include_dirs": ["<!@(node -p \"require('node-addon-api').include\")"],
+      "dependencies": ["<!(node -p 'require(\"node-addon-api\").gyp')", "libargon2"],
       "configurations": {
         "Debug": {
           "conditions": [
