@@ -4,7 +4,8 @@
     "target_conditions": [
       ["OS == 'mac'", {
         "xcode_settings": {
-          "MACOSX_DEPLOYMENT_TARGET": "10.9",
+          "CLANG_CXX_LIBRARY": "libc++",
+          "MACOSX_DEPLOYMENT_TARGET": "10.7",
         }
       }]
     ],
@@ -42,12 +43,18 @@
       "type": "static_library"
     }, {
       "target_name": "argon2",
+      "xcode_settings": {
+        "GCC_ENABLE_CPP_EXCEPTIONS": "YES",
+      },
+      "msvs_settings": {
+        "VCCLCompilerTool": { "ExceptionHandling": 1 },
+      },
       "sources": [
         "src/argon2_node.cpp"
       ],
-      "cflags+": ["-Wno-cast-function-type"],
-      "include_dirs+": ["<!(node -e \"require('nan')\")"],
-      "dependencies": ["libargon2"],
+      "cflags_cc!": ["-fno-exceptions"],
+      "include_dirs": ["<!@(node -p \"require('node-addon-api').include\")"],
+      "dependencies": ["<!(node -p 'require(\"node-addon-api\").gyp')", "libargon2"],
       "configurations": {
         "Debug": {
           "conditions": [
