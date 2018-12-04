@@ -1,7 +1,7 @@
 appveyor.yml
 argon2/appveyor.yml
-argon2/argon2-specs.pdf
 argon2/Argon2.sln
+argon2/argon2-specs.pdf
 argon2/export.sh
 argon2/kats
 argon2/latex
@@ -14,14 +14,11 @@ argon2/src/genkat.h
 argon2/src/run.c
 argon2/src/test.c
 argon2/vs2015
-ISSUE_TEMPLATE.md
 test/benchmark.js
-test/test-d.js
 test/test-d.ts
 tsconfig.json
 yarn.lock
 .editorconfig
 .git*
-.idea
-.node-version
 .travis.yml
+.yarnclean
