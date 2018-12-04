@@ -1,6 +1,6 @@
 const assert = require('assert')
 const argon2 = require('../argon2')
-const {argon2i, argon2d, argon2id, defaults, limits} = argon2
+const { argon2i, argon2d, argon2id, defaults, limits } = argon2
 const password = 'password'
 const salt = Buffer.alloc(16, 'salt')
 
@@ -31,222 +31,201 @@ describe('Argon2', () => {
   })
 
   describe('hash', () => {
-    it('hash with argon2i', () => {
-      return argon2.hash(password, {salt}).then(hash => {
-        assert.strictEqual(hashes.argon2i, hash)
-      })
+    it('hash with argon2i', async () => {
+      const hash = await argon2.hash(password, { salt })
+      assert.strictEqual(hashes.argon2i, hash)
     })
 
-    it('argon2i with raw hash', () => {
-      return argon2.hash(password, {raw: true, salt}).then(hash => {
-        assert(hashes.rawArgon2i.equals(hash))
-      })
+    it('argon2i with raw hash', async () => {
+      const hash = await argon2.hash(password, { raw: true, salt })
+      assert(hashes.rawArgon2i.equals(hash))
     })
 
-    it('hash with argon2d', () => {
-      return argon2.hash(password, {type: argon2d, salt}).then(hash => {
-        assert.strictEqual(hashes.argon2d, hash)
-      })
+    it('hash with argon2d', async () => {
+      const hash = await argon2.hash(password, { type: argon2d, salt })
+      assert.strictEqual(hashes.argon2d, hash)
     })
 
-    it('argon2d with raw hash', () => {
-      return argon2.hash(password, {type: argon2d, raw: true, salt}).then(hash => {
-        assert(hashes.rawArgon2d.equals(hash))
-      })
+    it('argon2d with raw hash', async () => {
+      const hash = await argon2.hash(password, { type: argon2d, raw: true, salt })
+      assert(hashes.rawArgon2d.equals(hash))
     })
 
-    it('hash with argon2id', () => {
-      return argon2.hash(password, {type: argon2id, salt}).then(hash => {
-        assert.strictEqual(hashes.argon2id, hash)
-      })
+    it('hash with argon2id', async () => {
+      const hash = await argon2.hash(password, { type: argon2id, salt })
+      assert.strictEqual(hashes.argon2id, hash)
     })
 
-    it('argon2id with raw hash', () => {
-      return argon2.hash(password, {type: argon2id, raw: true, salt}).then(hash => {
-        assert(hashes.rawArgon2id.equals(hash))
-      })
+    it('argon2id with raw hash', async () => {
+      const hash = await argon2.hash(password, { type: argon2id, raw: true, salt })
+      assert(hashes.rawArgon2id.equals(hash))
     })
 
-    it('hash with null in password', () => {
-      return argon2.hash('pass\0word', {salt}).then(hash => {
-        assert.strictEqual(hashes.withNull, hash)
-      })
+    it('hash with null in password', async () => {
+      const hash = await argon2.hash('pass\0word', { salt })
+      assert.strictEqual(hashes.withNull, hash)
     })
 
-
-    it('with raw hash, null in password', () => {
-      return argon2.hash('pass\0word', {raw: true, salt}).then(hash => {
-        assert(hashes.rawWithNull.equals(hash))
-      })
+    it('with raw hash, null in password', async () => {
+      const hash = await argon2.hash('pass\0word', { raw: true, salt })
+      assert(hashes.rawWithNull.equals(hash))
     })
   })
 
   describe('set options', () => {
-    it('hash with time cost', () => {
-      return argon2.hash(password, {timeCost: 4}).then(hash => {
-        assert(/t=4/.test(hash))
-      })
+    it('hash with time cost', async () => {
+      const hash = await argon2.hash(password, { timeCost: 4 })
+      assert(/t=4/.test(hash))
     })
 
-    it('hash with low time cost', () => {
-      return argon2.hash(password, {timeCost: limits.timeCost.min - 1}).catch(err => {
+    it('hash with low time cost', async () => {
+      try {
+        await argon2.hash(password, { timeCost: limits.timeCost.min - 1 })
+      } catch (err) {
         assert(/invalid timeCost.+between \d+ and \d+/i.test(err.message))
-      })
+      }
     })
 
-    it('hash with high time cost', () => {
-      return argon2.hash(password, {timeCost: limits.timeCost.max + 1}).catch(err => {
+    it('hash with high time cost', async () => {
+      try {
+        await argon2.hash(password, { timeCost: limits.timeCost.max + 1 })
+      } catch (err) {
         assert(/invalid timeCost.+between \d+ and \d+/i.test(err.message))
-      })
+      }
     })
 
-    it('hash with hash length', () => {
+    it('hash with hash length', async () => {
       // 4 bytes ascii == 6 bytes base64
-      return argon2.hash(password, {hashLength: 4}).catch(err => {
+      try {
+        await argon2.hash(password, { hashLength: 4 })
+      } catch (err) {
         assert(/\$\w{6}$/.test(err.message))
-      })
+      }
     })
 
-    it('hash with low hash length', () => {
-      return argon2.hash(password, {hashLength: limits.hashLength.min - 1}).catch(err => {
+    it('hash with low hash length', async () => {
+      try {
+        await argon2.hash(password, { hashLength: limits.hashLength.min - 1 })
+      } catch (err) {
         assert(/invalid hashLength.+between \d+ and \d+/i.test(err.message))
-      })
+      }
     })
 
-    it('hash with high hash length', () => {
-      return argon2.hash(password, {hashLength: limits.hashLength.max + 1}).catch(err => {
+    it('hash with high hash length', async () => {
+      try {
+        await argon2.hash(password, { hashLength: limits.hashLength.max + 1 })
+      } catch (err) {
         assert(/invalid hashLength.+between \d+ and \d+/i.test(err.message))
-      })
+      }
     })
 
-    it('hash with memory cost', () => {
-      return argon2.hash(password, {memoryCost: 1 << 13}).then(hash => {
-        assert(/m=8192/.test(hash))
-      })
+    it('hash with memory cost', async () => {
+      const hash = await argon2.hash(password, { memoryCost: 1 << 13 })
+      assert(/m=8192/.test(hash))
     })
 
-    it('hash with low memory cost', () => {
-      return argon2.hash(password, {memoryCost: limits.memoryCost.min / 2}).catch(err => {
+    it('hash with low memory cost', async () => {
+      try {
+        await argon2.hash(password, { memoryCost: limits.memoryCost.min / 2 })
+      } catch (err) {
         assert(/invalid memoryCost.+between \d+ and \d+/i.test(err.message))
-      })
+      }
     })
 
-    it('hash with high memory cost', () => {
-      return argon2.hash(password, {memoryCost: limits.memoryCost.max * 2}).catch(err => {
+    it('hash with high memory cost', async () => {
+      try {
+        await argon2.hash(password, { memoryCost: limits.memoryCost.max * 2 })
+      } catch (err) {
         assert(/invalid memoryCost.+between \d+ and \d+/i.test(err.message))
-      })
+      }
     })
 
-    it('hash with parallelism', () => {
-      return argon2.hash(password, {parallelism: 2}).then(hash => {
-        assert(/p=2/.test(hash))
-      })
+    it('hash with parallelism', async () => {
+      const hash = await argon2.hash(password, { parallelism: 2 })
+      assert(/p=2/.test(hash))
     })
 
-    it('hash with low parallelism', () => {
-      return argon2.hash(password, {parallelism: limits.parallelism.min - 1}).catch(err => {
+    it('hash with low parallelism', async () => {
+      try {
+        await await argon2.hash(password, { parallelism: limits.parallelism.min - 1 })
+      } catch (err) {
         assert(/invalid parallelism.+between \d+ and \d+/i.test(err.message))
-      })
+      }
     })
 
-    it('hash with high parallelism', () => {
-      return argon2.hash(password, {parallelism: limits.parallelism.max + 1}).catch(err => {
+    it('hash with high parallelism', async () => {
+      try {
+        await argon2.hash(password, { parallelism: limits.parallelism.max + 1 })
+      } catch (err) {
         assert(/invalid parallelism.+between \d+ and \d+/i.test(err.message))
-      })
+      }
     })
 
-    it('hash with all options', () => {
-      return argon2.hash(password, {timeCost: 4, memoryCost: 1 << 13, parallelism: 2}).then(hash => {
-        assert(/m=8192,t=4,p=2/.test(hash))
-      })
+    it('hash with all options', async () => {
+      const hash = await argon2.hash(password, { timeCost: 4, memoryCost: 1 << 13, parallelism: 2 })
+      assert(/m=8192,t=4,p=2/.test(hash))
     })
   })
 
   describe('needsRehash', () => {
-    it('needs rehash old version', () => {
-      return argon2.hash(password, {version: 0x10}).then(hash => {
-        assert(argon2.needsRehash(hash))
-        assert(!argon2.needsRehash(hash, {version: 0x10}))
-      })
+    it('needs rehash old version', async () => {
+      const hash = await argon2.hash(password, { version: 0x10 })
+      assert(argon2.needsRehash(hash))
+      assert(!argon2.needsRehash(hash, { version: 0x10 }))
     })
 
-    it('needs rehash low memory cost', () => {
-      return argon2.hash(password, {memoryCost: defaults.memoryCost / 2}).then(hash => {
-        assert(argon2.needsRehash(hash))
-        assert(!argon2.needsRehash(hash, {memoryCost: defaults.memoryCost / 2}))
-      })
+    it('needs rehash low memory cost', async () => {
+      const hash = await argon2.hash(password, { memoryCost: defaults.memoryCost / 2 })
+      assert(argon2.needsRehash(hash))
+      assert(!argon2.needsRehash(hash, { memoryCost: defaults.memoryCost / 2 }))
     })
 
-    it('needs rehash low time cost', () => {
-      return argon2.hash(password, {timeCost: defaults.timeCost - 1}).then(hash => {
-        assert(argon2.needsRehash(hash))
-        assert(!argon2.needsRehash(hash, {timeCost: defaults.timeCost - 1}))
-      })
+    it('needs rehash low time cost', async () => {
+      const hash = await argon2.hash(password, { timeCost: defaults.timeCost - 1 })
+      assert(argon2.needsRehash(hash))
+      assert(!argon2.needsRehash(hash, { timeCost: defaults.timeCost - 1 }))
     })
   })
 
   describe('verify', () => {
-    it('verify correct password', () => {
-      return argon2.hash(password).then(hash => {
-        return argon2.verify(hash, password).then(matches => {
-          assert(matches)
-        })
-      })
+    it('verify correct password', async () => {
+      const hash = await argon2.hash(password)
+      assert(await argon2.verify(hash, password))
     })
 
-    it('verify wrong password', () => {
-      return argon2.hash(password).then(hash => {
-        return argon2.verify(hash, 'passworld').then(matches => {
-          assert(!matches)
-        })
-      })
+    it('verify wrong password', async () => {
+      const hash = await argon2.hash(password)
+      assert(!await argon2.verify(hash, 'passworld'))
     })
 
-    it('verify with null in password', () => {
-      return argon2.hash('pass\0word').then(hash => {
-        return argon2.verify(hash, 'pass\0word').then(matches => {
-          assert(matches)
-        })
-      })
+    it('verify with null in password', async () => {
+      const hash = await argon2.hash('pass\0word')
+      assert(await argon2.verify(hash, 'pass\0word'))
     })
 
-    it('verify argon2d correct password', () => {
-      return argon2.hash(password, {type: argon2d}).then(hash => {
-        return argon2.verify(hash, password).then(matches => {
-          assert(matches)
-        })
-      })
+    it('verify argon2d correct password', async () => {
+      const hash = await argon2.hash(password, { type: argon2d })
+      assert(await argon2.verify(hash, password))
     })
 
-    it('verify argon2d wrong password', () => {
-      return argon2.hash(password, {type: argon2d}).then(hash => {
-        return argon2.verify(hash, 'passworld').then(matches => {
-          assert(!matches)
-        })
-      })
+    it('verify argon2d wrong password', async () => {
+      const hash = await argon2.hash(password, { type: argon2d })
+      assert(!await argon2.verify(hash, 'passworld'))
     })
 
-    it('verify argon2id correct password', () => {
-      return argon2.hash(password, {type: argon2id}).then(hash => {
-        return argon2.verify(hash, password).then(matches => {
-          assert(matches)
-        })
-      })
+    it('verify argon2id correct password', async () => {
+      const hash = await argon2.hash(password, { type: argon2id })
+      assert(await argon2.verify(hash, password))
     })
 
-    it('verify argon2id wrong password', () => {
-      return argon2.hash(password, {type: argon2id}).then(hash => {
-        return argon2.verify(hash, 'passworld').then(matches => {
-          assert(!matches)
-        })
-      })
+    it('verify argon2id wrong password', async () => {
+      const hash = await argon2.hash(password, { type: argon2id })
+      assert(!await argon2.verify(hash, 'passworld'))
     })
 
-    it('verify old hash format', () => {
+    it('verify old hash format', async () => {
       // older hashes did not contain the v (version) parameter
-      return argon2.verify(hashes.oldFormat, 'password').then(matches => {
-        assert(matches)
-      })
+      assert(await argon2.verify(hashes.oldFormat, 'password'))
     })
   })
 })

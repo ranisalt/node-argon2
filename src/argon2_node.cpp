@@ -17,7 +17,7 @@ struct Options {
     // TODO: remove ctors and initializers when GCC<5 stops shipping on Ubuntu
     Options(Options&&) = default;
 
-    Object dump(const std::string& hash, const Env& env) const
+    Object dump(const std::string& hash, const std::string& salt, const Env& env) const
     {
         auto out = Object::New(env);
         out.Set(String::New(env, "id"), String::New(env, argon2_type2string(type, false)));
@@ -34,8 +34,6 @@ struct Options {
         return out;
     }
 
-    std::string salt;
-
     uint32_t hash_length;
     uint32_t time_cost;
     uint32_t memory_cost;
@@ -45,16 +43,16 @@ struct Options {
     argon2_type type;
 };
 
-argon2_context make_context(char* buf, const std::string& plain,
-        const Options& options) {
+argon2_context make_context(char* buf, const std::string& plain, const std::string& salt, const Options& options)
+{
     argon2_context ctx;
 
     ctx.out = reinterpret_cast<uint8_t*>(buf);
     ctx.outlen = options.hash_length;
     ctx.pwd = reinterpret_cast<uint8_t*>(const_cast<char*>(plain.data()));
     ctx.pwdlen = plain.size();
-    ctx.salt = reinterpret_cast<uint8_t*>(const_cast<char*>(options.salt.data()));
-    ctx.saltlen = options.salt.size();
+    ctx.salt = reinterpret_cast<uint8_t*>(const_cast<char*>(salt.data()));
+    ctx.saltlen = salt.size();
     ctx.secret = nullptr;
     ctx.secretlen = 0;
     ctx.ad = nullptr;
@@ -73,9 +71,10 @@ argon2_context make_context(char* buf, const std::string& plain,
 
 class HashWorker final: public AsyncWorker {
 public:
-    HashWorker(const Function& callback, std::string plain, Options options):
+    HashWorker(const Function& callback, std::string&& plain, std::string&& salt, Options&& options):
         AsyncWorker{callback, "argon2:HashWorker"},
         plain{std::move(plain)},
+        salt{std::move(salt)},
         options{std::move(options)}
     {}
 
@@ -87,7 +86,7 @@ public:
         char buf[options.hash_length];
 #endif
 
-        auto ctx = make_context(buf, plain, options);
+        auto ctx = make_context(buf, plain, salt, options);
         int result = argon2_ctx(&ctx, options.type);
 
         if (result != ARGON2_OK) {
@@ -109,11 +108,12 @@ public:
     {
         const auto& env = Env();
         HandleScope scope{env};
-        Callback().Call({env.Undefined(), options.dump(hash, env)});
+        Callback().Call({env.Undefined(), options.dump(hash, salt, env)});
     }
 
 private:
     std::string plain;
+    std::string salt;
     Options options;
 
     std::string hash;
@@ -133,7 +133,6 @@ std::string buffer_to_string(const Value& value)
 Options extract_options(const Object& options)
 {
     return {
-        buffer_to_string(from_object(options, "salt")),
         from_object(options, "hashLength").ToNumber(),
         from_object(options, "timeCost").ToNumber(),
         from_object(options, "memoryCost").ToNumber(),
@@ -147,25 +146,28 @@ Options extract_options(const Object& options)
 }
 #endif
 
-Value Hash(const CallbackInfo& info) {
-    assert(info.Length() == 3 and info[0].IsBuffer() and info[1].IsObject() and info[2].IsFunction());
+Value Hash(const CallbackInfo& info)
+{
+    assert(info.Length() == 4 and info[0].IsBuffer() and info[1].IsBuffer() and info[2].IsObject() and info[3].IsFunction());
 
     std::string plain = buffer_to_string(info[0]);
-    const auto& options = info[1].As<Object>();
-    auto callback = info[2].As<Function>();
+    std::string salt = buffer_to_string(info[1]);
+    const auto& options = info[2].As<Object>();
+    auto callback = info[3].As<Function>();
 
     auto worker = new HashWorker{
-        callback, std::move(plain), extract_options(options)
+        callback, std::move(plain), std::move(salt), extract_options(options)
     };
 
     worker->Queue();
     return info.Env().Undefined();
 }
 
-Object init(Env env, Object exports) {
+Object init(Env env, Object exports)
+{
     auto limits = Object::New(env);
 
-    const auto setMaxMin = [&](const char* name, uint32_t max, uint32_t min) {
+    const auto& setMaxMin = [&](const char* name, uint32_t max, uint32_t min) {
         auto obj = Object::New(env);
         obj.Set(String::New(env, "max"), Number::New(env, max));
         obj.Set(String::New(env, "min"), Number::New(env, min));
@@ -179,7 +181,7 @@ Object init(Env env, Object exports) {
 
     auto types = Object::New(env);
 
-    const auto setType = [&](argon2_type type) {
+    const auto& setType = [&](argon2_type type) {
         types.Set(String::New(env, argon2_type2string(type, false)), Number::New(env, type));
     };
 
