@@ -1,5 +1,5 @@
 'use strict'
-const { randomBytes } = require('crypto')
+const { randomBytes, timingSafeEqual } = require('crypto')
 const { promisify } = require('util')
 const bindings = require('bindings')('argon2')
 const phc = require('@phc/format')
@@ -66,7 +66,7 @@ const verify = async (digest, plain) => {
     timeCost: +timeCost,
     parallelism: +parallelism
   })
-  return expected.equals(hash)
+  return timingSafeEqual(expected, hash)
 }
 
 module.exports = { defaults, limits, hash, needsRehash, verify, ...types }
