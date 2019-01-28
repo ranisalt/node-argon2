@@ -14,9 +14,9 @@ skip_commits:
 # environment variables
 environment:
   matrix:
-  - nodejs_version: 6
   - nodejs_version: 8
   - nodejs_version: 10
+  - nodejs_version: 11
 
 # scripts that run after cloning repository
 install:

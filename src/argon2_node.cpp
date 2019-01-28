@@ -189,12 +189,10 @@ Object init(Env env, Object exports)
     setType(Argon2_i);
     setType(Argon2_id);
 
-    const auto& hashFunc = Function::New(env, Hash);
-
     exports.Set(String::New(env, "limits"), limits);
     exports.Set(String::New(env, "types"), types);
     exports.Set(String::New(env, "version"), Number::New(env, ARGON2_VERSION_NUMBER));
-    exports.Set(String::New(env, "hash"), hashFunc);
+    exports.Set(String::New(env, "hash"), Function::New(env, Hash));
     return exports;
 }
 
