@@ -121,7 +121,7 @@ you'll need to specify that in the command.
 
 # License
 Work licensed under the [MIT License](LICENSE). Please check
-[P-H-C/phc-winner-argon2] (https://github.com/P-H-C/phc-winner-argon2) for
+[P-H-C/phc-winner-argon2](https://github.com/P-H-C/phc-winner-argon2) for
 license over Argon2 and the reference implementation.
 
 [npm-image]: https://img.shields.io/npm/v/argon2.svg?style=flat-square
@@ -132,7 +132,7 @@ license over Argon2 and the reference implementation.
 [appveyor-url]: https://ci.appveyor.com/project/ranisalt/node-argon2
 [coverage-image]: https://img.shields.io/coveralls/ranisalt/node-argon2/master.svg?style=flat-square
 [coverage-url]: https://coveralls.io/github/ranisalt/node-argon2
-[codequality-image]: https://img.shields.io/codacy/15927f4eb15747fd8a537e48a04bd4f6/master.svg?style=flat-square
+[codequality-image]: https://api.codacy.com/project/badge/Grade/15927f4eb15747fd8a537e48a04bd4f6
 [codequality-url]: https://www.codacy.com/app/ranisalt/node-argon2
 [david-dm-image]: https://img.shields.io/david/ranisalt/node-argon2.svg?style=flat-square
 [david-dm-url]: https://david-dm.org/ranisalt/node-argon2
