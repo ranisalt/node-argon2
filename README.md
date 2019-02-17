@@ -132,7 +132,7 @@ license over Argon2 and the reference implementation.
 [appveyor-url]: https://ci.appveyor.com/project/ranisalt/node-argon2
 [coverage-image]: https://img.shields.io/coveralls/ranisalt/node-argon2/master.svg?style=flat-square
 [coverage-url]: https://coveralls.io/github/ranisalt/node-argon2
-[codequality-image]: https://api.codacy.com/project/badge/Grade/15927f4eb15747fd8a537e48a04bd4f6
+[codequality-image]: https://img.shields.io/codacy/grade/15927f4eb15747fd8a537e48a04bd4f6.svg?style=flat-square
 [codequality-url]: https://www.codacy.com/app/ranisalt/node-argon2
 [david-dm-image]: https://img.shields.io/david/ranisalt/node-argon2.svg?style=flat-square
 [david-dm-url]: https://david-dm.org/ranisalt/node-argon2
