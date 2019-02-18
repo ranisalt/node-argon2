@@ -34,7 +34,7 @@
     "node-addon-api": "^1.6.0"
   },
   "devDependencies": {
-    "@types/node": "^10.12.10",
+    "@types/node": "^11.9.4",
     "mocha": "^5.1.1",
     "sandra": "^0.3.2",
     "typescript": "^2.8.3"
