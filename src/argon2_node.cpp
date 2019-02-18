@@ -43,12 +43,12 @@ struct Options {
     argon2_type type;
 };
 
-argon2_context make_context(char* buf, const std::string& plain, const std::string& salt, const Options& options)
+argon2_context make_context(char* buf, const std::string& plain, const std::string& salt, const Options& opts)
 {
     argon2_context ctx;
 
     ctx.out = reinterpret_cast<uint8_t*>(buf);
-    ctx.outlen = options.hash_length;
+    ctx.outlen = opts.hash_length;
     ctx.pwd = reinterpret_cast<uint8_t*>(const_cast<char*>(plain.data()));
     ctx.pwdlen = plain.size();
     ctx.salt = reinterpret_cast<uint8_t*>(const_cast<char*>(salt.data()));
@@ -57,47 +57,47 @@ argon2_context make_context(char* buf, const std::string& plain, const std::stri
     ctx.secretlen = 0;
     ctx.ad = nullptr;
     ctx.adlen = 0;
-    ctx.t_cost = options.time_cost;
-    ctx.m_cost = options.memory_cost;
-    ctx.lanes = options.parallelism;
-    ctx.threads = options.parallelism;
+    ctx.t_cost = opts.time_cost;
+    ctx.m_cost = opts.memory_cost;
+    ctx.lanes = opts.parallelism;
+    ctx.threads = opts.parallelism;
     ctx.allocate_cbk = nullptr;
     ctx.free_cbk = nullptr;
     ctx.flags = ARGON2_DEFAULT_FLAGS;
-    ctx.version = options.version;
+    ctx.version = opts.version;
 
     return ctx;
 }
 
 class HashWorker final: public AsyncWorker {
 public:
-    HashWorker(const Function& callback, std::string&& plain, std::string&& salt, Options&& options):
+    HashWorker(const Function& callback, std::string&& plain, std::string&& salt, Options&& opts):
         AsyncWorker{callback, "argon2:HashWorker"},
         plain{std::move(plain)},
         salt{std::move(salt)},
-        options{std::move(options)}
+        opts{std::move(opts)}
     {}
 
     void Execute() override
     {
 #ifdef _MSC_VER
-        char* buf = new char[options.hash_length];
+        char* buf = new char[opts.hash_length];
 #else
-        char buf[options.hash_length];
+        char buf[opts.hash_length];
 #endif
 
-        auto ctx = make_context(buf, plain, salt, options);
-        int result = argon2_ctx(&ctx, options.type);
+        auto ctx = make_context(buf, plain, salt, opts);
+        int result = argon2_ctx(&ctx, opts.type);
 
         if (result != ARGON2_OK) {
             /* LCOV_EXCL_START */
             SetError(argon2_error_message(result));
             /* LCOV_EXCL_STOP */
         } else {
-            hash.assign(buf, options.hash_length);
+            hash.assign(buf, opts.hash_length);
         }
 
-        std::fill_n(buf, options.hash_length, 0);
+        std::fill_n(buf, opts.hash_length, 0);
 
 #ifdef _MSC_VER
         delete[] buf;
@@ -108,13 +108,13 @@ public:
     {
         const auto& env = Env();
         HandleScope scope{env};
-        Callback().Call({env.Undefined(), options.dump(hash, salt, env)});
+        Callback().Call({env.Undefined(), opts.dump(hash, salt, env)});
     }
 
 private:
     std::string plain;
     std::string salt;
-    Options options;
+    Options opts;
 
     std::string hash;
 };
@@ -130,15 +130,15 @@ std::string buffer_to_string(const Value& value)
     return {buffer.Data(), buffer.Length()};
 }
 
-Options extract_options(const Object& options)
+Options extract_opts(const Object& opts)
 {
     return {
-        from_object(options, "hashLength").ToNumber(),
-        from_object(options, "timeCost").ToNumber(),
-        from_object(options, "memoryCost").ToNumber(),
-        from_object(options, "parallelism").ToNumber(),
-        from_object(options, "version").ToNumber(),
-        static_cast<argon2_type>(int(from_object(options, "type").ToNumber())),
+        from_object(opts, "hashLength").ToNumber(),
+        from_object(opts, "timeCost").ToNumber(),
+        from_object(opts, "memoryCost").ToNumber(),
+        from_object(opts, "parallelism").ToNumber(),
+        from_object(opts, "version").ToNumber(),
+        static_cast<argon2_type>(int(from_object(opts, "type").ToNumber())),
     };
 }
 
@@ -152,11 +152,11 @@ Value Hash(const CallbackInfo& info)
 
     std::string plain = buffer_to_string(info[0]);
     std::string salt = buffer_to_string(info[1]);
-    const auto& options = info[2].As<Object>();
+    const auto& opts = info[2].As<Object>();
     auto callback = info[3].As<Function>();
 
     auto worker = new HashWorker{
-        callback, std::move(plain), std::move(salt), extract_options(options)
+        callback, std::move(plain), std::move(salt), extract_opts(opts)
     };
 
     worker->Queue();

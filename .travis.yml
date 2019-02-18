@@ -13,11 +13,8 @@ addons:
       - lcov
 env:
   - npm_config_debug=yes
-before_install: npm install -g node-gyp nyc
+before_install: npm install -g codacy-coverage node-gyp nyc
 script: nyc npm test && npm run test-ts
 after_success:
-  - nyc report --reporter=text-lcov > lcov-js.info
-  - lcov -c -d . --no-external -o lcov-cpp.info
-  - lcov -r lcov-cpp.info "*/node_modules/*" -o lcov-cpp.info
-  - lcov -a lcov-cpp.info -a lcov-js.info -o lcov.info
-  - npm install -g coveralls && coveralls < lcov.info
+  - nyc report --reporter=text-lcov | codacy-coverage -l js
+  - lcov -c -b src/ -d build/ --no-external | codacy-coverage -l cpp
