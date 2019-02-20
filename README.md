@@ -92,13 +92,13 @@ Core i5-4460 @ 3.2GHz with default options.
 
 ### Before installing
 You **MUST** have a **node-gyp** global install before proceeding with install,
-along with GCC >= 4.8 / Clang >= 3.3. On Windows, you must compile under Visual
+along with GCC >= 5 / Clang >= 3.3. On Windows, you must compile under Visual
 Studio 2015 or newer.
 
 **node-argon2** works only and is tested against Node >=8.0.0.
 
 #### OSX
-To install GCC >= 4.8 on OSX, use [homebrew](http://brew.sh/):
+To install GCC >= 5 on OSX, use [homebrew](http://brew.sh/):
 ```console
 $ brew install gcc
 ```
