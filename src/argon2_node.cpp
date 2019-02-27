@@ -14,7 +14,7 @@ namespace {
 #endif
 
 struct Options {
-    // TODO: remove ctors and initializers when GCC<5 stops shipping on Ubuntu
+    // TODO: remove ctors and initializers when GCC<5 stops shipping
     Options(Options&&) = default;
 
     Object dump(const std::string& hash, const std::string& salt, const Env& env) const
@@ -72,10 +72,11 @@ argon2_context make_context(char* buf, const std::string& plain, const std::stri
 class HashWorker final: public AsyncWorker {
 public:
     HashWorker(const Function& callback, std::string&& plain, std::string&& salt, Options&& opts):
-        AsyncWorker{callback, "argon2:HashWorker"},
-        plain{std::move(plain)},
-        salt{std::move(salt)},
-        opts{std::move(opts)}
+        // TODO: use brackets when GCC <5 stops shipping
+        AsyncWorker(callback, "argon2:HashWorker"),
+        plain(std::move(plain)),
+        salt(std::move(salt)),
+        opts(std::move(opts))
     {}
 
     void Execute() override
