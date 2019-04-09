@@ -11,10 +11,11 @@ addons:
   apt:
     packages:
       - lcov
+cache: yarn
 env:
   - npm_config_debug=yes
-before_install: npm install -g codacy-coverage node-gyp nyc
-script: nyc npm test && npm run test-ts
+before_script: yarn lint
 after_success:
+  - yarn global add codacy-coverage
   - nyc report --reporter=text-lcov | codacy-coverage -l js
   - lcov -c -b src/ -d build/ --no-external | codacy-coverage -l cpp

@@ -8,8 +8,7 @@
     "benchmark": "node test/benchmark.js",
     "clean": "node-gyp clean",
     "lint": "standard --verbose",
-    "test": "mocha test/test.js",
-    "test-ts": "tsc -p . && node test/test-d.js"
+    "test": "nyc mocha test/test.js && tsc -p . && node test/test-d.js"
   },
   "repository": {
     "type": "git",
@@ -36,7 +35,9 @@
   "devDependencies": {
     "@types/node": "^11.9.4",
     "mocha": "^6.0.0",
+    "nyc": "^13.3.0",
     "sandra": "^0.3.2",
+    "standard": "^12.0.1",
     "typescript": "^2.8.3"
   },
   "engines": {
