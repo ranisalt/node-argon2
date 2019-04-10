@@ -1,4 +1,5 @@
 'use strict'
+const { ok } = require('assert').strict
 const { randomBytes, timingSafeEqual } = require('crypto')
 const { promisify } = require('util')
 const bindings = require('bindings')('argon2')
@@ -20,15 +21,15 @@ const defaults = Object.freeze({
 const bindingsHash = promisify(bindings.hash)
 const generateSalt = promisify(randomBytes)
 
+const assertLimits = options => ([key, { max, min }]) => {
+  const value = options[key]
+  ok(min <= value && value <= max, `Invalid ${key}, must be between ${min} and ${max}.`)
+}
+
 const hash = async (plain, { raw, salt, ...options } = {}) => {
   options = { ...defaults, ...options }
 
-  for (const [key, { max, min }] of Object.entries(limits)) {
-    const value = options[key]
-    if (value > max || value < min) {
-      throw new Error(`Invalid ${key}, must be between ${min} and ${max}.`)
-    }
-  }
+  Object.entries(limits).forEach(assertLimits(options))
 
   salt = salt || await generateSalt(options.saltLength)
 
