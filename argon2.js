@@ -2,11 +2,8 @@
 const { ok } = require('assert').strict
 const { randomBytes, timingSafeEqual } = require('crypto')
 const { promisify } = require('util')
-const bindings = require('bindings')('argon2')
-const phc = require('@phc/format')
-
-const limits = Object.freeze(bindings.limits)
-const types = Object.freeze(bindings.types)
+const { hash: _hash, limits, types, version } = require('bindings')('argon2')
+const { deserialize, serialize } = require('@phc/format')
 
 const defaults = Object.freeze({
   hashLength: 32,
@@ -15,10 +12,10 @@ const defaults = Object.freeze({
   memoryCost: 1 << 12,
   parallelism: 1,
   type: types.argon2i,
-  version: bindings.version
+  version
 })
 
-const bindingsHash = promisify(bindings.hash)
+const bindingsHash = promisify(_hash)
 const generateSalt = promisify(randomBytes)
 
 const assertLimits = options => ([key, { max, min }]) => {
@@ -38,7 +35,7 @@ const hash = async (plain, { raw, salt, ...options } = {}) => {
     return output.hash
   }
 
-  return phc.serialize(output)
+  return serialize(output)
 }
 
 const needsRehash = (digest, options) => {
@@ -46,7 +43,7 @@ const needsRehash = (digest, options) => {
 
   const {
     version, params: { m: memoryCost, t: timeCost }
-  } = phc.deserialize(digest)
+  } = deserialize(digest)
   return +version !== +options.version ||
     +memoryCost !== +options.memoryCost ||
     +timeCost !== +options.timeCost
@@ -57,7 +54,7 @@ const verify = async (digest, plain) => {
     id: type, version = 0x10, params: {
       m: memoryCost, t: timeCost, p: parallelism
     }, salt, hash
-  } = phc.deserialize(digest)
+  } = deserialize(digest)
 
   const { hash: expected } = await bindingsHash(Buffer.from(plain), salt, {
     type: module.exports[type],
