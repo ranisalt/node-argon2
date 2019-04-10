@@ -44,6 +44,9 @@
     "node": ">=8.0.0"
   },
   "standard": {
-    "env": "mocha"
+    "env": "mocha",
+    "ignore": [
+      "test/test-d.js"
+    ]
   }
 }
