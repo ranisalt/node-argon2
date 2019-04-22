@@ -1,7 +1,5 @@
 #include <cassert>
 #include <cstdint>
-#include <cstring>
-#include <memory>
 #include <string>
 
 #include <napi.h>
@@ -13,26 +11,42 @@ using namespace Napi;
 namespace {
 #endif
 
+using ustring = std::basic_string<uint8_t>;
+auto type2string(argon2_type type) { return argon2_type2string(type, false); };
+
+ustring from_buffer(const Value& value)
+{
+    const auto& buf = value.As<Buffer<uint8_t>>();
+    return {buf.Data(), buf.Length()};
+}
+
+auto to_buffer(const Env& env, const ustring& str)
+{
+    return Buffer<uint8_t>::Copy(env, str.data(), str.size());
+}
+
 struct Options {
     // TODO: remove ctors and initializers when GCC<5 stops shipping
     Options(Options&&) = default;
 
-    Object dump(const std::string& hash, const std::string& salt, const Env& env) const
+    Object dump(const ustring& hash, const ustring& salt, const Env& env) const
     {
         auto out = Object::New(env);
-        out.Set(String::New(env, "id"), String::New(env, argon2_type2string(type, false)));
-        out.Set(String::New(env, "version"), Number::New(env, version));
+        out["id"] = argon2_type2string(type, false);
+        out["version"] = version;
 
         auto params = Object::New(env);
-        params.Set(String::New(env, "m"), Number::New(env, memory_cost));
-        params.Set(String::New(env, "t"), Number::New(env, time_cost));
-        params.Set(String::New(env, "p"), Number::New(env, parallelism));
-        out.Set(String::New(env, "params"), params);
+        params["m"] = memory_cost;
+        params["t"] = time_cost;
+        params["p"] = parallelism;
+        out["params"] = params;
 
-        out.Set(String::New(env, "salt"), Buffer<char>::Copy(env, salt.c_str(), salt.size()));
-        out.Set(String::New(env, "hash"), Buffer<char>::Copy(env, hash.c_str(), hash.size()));
+        out["salt"] = to_buffer(env, salt);
+        out["hash"] = to_buffer(env, hash);
         return out;
     }
+
+    ustring ad;
 
     uint32_t hash_length;
     uint32_t time_cost;
@@ -43,20 +57,20 @@ struct Options {
     argon2_type type;
 };
 
-argon2_context make_context(char* buf, const std::string& plain, const std::string& salt, const Options& opts)
+argon2_context make_context(uint8_t* buf, const ustring& plain, const ustring& salt, const Options& opts)
 {
     argon2_context ctx;
 
-    ctx.out = reinterpret_cast<uint8_t*>(buf);
+    ctx.out = buf;
     ctx.outlen = opts.hash_length;
-    ctx.pwd = reinterpret_cast<uint8_t*>(const_cast<char*>(plain.data()));
+    ctx.pwd = const_cast<uint8_t*>(plain.data());
     ctx.pwdlen = plain.size();
-    ctx.salt = reinterpret_cast<uint8_t*>(const_cast<char*>(salt.data()));
-    ctx.saltlen = salt.size();
+    ctx.salt = const_cast<uint8_t*>(salt.data());
+    ctx.saltlen = salt.length();
     ctx.secret = nullptr;
     ctx.secretlen = 0;
-    ctx.ad = nullptr;
-    ctx.adlen = 0;
+    ctx.ad = opts.ad.empty() ? nullptr : const_cast<uint8_t*>(opts.ad.data());
+    ctx.adlen = opts.ad.size();
     ctx.t_cost = opts.time_cost;
     ctx.m_cost = opts.memory_cost;
     ctx.lanes = opts.parallelism;
@@ -71,7 +85,7 @@ argon2_context make_context(char* buf, const std::string& plain, const std::stri
 
 class HashWorker final: public AsyncWorker {
 public:
-    HashWorker(const Function& callback, std::string&& plain, std::string&& salt, Options&& opts):
+    HashWorker(const Function& callback, ustring&& plain, ustring&& salt, Options&& opts):
         // TODO: use brackets when GCC <5 stops shipping
         AsyncWorker(callback, "argon2:HashWorker"),
         plain(std::move(plain)),
@@ -82,9 +96,9 @@ public:
     void Execute() override
     {
 #ifdef _MSC_VER
-        char* buf = new char[opts.hash_length];
+        uint8_t* buf = new char[opts.hash_length];
 #else
-        char buf[opts.hash_length];
+        uint8_t buf[opts.hash_length];
 #endif
 
         auto ctx = make_context(buf, plain, salt, opts);
@@ -109,37 +123,27 @@ public:
     {
         const auto& env = Env();
         HandleScope scope{env};
-        Callback().Call({env.Undefined(), opts.dump(hash, salt, env)});
+        Callback()({env.Undefined(), opts.dump(hash, salt, env)});
     }
 
 private:
-    std::string plain;
-    std::string salt;
+    ustring plain;
+    ustring salt;
     Options opts;
 
-    std::string hash;
+    ustring hash;
 };
-
-Value from_object(const Object& object, const char* key)
-{
-    return object.Get(Value::From(object.Env(), key));
-}
-
-std::string buffer_to_string(const Value& value)
-{
-    const auto& buffer = value.As<Buffer<char>>();
-    return {buffer.Data(), buffer.Length()};
-}
 
 Options extract_opts(const Object& opts)
 {
     return {
-        from_object(opts, "hashLength").ToNumber(),
-        from_object(opts, "timeCost").ToNumber(),
-        from_object(opts, "memoryCost").ToNumber(),
-        from_object(opts, "parallelism").ToNumber(),
-        from_object(opts, "version").ToNumber(),
-        static_cast<argon2_type>(int(from_object(opts, "type").ToNumber())),
+        opts.Has("associatedData") ? from_buffer(opts["associatedData"]) : ustring{},
+        opts["hashLength"].ToNumber(),
+        opts["timeCost"].ToNumber(),
+        opts["memoryCost"].ToNumber(),
+        opts["parallelism"].ToNumber(),
+        opts["version"].ToNumber(),
+        argon2_type(int(opts["type"].ToNumber())),
     };
 }
 
@@ -151,13 +155,8 @@ Value Hash(const CallbackInfo& info)
 {
     assert(info.Length() == 4 and info[0].IsBuffer() and info[1].IsBuffer() and info[2].IsObject() and info[3].IsFunction());
 
-    std::string plain = buffer_to_string(info[0]);
-    std::string salt = buffer_to_string(info[1]);
-    const auto& opts = info[2].As<Object>();
-    auto callback = info[3].As<Function>();
-
     auto worker = new HashWorker{
-        callback, std::move(plain), std::move(salt), extract_opts(opts)
+        info[3].As<Function>(), from_buffer(info[0]), from_buffer(info[1]), extract_opts(info[2].As<Object>())
     };
 
     worker->Queue();
@@ -170,9 +169,9 @@ Object init(Env env, Object exports)
 
     const auto& setMaxMin = [&](const char* name, uint32_t max, uint32_t min) {
         auto obj = Object::New(env);
-        obj.Set(String::New(env, "max"), Number::New(env, max));
-        obj.Set(String::New(env, "min"), Number::New(env, min));
-        limits.Set(String::New(env, name), obj);
+        obj["max"] = max;
+        obj["min"] = min;
+        limits[name] = obj;
     };
 
     setMaxMin("hashLength", ARGON2_MAX_OUTLEN, ARGON2_MIN_OUTLEN);
@@ -181,19 +180,14 @@ Object init(Env env, Object exports)
     setMaxMin("parallelism", ARGON2_MAX_LANES, ARGON2_MIN_LANES);
 
     auto types = Object::New(env);
+    types[type2string(Argon2_d)] = int(Argon2_d);
+    types[type2string(Argon2_i)] = int(Argon2_i);
+    types[type2string(Argon2_id)] = int(Argon2_id);
 
-    const auto& setType = [&](argon2_type type) {
-        types.Set(String::New(env, argon2_type2string(type, false)), Number::New(env, type));
-    };
-
-    setType(Argon2_d);
-    setType(Argon2_i);
-    setType(Argon2_id);
-
-    exports.Set(String::New(env, "limits"), limits);
-    exports.Set(String::New(env, "types"), types);
-    exports.Set(String::New(env, "version"), Number::New(env, ARGON2_VERSION_NUMBER));
-    exports.Set(String::New(env, "hash"), Function::New(env, Hash));
+    exports["limits"] = limits;
+    exports["types"] = types;
+    exports["version"] = int(ARGON2_VERSION_NUMBER);
+    exports["hash"] = Function::New(env, Hash);
     return exports;
 }
 
