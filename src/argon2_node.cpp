@@ -12,7 +12,7 @@ namespace {
 #endif
 
 using ustring = std::basic_string<uint8_t>;
-auto type2string(argon2_type type) { return argon2_type2string(type, false); };
+const char* type2string(argon2_type type) { return argon2_type2string(type, false); };
 
 ustring from_buffer(const Value& value)
 {
@@ -20,7 +20,7 @@ ustring from_buffer(const Value& value)
     return {buf.Data(), buf.Length()};
 }
 
-auto to_buffer(const Env& env, const ustring& str)
+Buffer<uint8_t> to_buffer(const Env& env, const ustring& str)
 {
     return Buffer<uint8_t>::Copy(env, str.data(), str.size());
 }
