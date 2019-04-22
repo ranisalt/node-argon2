@@ -46,10 +46,11 @@ const needsRehash = (digest, options) => {
   return +v !== +version || +m !== +memoryCost || +t !== +timeCost
 }
 
-const verify = async (digest, plain) => {
+const verify = async (digest, plain, options) => {
   const { id, version = 0x10, params: { m, t, p }, salt, hash } = deserialize(digest)
 
   return timingSafeEqual(await bindingsHash(Buffer.from(plain), salt, {
+    ...options,
     type: types[id],
     version: +version,
     hashLength: hash.length,

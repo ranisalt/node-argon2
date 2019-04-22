@@ -3,11 +3,13 @@ const argon2 = require('../argon2')
 const { argon2i, argon2d, argon2id, defaults, limits } = argon2
 const password = 'password'
 const salt = Buffer.alloc(16, 'salt')
+const associatedData = Buffer.alloc(16, 'ad')
 
 // hashes for argon2i and argon2d with default options
 const hashes = Object.freeze({
   argon2i: '$argon2i$v=19$m=4096,t=3,p=1$c2FsdHNhbHRzYWx0c2FsdA$Iv3dSMJ431p24TEj68Kxokm/ilAC9HfwREDIVPM/1/0',
   withNull: '$argon2i$v=19$m=4096,t=3,p=1$c2FsdHNhbHRzYWx0c2FsdA$Z3fEValT7xBg6b585WOlY2gufWl95ZfkFA8mPtWJ3UM',
+  withAd: '$argon2i$v=19$m=4096,t=3,p=1$c2FsdHNhbHRzYWx0c2FsdA$1VVB4lnD1cmZaeQIlqyOMQ17g6H9rlC5S/vlYOWuD+M',
   argon2d: '$argon2d$v=19$m=4096,t=3,p=1$c2FsdHNhbHRzYWx0c2FsdA$3CYaDoobFaprD02HTMVVRLsrSgJjZK5QmqYWnWDEAlw',
   argon2id: '$argon2id$v=19$m=4096,t=3,p=1$c2FsdHNhbHRzYWx0c2FsdA$fxbFVdPGPQ1NJoy87CaTabyrXOKZepZ9SGBFwPkPJ28',
   rawArgon2i: Buffer.from('22fddd48c278df5a76e13123ebc2b1a249bf8a5002f477f04440c854f33fd7fd', 'hex'),
@@ -69,6 +71,11 @@ describe('Argon2', () => {
     it('with raw hash, null in password', async () => {
       const hash = await argon2.hash('pass\0word', { raw: true, salt })
       assert(hashes.rawWithNull.equals(hash))
+    })
+
+    it('with associated data', async () => {
+      const hash = await argon2.hash(password, { associatedData, salt })
+      assert.equal(hashes.withAd, hash)
     })
   })
 
@@ -201,6 +208,11 @@ describe('Argon2', () => {
     it('verify with null in password', async () => {
       const hash = await argon2.hash('pass\0word')
       assert(await argon2.verify(hash, 'pass\0word'))
+    })
+
+    it('verify with associated data', async () => {
+      const hash = await argon2.hash(password, { associatedData })
+      assert(await argon2.verify(hash, 'password', { associatedData }))
     })
 
     it('verify argon2d correct password', async () => {
