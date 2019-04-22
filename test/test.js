@@ -1,4 +1,4 @@
-const assert = require('assert')
+const assert = require('assert').strict
 const argon2 = require('../argon2')
 const { argon2i, argon2d, argon2id, defaults, limits } = argon2
 const password = 'password'
@@ -21,7 +21,7 @@ const hashes = Object.freeze({
 
 describe('Argon2', () => {
   it('defaults', () => {
-    assert.deepStrictEqual({
+    assert.deepEqual({
       hashLength: 32,
       saltLength: 16,
       timeCost: 3,
@@ -35,7 +35,7 @@ describe('Argon2', () => {
   describe('hash', () => {
     it('hash with argon2i', async () => {
       const hash = await argon2.hash(password, { salt })
-      assert.strictEqual(hashes.argon2i, hash)
+      assert.equal(hashes.argon2i, hash)
     })
 
     it('argon2i with raw hash', async () => {
@@ -45,7 +45,7 @@ describe('Argon2', () => {
 
     it('hash with argon2d', async () => {
       const hash = await argon2.hash(password, { type: argon2d, salt })
-      assert.strictEqual(hashes.argon2d, hash)
+      assert.equal(hashes.argon2d, hash)
     })
 
     it('argon2d with raw hash', async () => {
@@ -55,7 +55,7 @@ describe('Argon2', () => {
 
     it('hash with argon2id', async () => {
       const hash = await argon2.hash(password, { type: argon2id, salt })
-      assert.strictEqual(hashes.argon2id, hash)
+      assert.equal(hashes.argon2id, hash)
     })
 
     it('argon2id with raw hash', async () => {
@@ -65,7 +65,7 @@ describe('Argon2', () => {
 
     it('hash with null in password', async () => {
       const hash = await argon2.hash('pass\0word', { salt })
-      assert.strictEqual(hashes.withNull, hash)
+      assert.equal(hashes.withNull, hash)
     })
 
     it('with raw hash, null in password', async () => {
