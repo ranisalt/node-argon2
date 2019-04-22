@@ -29,23 +29,6 @@ struct Options {
     // TODO: remove ctors and initializers when GCC<5 stops shipping
     Options(Options&&) = default;
 
-    Object dump(const ustring& hash, const ustring& salt, const Env& env) const
-    {
-        auto out = Object::New(env);
-        out["id"] = argon2_type2string(type, false);
-        out["version"] = version;
-
-        auto params = Object::New(env);
-        params["m"] = memory_cost;
-        params["t"] = time_cost;
-        params["p"] = parallelism;
-        out["params"] = params;
-
-        out["salt"] = to_buffer(env, salt);
-        out["hash"] = to_buffer(env, hash);
-        return out;
-    }
-
     ustring ad;
 
     uint32_t hash_length;
@@ -123,7 +106,7 @@ public:
     {
         const auto& env = Env();
         HandleScope scope{env};
-        Callback()({env.Undefined(), opts.dump(hash, salt, env)});
+        Callback()({env.Undefined(), to_buffer(env, hash)});
     }
 
 private:
@@ -180,12 +163,18 @@ Object init(Env env, Object exports)
     setMaxMin("parallelism", ARGON2_MAX_LANES, ARGON2_MIN_LANES);
 
     auto types = Object::New(env);
-    types[type2string(Argon2_d)] = int(Argon2_d);
-    types[type2string(Argon2_i)] = int(Argon2_i);
-    types[type2string(Argon2_id)] = int(Argon2_id);
+    types[type2string(Argon2_d)] = uint32_t(Argon2_d);
+    types[type2string(Argon2_i)] = uint32_t(Argon2_i);
+    types[type2string(Argon2_id)] = uint32_t(Argon2_id);
+
+    auto names = Object::New(env);
+    names[uint32_t(Argon2_d)] = type2string(Argon2_d);
+    names[uint32_t(Argon2_i)] = type2string(Argon2_i);
+    names[uint32_t(Argon2_id)] = type2string(Argon2_id);
 
     exports["limits"] = limits;
     exports["types"] = types;
+    exports["names"] = names;
     exports["version"] = int(ARGON2_VERSION_NUMBER);
     exports["hash"] = Function::New(env, Hash);
     return exports;
