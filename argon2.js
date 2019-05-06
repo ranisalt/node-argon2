@@ -2,7 +2,7 @@
 const { ok } = require('assert').strict
 const { randomBytes, timingSafeEqual } = require('crypto')
 const { promisify } = require('util')
-const { hash: _hash, limits, types, names, version } = require('bindings')('argon2')
+const { hash: _hash, limits, types, names, version } = require('node-gyp-build')(__dirname)
 const { deserialize, serialize } = require('@phc/format')
 
 const defaults = Object.freeze({

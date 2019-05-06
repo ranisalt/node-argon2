@@ -7,8 +7,11 @@
   "scripts": {
     "benchmark": "node test/benchmark.js",
     "clean": "node-gyp clean",
+    "install": "node-gyp-build",
     "lint": "standard --verbose",
-    "test": "nyc mocha test/test.js && tsc -p . && node test/test-d.js"
+    "prebuild": "prebuildify --napi --strip",
+    "test": "nyc mocha test/test.js",
+    "test:ts": "tsc -p . && node test/test-d.js"
   },
   "repository": {
     "type": "git",
@@ -29,13 +32,14 @@
   "homepage": "https://github.com/ranisalt/node-argon2#readme",
   "dependencies": {
     "@phc/format": "^0.5.0",
-    "bindings": "^1.5.0",
-    "node-addon-api": "^1.6.3"
+    "node-addon-api": "^1.6.3",
+    "node-gyp-build": "^4.1.0"
   },
   "devDependencies": {
     "@types/node": "^12.0.0",
     "mocha": "^6.1.4",
     "nyc": "^14.1.0",
+    "prebuildify": "^3.0.0",
     "sandra": "^0.3.2",
     "standard": "^12.0.1",
     "typescript": "^3.4.4"

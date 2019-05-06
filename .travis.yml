@@ -17,6 +17,23 @@ env:
   - npm_config_debug=yes
 before_script: yarn lint
 after_success:
+  - yarn test:ts
   - yarn global add codacy-coverage
   - nyc report --reporter=text-lcov | codacy-coverage -l js
   - lcov -c -b src/ -d build/ --no-external | codacy-coverage -l cpp
+before_deploy:
+  - ARCHIVE_NAME="${TRAVIS_TAG:-latest}-$TRAVIS_OS_NAME-`uname -m`.tar"
+  - yarn prebuild
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ARCH=ia32 yarn prebuild; fi
+  - tar -cvf "$ARCHIVE_NAME" -C "$TRAVIS_BUILD_DIR/prebuilds" .
+deploy:
+  provider: releases
+  draft: false
+  prerelease: true
+  file: "$ARCHIVE_NAME"
+  skip_cleanup: true
+  on:
+    tags: true
+    node: node
+  api_key:
+    secure: mNecgLGqC/ewoasLuzHzA6mpw3bM3ZGXXpVN/xHGKvARSCAF2s0Xv5C3Hv5eO4267NzqS4jAvLc7kPz/XqTmBBhqI0K8XL9SdPJZzvANUhtNMhk8Eh2vG826XIo0aOSWq1q0xRPVJK7Ra+jG0e6ocRzSEbPn28B9QyvH1TLoeAyUqp1I5brXIVKMhg8aTslqNqGeQAbAsLqRAl1cJMsFUjV8X7EXwJNh1Hpa3t6qb5tQsI7kr0HT17PbOvkFGkpm44zJ9PbXlrwlZKh4Zwm1wZFu1XtM6AwjR3+roZqcbjHx0XDbEqNTiS+IVrs67COKZLg7GVP7CApklx0YlD7Ss6mWL3YxbnFFW0tiz68Y8AqE9tBXr6Ppi7vUUP+DgGZqAsMA0eYfNF2G5h6RAXKeb5AV7JsVL93i+IxlnuaCsHoTXQDYHNrrmJoseTrBR2Pumdwk/TxsLAI0hHlU0M0pDea0qZSZ/HeBdWFE4+NiE/2KkLQT1xpT55H8EsZUdBeJbZCQHL+qNyJYRas6iy574pSxY9Tt0p+kq7Yils9JTHqmCns7/I15VQwUwvRHpnmzuAwz370NEgP04k0hyOm+OP5pyIBNJNEpIg5ovQ/BjekjBumqt8RxBPUPtoAG0peDa2dUPksVxORz1f3pC6g35xAhDWdovJy5HiSseOhBNMk=
