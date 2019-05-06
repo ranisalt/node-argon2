@@ -35,8 +35,8 @@ const hash = async (plain, { raw, salt, ...options } = {}) => {
     return hash
   }
 
-  const { type, version, memoryCost: m, timeCost: t, parallelism: p } = options
-  return serialize({ id: names[type], version, params: { m, t, p }, salt, hash })
+  const { type, version, memoryCost: m, timeCost: t, parallelism: p, associatedData: data } = options
+  return serialize({ id: names[type], version, params: { m, t, p, ...(data ? { data } : {}) }, salt, hash })
 }
 
 const needsRehash = (digest, options) => {
@@ -47,7 +47,7 @@ const needsRehash = (digest, options) => {
 }
 
 const verify = async (digest, plain, options) => {
-  const { id, version = 0x10, params: { m, t, p }, salt, hash } = deserialize(digest)
+  const { id, version = 0x10, params: { m, t, p, data }, salt, hash } = deserialize(digest)
 
   return timingSafeEqual(await bindingsHash(Buffer.from(plain), salt, {
     ...options,
@@ -56,7 +56,8 @@ const verify = async (digest, plain, options) => {
     hashLength: hash.length,
     memoryCost: +m,
     timeCost: +t,
-    parallelism: +p
+    parallelism: +p,
+    ...(data ? { associatedData: Buffer.from(data, 'base64') } : {})
   }), hash)
 }
 
