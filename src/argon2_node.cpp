@@ -78,11 +78,7 @@ public:
 
     void Execute() override
     {
-#ifdef _MSC_VER
-        uint8_t* buf = new char[opts.hash_length];
-#else
-        uint8_t buf[opts.hash_length];
-#endif
+        uint8_t* buf = new uint8_t[opts.hash_length];
 
         auto ctx = make_context(buf, plain, salt, opts);
         int result = argon2_ctx(&ctx, opts.type);
@@ -97,9 +93,7 @@ public:
 
         std::fill_n(buf, opts.hash_length, 0);
 
-#ifdef _MSC_VER
         delete[] buf;
-#endif
     }
 
     void OnOK() override
