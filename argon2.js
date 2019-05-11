@@ -1,5 +1,5 @@
 'use strict'
-const { ok } = require('assert').strict
+const assert = require('assert')
 const { randomBytes, timingSafeEqual } = require('crypto')
 const { promisify } = require('util')
 const { hash: _hash, limits, types, names, version } = require('node-gyp-build')(__dirname)
@@ -20,7 +20,7 @@ const generateSalt = promisify(randomBytes)
 
 const assertLimits = options => ([key, { max, min }]) => {
   const value = options[key]
-  ok(min <= value && value <= max, `Invalid ${key}, must be between ${min} and ${max}.`)
+  assert(min <= value && value <= max, `Invalid ${key}, must be between ${min} and ${max}.`)
 }
 
 const hash = async (plain, { raw, salt, ...options } = {}) => {
