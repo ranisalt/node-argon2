@@ -5,8 +5,6 @@
   "main": "argon2.js",
   "types": "argon2.d.ts",
   "scripts": {
-    "benchmark": "node test/benchmark.js",
-    "clean": "node-gyp clean",
     "install": "node-gyp-build",
     "lint": "standard --verbose",
     "prebuild": "prebuildify --napi --strip",
