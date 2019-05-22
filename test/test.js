@@ -88,6 +88,7 @@ describe('Argon2', () => {
     it('hash with low time cost', async () => {
       try {
         await argon2.hash(password, { timeCost: limits.timeCost.min - 1 })
+        assert.fail('This test should fail')
       } catch (err) {
         assert(/invalid timeCost.+between \d+ and \d+/i.test(err.message))
       }
@@ -96,6 +97,7 @@ describe('Argon2', () => {
     it('hash with high time cost', async () => {
       try {
         await argon2.hash(password, { timeCost: limits.timeCost.max + 1 })
+        assert.fail('This test should fail')
       } catch (err) {
         assert(/invalid timeCost.+between \d+ and \d+/i.test(err.message))
       }
@@ -103,16 +105,14 @@ describe('Argon2', () => {
 
     it('hash with hash length', async () => {
       // 4 bytes ascii == 6 bytes base64
-      try {
-        await argon2.hash(password, { hashLength: 4 })
-      } catch (err) {
-        assert(/\$\w{6}$/.test(err.message))
-      }
+      const hash = await argon2.hash(password, { hashLength: 4 })
+      assert(/\$\w{6}$/.test(hash))
     })
 
     it('hash with low hash length', async () => {
       try {
         await argon2.hash(password, { hashLength: limits.hashLength.min - 1 })
+        assert.fail('This test should fail')
       } catch (err) {
         assert(/invalid hashLength.+between \d+ and \d+/i.test(err.message))
       }
@@ -121,6 +121,7 @@ describe('Argon2', () => {
     it('hash with high hash length', async () => {
       try {
         await argon2.hash(password, { hashLength: limits.hashLength.max + 1 })
+        assert.fail('This test should fail')
       } catch (err) {
         assert(/invalid hashLength.+between \d+ and \d+/i.test(err.message))
       }
@@ -134,6 +135,7 @@ describe('Argon2', () => {
     it('hash with low memory cost', async () => {
       try {
         await argon2.hash(password, { memoryCost: limits.memoryCost.min / 2 })
+        assert.fail('This test should fail')
       } catch (err) {
         assert(/invalid memoryCost.+between \d+ and \d+/i.test(err.message))
       }
@@ -142,6 +144,7 @@ describe('Argon2', () => {
     it('hash with high memory cost', async () => {
       try {
         await argon2.hash(password, { memoryCost: limits.memoryCost.max * 2 })
+        assert.fail('This test should fail')
       } catch (err) {
         assert(/invalid memoryCost.+between \d+ and \d+/i.test(err.message))
       }
@@ -155,6 +158,7 @@ describe('Argon2', () => {
     it('hash with low parallelism', async () => {
       try {
         await await argon2.hash(password, { parallelism: limits.parallelism.min - 1 })
+        assert.fail('This test should fail')
       } catch (err) {
         assert(/invalid parallelism.+between \d+ and \d+/i.test(err.message))
       }
@@ -163,6 +167,7 @@ describe('Argon2', () => {
     it('hash with high parallelism', async () => {
       try {
         await argon2.hash(password, { parallelism: limits.parallelism.max + 1 })
+        assert.fail('This test should fail')
       } catch (err) {
         assert(/invalid parallelism.+between \d+ and \d+/i.test(err.message))
       }
