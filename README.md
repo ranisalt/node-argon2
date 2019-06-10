@@ -1,7 +1,7 @@
 # node-argon2
 
 [![Greenkeeper badge](https://badges.greenkeeper.io/ranisalt/node-argon2.svg)](https://greenkeeper.io/)
-[![NPM package][npm-image]][npm-url] [![Coverage status][coverage-image]][coveralls-url] [![Code Quality][codequality-image]][codequality-url] [![Dependencies][david-dm-image]][david-dm-url]
+[![NPM package][npm-image]][npm-url] [![Coverage status][coverage-image]][coverage-url] [![Code Quality][codequality-image]][codequality-url] [![Dependencies][david-dm-image]][david-dm-url]
 - Linux/OS X: [![Linux build status][travis-image]][travis-url]
 - Windows: [![Windows build status][appveyor-image]][appveyor-url]
 
