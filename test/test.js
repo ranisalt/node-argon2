@@ -106,7 +106,7 @@ describe('Argon2', () => {
     it('hash with hash length', async () => {
       // 4 bytes ascii == 6 bytes base64
       const hash = await argon2.hash(password, { hashLength: 4 })
-      assert(/\$\w{6}$/.test(hash))
+      assert(/\$[^$]{6}$/.test(hash))
     })
 
     it('hash with low hash length', async () => {
