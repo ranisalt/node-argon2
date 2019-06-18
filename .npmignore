@@ -21,5 +21,6 @@ tsconfig.json
 yarn.lock
 .editorconfig
 .git*
+.nyc_output/
 .travis.yml
 .yarnclean
