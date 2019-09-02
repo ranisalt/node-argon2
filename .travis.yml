@@ -22,11 +22,9 @@ after_success:
   - lcov -r lcov-cpp.info "*/node_modules/*" -o lcov-cpp.info
   - lcov -a lcov-cpp.info -a lcov-js.info | coveralls
   - yarn test:ts
-before_deploy:
-  - ARCHIVE_NAME="${TRAVIS_TAG:-latest}-$TRAVIS_OS_NAME-`uname -m`.tar"
-  - yarn prebuild
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ARCH=ia32 yarn prebuild; fi
-  - tar -cvf "$ARCHIVE_NAME" -C "$TRAVIS_BUILD_DIR/prebuilds" .
+  - - if [[ $TRAVIS_TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+ ]]; then echo "Publishing $TRAVIS_TAG"; npm install node-pre-gyp-github; ./node_modules/.bin/node-pre-gyp configure; ./node_modules/.bin/node-pre-gyp build; ./node_modules/.bin/node-pre-gyp package; ./node_modules/.bin/node-pre-gyp-github publish --release; fi;
+
+  
 deploy:
   provider: releases
   file: "$ARCHIVE_NAME"

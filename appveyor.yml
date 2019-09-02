@@ -17,6 +17,7 @@ environment:
   - nodejs_version: 8
   - nodejs_version: 10
   - nodejs_version: 11
+  - nodejs_version: 12
 
 # scripts that run after cloning repository
 install:
@@ -30,6 +31,11 @@ install:
 build_script:
   - cmd: npm install
 
+## Build Artifacts
+
+artifacts:
+  - path: 'build/stage/**/argon2*.tar.gz'
+
 #---------------------------------#
 #       tests configuration       #
 #---------------------------------#
@@ -42,3 +48,15 @@ before_test:
 # to run your custom scripts instead of automatic tests
 test_script:
   - npm test
+
+# publish to Github
+after_test:
+    - .\node_modules\.bin\node-pre-gyp package
+
+on_success:
+  - ps: >
+        if ($env:NODE_PRE_GYP_GITHUB_TOKEN -ne $null -and $env:APPVEYOR_REPO_TAG_NAME -match '^v(0|[1-9]+)\.(0|[1-9]+)\.(0|[1-9]+)$') {
+            echo "Publishing $env:APPVEYOR_REPO_TAG_NAME"
+            npm install node-pre-gyp-github
+            ./node_modules/.bin/node-pre-gyp-github publish --release
+        }
