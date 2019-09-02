@@ -6,6 +6,7 @@
   "types": "argon2.d.ts",
   "scripts": {
     "install": "node-pre-gyp install --fallback-to-build",
+    "build": "node-pre-gyp build",
     "lint": "standard --verbose",
     "test": "nyc mocha test/test.js",
     "test:ts": "tsc -p . && node test/test-d.js"
