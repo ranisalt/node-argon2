@@ -1,6 +1,6 @@
 # node-argon2
 
-[![Greenkeeper badge](https://badges.greenkeeper.io/ranisalt/node-argon2.svg)](https://greenkeeper.io/)
+[![Financial Contributors on Open Collective](https://opencollective.com/node-argon2/all/badge.svg?label=financial+contributors)](https://opencollective.com/node-argon2) [![Greenkeeper badge](https://badges.greenkeeper.io/ranisalt/node-argon2.svg)](https://greenkeeper.io/)
 [![NPM package][npm-image]][npm-url] [![Coverage status][coverage-image]][coverage-url] [![Code Quality][codequality-image]][codequality-url] [![Dependencies][david-dm-image]][david-dm-url]
 - Linux/OS X: [![Linux build status][travis-image]][travis-url]
 - Windows: [![Windows build status][appveyor-image]][appveyor-url]
@@ -118,6 +118,36 @@ $ CXX=g++-6 npm install argon2
 
 **NOTE**: If your GCC or Clang binary is named something different than `g++-6`,
 you'll need to specify that in the command.
+
+## Contributors
+
+### Code Contributors
+
+This project exists thanks to all the people who contribute. [[Contribute](CONTRIBUTING.md)].
+<a href="https://github.com/ranisalt/node-argon2/graphs/contributors"><img src="https://opencollective.com/node-argon2/contributors.svg?width=890&button=false" /></a>
+
+### Financial Contributors
+
+Become a financial contributor and help us sustain our community. [[Contribute](https://opencollective.com/node-argon2/contribute)]
+
+#### Individuals
+
+<a href="https://opencollective.com/node-argon2"><img src="https://opencollective.com/node-argon2/individuals.svg?width=890"></a>
+
+#### Organizations
+
+Support this project with your organization. Your logo will show up here with a link to your website. [[Contribute](https://opencollective.com/node-argon2/contribute)]
+
+<a href="https://opencollective.com/node-argon2/organization/0/website"><img src="https://opencollective.com/node-argon2/organization/0/avatar.svg"></a>
+<a href="https://opencollective.com/node-argon2/organization/1/website"><img src="https://opencollective.com/node-argon2/organization/1/avatar.svg"></a>
+<a href="https://opencollective.com/node-argon2/organization/2/website"><img src="https://opencollective.com/node-argon2/organization/2/avatar.svg"></a>
+<a href="https://opencollective.com/node-argon2/organization/3/website"><img src="https://opencollective.com/node-argon2/organization/3/avatar.svg"></a>
+<a href="https://opencollective.com/node-argon2/organization/4/website"><img src="https://opencollective.com/node-argon2/organization/4/avatar.svg"></a>
+<a href="https://opencollective.com/node-argon2/organization/5/website"><img src="https://opencollective.com/node-argon2/organization/5/avatar.svg"></a>
+<a href="https://opencollective.com/node-argon2/organization/6/website"><img src="https://opencollective.com/node-argon2/organization/6/avatar.svg"></a>
+<a href="https://opencollective.com/node-argon2/organization/7/website"><img src="https://opencollective.com/node-argon2/organization/7/avatar.svg"></a>
+<a href="https://opencollective.com/node-argon2/organization/8/website"><img src="https://opencollective.com/node-argon2/organization/8/avatar.svg"></a>
+<a href="https://opencollective.com/node-argon2/organization/9/website"><img src="https://opencollective.com/node-argon2/organization/9/avatar.svg"></a>
 
 # License
 Work licensed under the [MIT License](LICENSE). Please check
