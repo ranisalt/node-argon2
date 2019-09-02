@@ -5,9 +5,8 @@
   "main": "argon2.js",
   "types": "argon2.d.ts",
   "scripts": {
-    "install": "node-gyp-build",
+    "install": "node-pre-gyp install --fallback-to-build",
     "lint": "standard --verbose",
-    "prebuild": "prebuildify --napi --strip",
     "test": "nyc mocha test/test.js",
     "test:ts": "tsc -p . && node test/test-d.js"
   },
@@ -31,16 +30,22 @@
   "dependencies": {
     "@phc/format": "^0.5.0",
     "node-addon-api": "^1.7.1",
-    "node-gyp-build": "^4.1.0"
+    "node-pre-gyp": "^0.13.0"
   },
   "devDependencies": {
     "@types/node": "^12.7.2",
     "coveralls": "^3.0.3",
     "mocha": "^6.1.4",
     "nyc": "^14.1.0",
-    "prebuildify": "^3.0.0",
     "standard": "^14.0.0",
     "typescript": "^3.4.4"
+  },
+  "binary": {
+    "module_name": "libargon2",
+    "module_path": "./lib/binding/",
+    "package_name": "{module_name}-v{version}-{node_abi}-{platform}-{arch}-{libc}.tar.gz",
+    "host": "https://github.com/hoangvvo/node-argon2/releases/download",
+    "remote_path": "v{version}"
   },
   "engines": {
     "node": ">=8.0.0"
