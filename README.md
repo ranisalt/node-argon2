@@ -1,7 +1,11 @@
 # node-argon2
 
-[![Greenkeeper badge](https://badges.greenkeeper.io/ranisalt/node-argon2.svg)](https://greenkeeper.io/)
-[![NPM package][npm-image]][npm-url] [![Coverage status][coverage-image]][coverage-url] [![Code Quality][codequality-image]][codequality-url] [![Dependencies][david-dm-image]][david-dm-url]
+[![Open Collective backers][opencollective-image]][opencollective-url]
+[![NPM package][npm-image]][npm-url]
+[![Coverage status][coverage-image]][coverage-url]
+[![Code Quality][codequality-image]][codequality-url]
+[![Dependencies][david-image]][david-url]
+
 - Linux/OS X: [![Linux build status][travis-image]][travis-url]
 - Windows: [![Windows build status][appveyor-image]][appveyor-url]
 
@@ -124,6 +128,8 @@ Work licensed under the [MIT License](LICENSE). Please check
 [P-H-C/phc-winner-argon2](https://github.com/P-H-C/phc-winner-argon2) for
 license over Argon2 and the reference implementation.
 
+[opencollective-image]: https://img.shields.io/opencollective/backers/node-argon2?style=flat-square
+[opencollective-url]: https://opencollective.com/node-argon2
 [npm-image]: https://img.shields.io/npm/v/argon2.svg?style=flat-square
 [npm-url]: https://www.npmjs.com/package/argon2
 [travis-image]: https://img.shields.io/travis/ranisalt/node-argon2/master.svg?style=flat-square
@@ -134,5 +140,5 @@ license over Argon2 and the reference implementation.
 [coverage-url]: https://coveralls.io/github/ranisalt/node-argon2
 [codequality-image]: https://img.shields.io/codacy/grade/15927f4eb15747fd8a537e48a04bd4f6/master.svg?style=flat-square
 [codequality-url]: https://www.codacy.com/app/ranisalt/node-argon2
-[david-dm-image]: https://img.shields.io/david/ranisalt/node-argon2.svg?style=flat-square
-[david-dm-url]: https://david-dm.org/ranisalt/node-argon2
+[david-image]: https://img.shields.io/david/ranisalt/node-argon2.svg?style=flat-square
+[david-url]: https://david-dm.org/ranisalt/node-argon2
