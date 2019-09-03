@@ -6,7 +6,7 @@ const { promisify } = require('util')
 const binary = require('node-pre-gyp')
 const path = require('path')
 const bindingPath = binary.find(path.resolve(path.join(__dirname, './package.json')))
-const { hash: _hash, limits, types, names, version } = require(bindingPath)
+const { hash: _hash, limits, types, names, version } = require(bindingPath) /* eslint-disable-line */
 
 const { deserialize, serialize } = require('@phc/format')
 
