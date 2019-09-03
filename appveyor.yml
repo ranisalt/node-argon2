@@ -16,7 +16,6 @@ environment:
   matrix:
   - nodejs_version: 8
   - nodejs_version: 10
-  - nodejs_version: 11
   - nodejs_version: 12
 
 # scripts that run after cloning repository
@@ -50,13 +49,11 @@ test_script:
   - npm test
 
 # publish to Github
-after_test:
-    - .\node_modules\.bin\node-pre-gyp package
-
 on_success:
   - ps: >
         if ($env:NODE_PRE_GYP_GITHUB_TOKEN -ne $null -and $env:APPVEYOR_REPO_TAG_NAME -match '^v(0|[1-9]+)\.(0|[1-9]+)\.(0|[1-9]+)$') {
             echo "Publishing $env:APPVEYOR_REPO_TAG_NAME"
-            npm install node-pre-gyp-github
-            ./node_modules/.bin/node-pre-gyp-github publish --release
+            npx node-pre-gyp package
+            yarn global add node-pre-gyp-github
+            node-pre-gyp-github publish --release
         }
