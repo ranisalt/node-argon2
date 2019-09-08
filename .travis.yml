@@ -1,35 +1,27 @@
 dist: xenial
 language: node_js
 node_js:
-  - "8"
-  - "10"
-  - "12"
+- '8'
+- '10'
+- '12'
 os:
-  - linux
-  - osx
+- linux
+- osx
 addons:
   apt:
     packages:
-      - lcov
+    - lcov
 cache: yarn
 env:
+  global:
+    secure: i6L5GfsdUNmkn+qJVhXhPq7hOkiwotb4xHQccYApLZlgyOCpdAXMAkU18GuGBc5g7n2hXdAdTP1HUXogtIxUBcN/RkwqHiH25IPpEov9FWXTjgtE3MhEgqv2rCvxyLFnCkiJVoOCPo423BKUArVgwNc6069W6l++Yd1tWFVW8jcE4YHPo3s84cj73sKCJ/OtUVl8RDQypEmsm8s7kkwOzNUYpWw9C8vu8fLOgxwpk+P+48Zr0+GsM3lin2WQYgJtbuISU5Xfe4ykYxidK4pQAJHX5PjXF3DvAPVSjx5hJKjYMFA0ZfOsql2ez5oNVqE2HLSpvfoWDx/uDzo79l4XwOXbFR8igu1R/qjGQfvqQ/s9OFWK1gF9t/y32kLyg0VGW1zcnatuVePqkTXUadgeiwXfiwyO4p4c2rTVCVGYJ4FO6hAB+Uz5r9beGQ1QaQl8zw06SerE5uHSS7Cil0pi7zdh/xYuW8WEuxxDOGXB/VpUMLLe4ifdxNCzMpdV963EorNSdccWd/9+qH8BRSYabXwwxsnhkwNPA1x/K9+Q3iCdATsc9NBcAe4Mj+r/FPKtY1VZzlXbzZK2YZBEtaf7Hltq0xy+B5nHtEk2cjiMGODiF/dQX4Lku4PScf3a9RFTL3/i7g2KWfdUsqZZzX1+h42VOr6SvbLUt7SEu5WCwy4=
+  matrix:
   - npm_config_debug=yes
 before_script: yarn lint
 after_success:
-  - nyc report --reporter=text-lcov > lcov-js.info
-  - lcov -c -d . --no-external -o lcov-cpp.info
-  - lcov -r lcov-cpp.info "*/node_modules/*" -o lcov-cpp.info
-  - lcov -a lcov-cpp.info -a lcov-js.info | coveralls
-  - yarn test:ts
-before_deploy:
-  - npx node-pre-gyp package
-  - npx node-pre-gyp-github publish --release
-deploy:
-  provider: releases
-  file: "$ARCHIVE_NAME"
-  skip_cleanup: true
-  on:
-    tags: true
-  api_key:
-    secure: mNecgLGqC/ewoasLuzHzA6mpw3bM3ZGXXpVN/xHGKvARSCAF2s0Xv5C3Hv5eO4267NzqS4jAvLc7kPz/XqTmBBhqI0K8XL9SdPJZzvANUhtNMhk8Eh2vG826XIo0aOSWq1q0xRPVJK7Ra+jG0e6ocRzSEbPn28B9QyvH1TLoeAyUqp1I5brXIVKMhg8aTslqNqGeQAbAsLqRAl1cJMsFUjV8X7EXwJNh1Hpa3t6qb5tQsI7kr0HT17PbOvkFGkpm44zJ9PbXlrwlZKh4Zwm1wZFu1XtM6AwjR3+roZqcbjHx0XDbEqNTiS+IVrs67COKZLg7GVP7CApklx0YlD7Ss6mWL3YxbnFFW0tiz68Y8AqE9tBXr6Ppi7vUUP+DgGZqAsMA0eYfNF2G5h6RAXKeb5AV7JsVL93i+IxlnuaCsHoTXQDYHNrrmJoseTrBR2Pumdwk/TxsLAI0hHlU0M0pDea0qZSZ/HeBdWFE4+NiE/2KkLQT1xpT55H8EsZUdBeJbZCQHL+qNyJYRas6iy574pSxY9Tt0p+kq7Yils9JTHqmCns7/I15VQwUwvRHpnmzuAwz370NEgP04k0hyOm+OP5pyIBNJNEpIg5ovQ/BjekjBumqt8RxBPUPtoAG0peDa2dUPksVxORz1f3pC6g35xAhDWdovJy5HiSseOhBNMk=
-  draft: true
+- nyc report --reporter=text-lcov > lcov-js.info
+- lcov -c -d . --no-external -o lcov-cpp.info
+- lcov -r lcov-cpp.info "*/node_modules/*" -o lcov-cpp.info
+- lcov -a lcov-cpp.info -a lcov-js.info | coveralls
+- yarn test:ts
+- if [[ "$TRAVIS_TAG" =~ '^v[0-9]+\.[0-9]+\.[0-9]+$' ]]; then npx node-pre-gyp package; npx node-pre-gyp-github publish; fi

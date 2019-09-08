@@ -13,6 +13,8 @@ skip_commits:
 
 # environment variables
 environment:
+  NODE_PRE_GYP_GITHUB_TOKEN:
+    secure: aRC0Wvo6/2AY362v3uyGDF7Y7ratcEYoDy9K5HdH+cZhKNZiJY80cmM6T3ZWaOdH
   matrix:
   - nodejs_version: 8
   - nodejs_version: 10
@@ -51,8 +53,7 @@ test_script:
 # publish to Github
 on_success:
   - ps: >
-        if ($env:NODE_PRE_GYP_GITHUB_TOKEN -ne $null -and $env:APPVEYOR_REPO_TAG_NAME -match '^v[0-9]+\.[0-9]+\.[0-9]+$') {
-            echo "Publishing $env:APPVEYOR_REPO_TAG_NAME"
+        if ($env:APPVEYOR_REPO_TAG_NAME -match '^v[0-9]+\.[0-9]+\.[0-9]+$') {
             npx node-pre-gyp package
-            npx node-pre-gyp-github publish --release
+            npx node-pre-gyp-github publish
         }
