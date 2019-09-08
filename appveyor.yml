@@ -28,7 +28,7 @@ install:
 #---------------------------------#
 
 build_script:
-  - cmd: npm install
+  - cmd: yarn install
 
 ## Build Artifacts
 
@@ -42,11 +42,11 @@ artifacts:
 # scripts to run before tests
 before_test:
   - node --version
-  - npm --version
+  - yarn --version
 
 # to run your custom scripts instead of automatic tests
 test_script:
-  - npm test
+  - yarn test
 
 # publish to Github
 on_success:
