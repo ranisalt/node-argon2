@@ -21,7 +21,11 @@ after_success:
   - lcov -r lcov-cpp.info "*/node_modules/*" -o lcov-cpp.info
   - lcov -a lcov-cpp.info -a lcov-js.info | coveralls
   - yarn test:ts
-  - - if [[ $TRAVIS_TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+ ]]; then echo "Publishing $TRAVIS_TAG"; yarn global add node-pre-gyp-github; npx node-pre-gyp package; node-pre-gyp-github publish --release; fi;
+  - if [[ "$TRAVIS_TAG" =~ '^v[0-9]+\.[0-9]+\.[0-9]+$' ]]; then
+      echo "Publishing $TRAVIS_TAG"
+      npx node-pre-gyp package
+      npx node-pre-gyp-github publish --release
+    fi
 
 deploy:
   provider: releases

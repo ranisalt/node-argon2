@@ -51,9 +51,8 @@ test_script:
 # publish to Github
 on_success:
   - ps: >
-        if ($env:NODE_PRE_GYP_GITHUB_TOKEN -ne $null -and $env:APPVEYOR_REPO_TAG_NAME -match '^v(0|[1-9]+)\.(0|[1-9]+)\.(0|[1-9]+)$') {
+        if ($env:NODE_PRE_GYP_GITHUB_TOKEN -ne $null -and $env:APPVEYOR_REPO_TAG_NAME -match '^v[0-9]+\.[0-9]+\.[0-9]+$') {
             echo "Publishing $env:APPVEYOR_REPO_TAG_NAME"
             npx node-pre-gyp package
-            yarn global add node-pre-gyp-github
-            node-pre-gyp-github publish --release
+            npx node-pre-gyp-github publish --release
         }
