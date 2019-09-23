@@ -2,7 +2,12 @@
 const assert = require('assert')
 const { randomBytes, timingSafeEqual } = require('crypto')
 const { promisify } = require('util')
-const { hash: _hash, limits, types, names, version } = require('node-gyp-build')(__dirname)
+
+const binary = require('node-pre-gyp')
+const path = require('path')
+const bindingPath = binary.find(path.resolve(path.join(__dirname, './package.json')))
+const { hash: _hash, limits, types, names, version } = require(bindingPath) /* eslint-disable-line */
+
 const { deserialize, serialize } = require('@phc/format')
 
 const defaults = Object.freeze({
