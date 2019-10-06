@@ -42,7 +42,7 @@
   },
   "binary": {
     "module_name": "argon2",
-    "module_path": "./lib/binding/",
+    "module_path": "./lib/binding/{platform}-{arch}/",
     "package_name": "{module_name}-v{version}-{node_abi}-{platform}-{arch}-{libc}.tar.gz",
     "host": "https://github.com/ranisalt/node-argon2/releases/download",
     "remote_path": "v{version}"
