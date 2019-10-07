@@ -14,7 +14,7 @@ addons:
     - lcov
 cache: yarn
 env:
-  matrix:
+  - YARN_GPG=no
   - npm_config_debug=yes
 before_script: yarn lint
 after_success:
