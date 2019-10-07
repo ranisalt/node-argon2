@@ -14,8 +14,10 @@ addons:
     - lcov
 cache: yarn
 env:
+  global:
+    - YARN_GPG=no
   matrix:
-  - npm_config_debug=yes
+    - npm_config_debug=yes
 before_script: yarn lint
 after_success:
 - nyc report --reporter=text-lcov > lcov-js.info
