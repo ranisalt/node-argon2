@@ -7,6 +7,7 @@ node_js:
 os:
 - linux
 - osx
+- windows
 addons:
   apt:
     packages:
