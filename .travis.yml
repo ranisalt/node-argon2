@@ -13,8 +13,6 @@ addons:
     - lcov
 cache: yarn
 env:
-  global:
-    secure: i6L5GfsdUNmkn+qJVhXhPq7hOkiwotb4xHQccYApLZlgyOCpdAXMAkU18GuGBc5g7n2hXdAdTP1HUXogtIxUBcN/RkwqHiH25IPpEov9FWXTjgtE3MhEgqv2rCvxyLFnCkiJVoOCPo423BKUArVgwNc6069W6l++Yd1tWFVW8jcE4YHPo3s84cj73sKCJ/OtUVl8RDQypEmsm8s7kkwOzNUYpWw9C8vu8fLOgxwpk+P+48Zr0+GsM3lin2WQYgJtbuISU5Xfe4ykYxidK4pQAJHX5PjXF3DvAPVSjx5hJKjYMFA0ZfOsql2ez5oNVqE2HLSpvfoWDx/uDzo79l4XwOXbFR8igu1R/qjGQfvqQ/s9OFWK1gF9t/y32kLyg0VGW1zcnatuVePqkTXUadgeiwXfiwyO4p4c2rTVCVGYJ4FO6hAB+Uz5r9beGQ1QaQl8zw06SerE5uHSS7Cil0pi7zdh/xYuW8WEuxxDOGXB/VpUMLLe4ifdxNCzMpdV963EorNSdccWd/9+qH8BRSYabXwwxsnhkwNPA1x/K9+Q3iCdATsc9NBcAe4Mj+r/FPKtY1VZzlXbzZK2YZBEtaf7Hltq0xy+B5nHtEk2cjiMGODiF/dQX4Lku4PScf3a9RFTL3/i7g2KWfdUsqZZzX1+h42VOr6SvbLUt7SEu5WCwy4=
   matrix:
   - npm_config_debug=yes
 before_script: yarn lint
@@ -24,4 +22,4 @@ after_success:
 - lcov -r lcov-cpp.info "*/node_modules/*" -o lcov-cpp.info
 - lcov -a lcov-cpp.info -a lcov-js.info | coveralls
 - yarn test:ts
-- if [[ "$TRAVIS_TAG" =~ '^v[0-9]+\.[0-9]+\.[0-9]+$' ]]; then npx node-pre-gyp package; npx node-pre-gyp-github publish; fi
+- if [[ $TRAVIS_TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+ ]]; then echo "Publishing..."; npx node-pre-gyp package; npx node-pre-gyp-github publish; echo "Done publishing!"; fi;
