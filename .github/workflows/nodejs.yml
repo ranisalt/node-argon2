@@ -1,11 +1,11 @@
 name: CI
 
-on: [push, pull_request]
+on: [push, pull_request, release]
 
 jobs:
   build:
-
     strategy:
+      fail-fast: true
       matrix:
         node-version: [8.x, 10.x, 12.x]
         os: [ubuntu-latest, macos-latest, windows-2016]
@@ -20,9 +20,28 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-    - name: yarn install and test
-      run: |
-        yarn install
-        yarn test
+    - run: yarn install
       env:
         CI: true
+
+  test:
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
+    needs: build
+
+    steps:
+    - run: yarn test
+
+  publish-gpr:
+    if: github.event_name == 'release'
+    needs: build
+
+    steps:
+    - uses: actions/checkout@v1
+    - uses: actions/setup-node@v1
+      with:
+        node-version: 12
+        registry-url: https://npm.pkg.github.com/
+        scope: '@ranisalt'
+    - run: yarn publish
+      env:
+        NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
