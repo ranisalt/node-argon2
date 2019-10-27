@@ -5,6 +5,8 @@
 #include <napi.h>
 #include "../argon2/include/argon2.h"
 
+#include <ciso646>
+
 using namespace Napi;
 
 #ifndef _MSC_VER
