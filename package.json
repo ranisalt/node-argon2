@@ -51,7 +51,7 @@
     "node-pre-gyp": "^0.14.0"
   },
   "devDependencies": {
-    "@types/node": "^12.12.12",
+    "@types/node": "^13.1.0",
     "coveralls": "^3.0.3",
     "mocha": "^6.1.4",
     "nyc": "^14.1.0",
