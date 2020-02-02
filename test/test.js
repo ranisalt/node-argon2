@@ -4,12 +4,14 @@ const { argon2i, argon2d, argon2id, defaults, limits } = argon2
 const password = 'password'
 const salt = Buffer.alloc(16, 'salt')
 const associatedData = Buffer.alloc(16, 'ad')
+const secret = Buffer.alloc(16, 'secret')
 
 // hashes for argon2i and argon2d with default options
 const hashes = Object.freeze({
   argon2i: '$argon2i$v=19$m=4096,t=3,p=1$c2FsdHNhbHRzYWx0c2FsdA$Iv3dSMJ431p24TEj68Kxokm/ilAC9HfwREDIVPM/1/0',
   withNull: '$argon2i$v=19$m=4096,t=3,p=1$c2FsdHNhbHRzYWx0c2FsdA$Z3fEValT7xBg6b585WOlY2gufWl95ZfkFA8mPtWJ3UM',
   withAd: '$argon2i$v=19$m=4096,t=3,p=1,data=YWRhZGFkYWRhZGFkYWRhZA$c2FsdHNhbHRzYWx0c2FsdA$1VVB4lnD1cmZaeQIlqyOMQ17g6H9rlC5S/vlYOWuD+M',
+  withSecret: '$argon2i$v=19$m=4096,t=3,p=1$c2FsdHNhbHRzYWx0c2FsdA$qHHdLtcfshhdjiAAOF2IpJ/DQ+uM+uybVouj3ZwAuk4',
   argon2d: '$argon2d$v=19$m=4096,t=3,p=1$c2FsdHNhbHRzYWx0c2FsdA$3CYaDoobFaprD02HTMVVRLsrSgJjZK5QmqYWnWDEAlw',
   argon2id: '$argon2id$v=19$m=4096,t=3,p=1$c2FsdHNhbHRzYWx0c2FsdA$fxbFVdPGPQ1NJoy87CaTabyrXOKZepZ9SGBFwPkPJ28',
   rawArgon2i: Buffer.from('22fddd48c278df5a76e13123ebc2b1a249bf8a5002f477f04440c854f33fd7fd', 'hex'),
@@ -76,6 +78,16 @@ describe('Argon2', () => {
     it('with associated data', async () => {
       const hash = await argon2.hash(password, { associatedData, salt })
       assert.equal(hashes.withAd, hash)
+    })
+
+    it('with associated data', async () => {
+      const hash = await argon2.hash(password, { associatedData, salt })
+      assert.equal(hashes.withAd, hash)
+    })
+
+    it('with secret', async () => {
+      const hash = await argon2.hash(password, { secret, salt })
+      assert.equal(hashes.withSecret, hash)
     })
   })
 
