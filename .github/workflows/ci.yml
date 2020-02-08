@@ -10,10 +10,10 @@ jobs:
   build:
     strategy:
       matrix:
-        node-version: [8.x]
-        os: [windows-latest]
+        node-version: [8.x, 10.x, 12.x]
+        os: [ubuntu-latest, macos-latest, windows-latest]
 
-    name: Build os:${{ matrix.os }} node:${{ matrix.node-version }}
+    name: Build node-${{ matrix.node-version }} on ${{ matrix.os }} 
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -36,7 +36,7 @@ jobs:
 
     - name: Build artifacts
       if: github.event_name == 'release'
-      run: yarn node-pre-gyp build package
+      run: yarn node-pre-gyp package
 
     - name: Upload to Release
       if: github.event_name == 'release'
