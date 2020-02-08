@@ -13,7 +13,7 @@ jobs:
         node-version: [8.x, 10.x, 12.x]
         os: [ubuntu-latest, macos-latest, windows-latest]
 
-    name: Build node-${{ matrix.node-version }} on ${{ matrix.os }} 
+    name: Build node-${{ matrix.node-version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -44,3 +44,4 @@ jobs:
       with:
         pattern: build/stage/**/argon2*.tar.gz
         github-token: ${{ secrets.GITHUB_TOKEN }}
+        release-url: ${{ github.event.release.upload_url }}
