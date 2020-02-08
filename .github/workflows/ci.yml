@@ -43,4 +43,4 @@ jobs:
       uses: csexton/release-asset-action@v2
       with:
         pattern: build/stage/**/argon2*.tar.gz
-        github-token: ${{ secrets.TEMP_GITHUB_TOKEN }}
+        github-token: ${{ secrets.GITHUB_TOKEN }}
