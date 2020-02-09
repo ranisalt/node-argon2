@@ -1,0 +1,64 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  publish:
+    name: Publish package
+    runs-on: ubuntu-latest
+    if: secrets.NPM_TOKEN != null
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v1
+      with:
+        submodules: true
+
+    - name: Use Node.js 8
+      uses: actions/setup-node@v1
+      with:
+        node-version: 8
+        registry-url: https://registry.npmjs.org/
+
+    - name: Install dependencies
+      run: yarn install --frozen-lockfile
+
+    - name: Publish to NPM
+      run: yarn publish
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  build:
+    strategy:
+      matrix:
+        node-version: [8.x, 10.x, 12.x]
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    name: Build node-${{ matrix.node-version }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v1
+      with:
+        submodules: true
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - name: Install dependencies
+      run: yarn install --frozen-lockfile
+
+    - name: Build artifacts
+      run: yarn node-pre-gyp package
+
+    - name: Upload to Release
+      uses: csexton/release-asset-action@v2
+      with:
+        pattern: build/stage/**/argon2*.tar.gz
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        release-url: ${{ github.event.release.upload_url }}
