@@ -5,31 +5,6 @@ on:
     types: [published]
 
 jobs:
-  publish:
-    name: Publish package
-    runs-on: ubuntu-latest
-    if: secrets.NPM_TOKEN != null
-
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v1
-      with:
-        submodules: true
-
-    - name: Use Node.js 8
-      uses: actions/setup-node@v1
-      with:
-        node-version: 8
-        registry-url: https://registry.npmjs.org/
-
-    - name: Install dependencies
-      run: yarn install --frozen-lockfile
-
-    - name: Publish to NPM
-      run: yarn publish
-      env:
-        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
   build:
     strategy:
       matrix:
