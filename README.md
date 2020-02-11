@@ -1,13 +1,11 @@
 # node-argon2
 
 [![Open Collective backers][opencollective-image]][opencollective-url]
+[![Build status][actions-image]][actions-url]
 [![NPM package][npm-image]][npm-url]
 [![Coverage status][coverage-image]][coverage-url]
 [![Code Quality][codequality-image]][codequality-url]
 [![Dependencies][david-image]][david-url]
-
-- Linux/OS X: [![Linux build status][travis-image]][travis-url]
-- Windows: [![Windows build status][appveyor-image]][appveyor-url]
 
 Bindings to the reference [Argon2](https://github.com/P-H-C/phc-winner-argon2)
 implementation.
@@ -132,10 +130,8 @@ license over Argon2 and the reference implementation.
 [opencollective-url]: https://opencollective.com/node-argon2
 [npm-image]: https://img.shields.io/npm/v/argon2.svg?style=flat-square
 [npm-url]: https://www.npmjs.com/package/argon2
-[travis-image]: https://img.shields.io/travis/ranisalt/node-argon2/master.svg?style=flat-square
-[travis-url]: https://travis-ci.org/ranisalt/node-argon2
-[appveyor-image]: https://img.shields.io/appveyor/ci/ranisalt/node-argon2/master.svg?style=flat-square
-[appveyor-url]: https://ci.appveyor.com/project/ranisalt/node-argon2
+[actions-image]: https://img.shields.io/github/workflow/status/ranisalt/node-argon2/ci?style=flat-square
+[actions-url]: https://github.com/ranisalt/node-argon2/actions
 [coverage-image]: https://img.shields.io/coveralls/github/ranisalt/node-argon2/master.svg?style=flat-square
 [coverage-url]: https://coveralls.io/github/ranisalt/node-argon2
 [codequality-image]: https://img.shields.io/codacy/grade/15927f4eb15747fd8a537e48a04bd4f6/master.svg?style=flat-square
