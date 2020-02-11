@@ -13,6 +13,7 @@ export interface Options {
     saltLength?: number;
     raw?: boolean;
     secret?: Buffer;
+    associatedData?: Buffer;
 }
 
 export interface NumericLimit {

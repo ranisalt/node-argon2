@@ -48,6 +48,7 @@ function test_hashOptions() {
         argon2.hash(password, {memoryCost: 1 << 13}),
         argon2.hash(password, {parallelism: 2}),
         argon2.hash(password, {salt: Buffer.from('1234567890abcdef')}),
+        argon2.hash(password, {associatedData: Buffer.from('associated data')}),
         argon2.hash(password, {timeCost: 4, memoryCost: 1 << 13, parallelism: 2})
     ]);
 }
