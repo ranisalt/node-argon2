@@ -28,3 +28,26 @@ jobs:
 
     - name: Run tests
       run: yarn test
+
+    - name: Generate coverage
+      run: yarn nyc report --reporter=text-lcov > lcov-js.info
+    
+    - name: Send to Coveralls
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        path-to-lcov: ./lcov-js.info
+        parallel: true
+
+  end-coveralls:
+    needs: build
+
+    name: End Coveralls report
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: End Coveralls parallel job
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        parallel-finished: true
