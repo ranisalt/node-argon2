@@ -39,6 +39,24 @@ jobs:
         path-to-lcov: ./lcov-js.info
         parallel: true
 
+    - name: "[Linux] Install lcov"
+      if: matrix.os == 'ubuntu-latest'
+      run: sudo apt install lcov
+
+    - name: "[Linux] Generate C++ coverage"
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        lcov -c -d . --no-external -o lcov-cpp.info
+        lcov -r lcov-cpp.info "*/node_modules/*" -o lcov-cpp.info
+
+    - name: "[Linux] Send to Coveralls"
+      if: matrix.os == 'ubuntu-latest'
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        path-to-lcov: ./lcov-cpp.info
+        parallel: true
+
   end-coveralls:
     needs: build
 
