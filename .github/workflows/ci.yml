@@ -45,18 +45,43 @@ jobs:
         path-to-lcov: ./lcov-js.info
         parallel: true
 
-    - name: "[Linux] Install lcov"
-      if: matrix.os == 'ubuntu-latest'
+  build-linux:
+    strategy:
+      matrix:
+        node-version: [10.x, 12.x, 13.x]
+
+    name: Build node-${{ matrix.node-version }} on Ubuntu
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v1
+      with:
+        submodules: true
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - name: Install dependencies
+      run: yarn install --frozen-lockfile --ignore-scripts
+
+    - name: Build binaries
+      run: yarn node-pre-gyp configure build
+
+    - name: Run tests
+      run: yarn test
+
+    - name: Install lcov
       run: sudo apt install lcov
 
-    - name: "[Linux] Generate C++ coverage"
-      if: matrix.os == 'ubuntu-latest'
+    - name: Generate C++ coverage
       run: |
         lcov -c -d . --no-external -o lcov-cpp.info
         lcov -r lcov-cpp.info "*/node_modules/*" -o lcov-cpp.info
 
-    - name: "[Linux] Send to Coveralls"
-      if: matrix.os == 'ubuntu-latest'
+    - name: Send to Coveralls
       uses: coverallsapp/github-action@master
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -64,7 +89,7 @@ jobs:
         parallel: true
 
   end-coveralls:
-    needs: build
+    needs: [build, build-linux]
 
     name: End Coveralls report
     runs-on: ubuntu-latest
