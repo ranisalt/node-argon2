@@ -56,7 +56,7 @@ jobs:
         parallel: true
 
   coverage-end:
-    needs: coverage
+    needs: build
 
     name: End Coveralls report
     runs-on: ubuntu-latest
