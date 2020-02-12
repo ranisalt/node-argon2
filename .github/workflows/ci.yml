@@ -11,6 +11,8 @@ jobs:
 
     name: Build node-${{ matrix.node-version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
+    env:
+      npm_config_debug: yes
 
     steps:
     - name: Checkout
