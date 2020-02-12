@@ -29,6 +29,9 @@ jobs:
     - name: Install dependencies
       run: yarn install --frozen-lockfile
 
+    - name: Rebuild binaries
+      run: yarn node-pre-gyp rebuild
+
     - name: Run tests
       run: yarn test
 
