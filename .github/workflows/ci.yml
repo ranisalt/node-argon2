@@ -30,7 +30,7 @@ jobs:
       run: yarn install --frozen-lockfile --ignore-scripts
 
     - name: Build binaries
-      run: yarn node-pre-gyp build
+      run: yarn node-pre-gyp configure build
 
     - name: Run tests
       run: yarn test
