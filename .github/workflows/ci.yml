@@ -11,6 +11,9 @@ jobs:
 
     name: Build node-${{ matrix.node-version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
+    env:
+      YARN_GPG: no
+      npm_config_debug: yes
 
     steps:
     - name: Checkout
@@ -32,45 +35,20 @@ jobs:
     - name: Run tests
       run: yarn test
 
-  coverage:
-    strategy:
-      matrix:
-        node-version: [10.x, 12.x, 13.x]
-
-    name: Run coverage node-${{ matrix.node-version }}
-    runs-on: ubuntu-latest
-    env:
-      YARN_GPG: no
-      npm_config_debug: yes
-
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v1
-      with:
-        submodules: true
-
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
-      with:
-        node-version: ${{ matrix.node-version }}
-
-    - name: Install lcov
+    - name: "[Linux] Install lcov"
+      if: matrix.os == 'ubuntu-latest'
       run: sudo apt install lcov
 
-    - name: Install dependencies
-      run: yarn install --frozen-lockfile --ignore-scripts
-
-    - name: Build binaries
-      run: yarn node-pre-gyp configure build
-
-    - name: Generate coverage
+    - name: "[Linux] Generate coverage"
+      if: matrix.os == 'ubuntu-latest'
       run: |
         yarn nyc report --reporter=text-lcov > lcov-js.info
         lcov -c -d . --no-external -o lcov-cpp.info
         lcov -r lcov-cpp.info "*/node_modules/*" -o lcov-cpp.info
         lcov -a lcov-js.info -a lcov-cpp.info -o lcov.info
 
-    - name: Send to Coveralls
+    - name: "[Linux] Send to Coveralls"
+      if: matrix.os == 'ubuntu-latest'
       uses: coverallsapp/github-action@master
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
