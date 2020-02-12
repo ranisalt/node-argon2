@@ -27,10 +27,10 @@ jobs:
         node-version: ${{ matrix.node-version }}
 
     - name: Install dependencies
-      run: yarn install --frozen-lockfile
+      run: yarn install --frozen-lockfile --ignore-scripts
 
-    - name: Rebuild binaries
-      run: yarn node-pre-gyp rebuild
+    - name: Build binaries
+      run: yarn node-pre-gyp build
 
     - name: Run tests
       run: yarn test
