@@ -52,6 +52,9 @@ jobs:
 
     name: Build node-${{ matrix.node-version }} on Ubuntu
     runs-on: ubuntu-latest
+    env:
+      YARN_GPG: no
+      npm_config_debug: yes
 
     steps:
     - name: Checkout
