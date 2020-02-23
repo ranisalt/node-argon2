@@ -92,12 +92,25 @@ Performance-wise, the libraries are equal. You can run the same benchmark suite
 if you are curious, but both can perform around 130 hashes/second on an Intel
 Core i5-4460 @ 3.2GHz with default options.
 
-### Before installing
+### Prebuilt Binaries
+**node-argon2** provides prebuilt binaries from `v0.26.0` onwards. They are
+built per release using GitHub Actions.
+
+The current prebuilt binaries are built (and tested) with the following matrix:
+1. Node 10.x, 12.x, 13.x
+2. Ubuntu 18.04, Windows Server 2019, macOS Catalina 10.15
+
+If your plaform is below the requirements above, you can follow the
+[Before Installing](#before-installing) section below to manually compile from
+source. It is also always recommended to build from source to ensure consistency
+of the compiled module.
+
+### Before Installing
 You **MUST** have a **node-gyp** global install before proceeding with install,
 along with GCC >= 5 / Clang >= 3.3. On Windows, you must compile under Visual
 Studio 2015 or newer.
 
-**node-argon2** works only and is tested against Node >=8.0.0.
+**node-argon2** works only and is tested against Node >=10.0.0.
 
 #### OSX
 To install GCC >= 5 on OSX, use [homebrew](http://brew.sh/):
@@ -120,6 +133,34 @@ $ CXX=g++-6 npm install argon2
 
 **NOTE**: If your GCC or Clang binary is named something different than `g++-6`,
 you'll need to specify that in the command.
+
+### FAQ
+<details>
+  <summary>How do I manually rebuild the binaries?</summary>
+  
+  ```console
+  $ node-gyp rebuild -C ./node_modules/argon2
+  ```
+</details>
+
+<details>
+  <summary>
+    How do I skip installing prebuilt binaries and manually compile from source?
+  </summary>
+  
+  You can do either of the two methods below:
+  
+  1. Force build from source on install
+  ```console
+  $ npm install argon2 --build-from-source
+  ```
+  
+  2. Ignore `node-argon2` install script and build manually
+  ```console
+  $ npm install argon2 --ignore-scripts
+  $ node-gyp rebuild -C ./node_modules/argon2
+  ```
+</details>
 
 # License
 Work licensed under the [MIT License](LICENSE). Please check
