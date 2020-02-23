@@ -100,12 +100,14 @@ The current prebuilt binaries are built (and tested) with the following matrix:
 1. Node 10.x, 12.x, 13.x
 2. Ubuntu 18.04, Windows Server 2019, macOS Catalina 10.15
 
-If your plaform is below the requirements above, you can follow the
+If your plaform is below the above requirements, you can follow the
 [Before Installing](#before-installing) section below to manually compile from
 source. It is also always recommended to build from source to ensure consistency
 of the compiled module.
 
 ### Before Installing
+> You can skip this section if the prebuilt binaries work for you.
+
 You **MUST** have a **node-gyp** global install before proceeding with install,
 along with GCC >= 5 / Clang >= 3.3. On Windows, you must compile under Visual
 Studio 2015 or newer.
@@ -150,12 +152,12 @@ you'll need to specify that in the command.
   
   You can do either of the two methods below:
   
-  1. Force build from source on install
+  1. Force build from source on install.
   ```console
   $ npm install argon2 --build-from-source
   ```
   
-  2. Ignore `node-argon2` install script and build manually
+  2. Ignore `node-argon2` install script and build manually.
   ```console
   $ npm install argon2 --ignore-scripts
   $ node-gyp rebuild -C ./node_modules/argon2
