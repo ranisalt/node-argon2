@@ -14,6 +14,7 @@ jobs:
     env:
       YARN_GPG: no
       npm_config_debug: yes
+      npm_config_build_from_source: yes
 
     steps:
     - name: Checkout
@@ -27,10 +28,7 @@ jobs:
         node-version: ${{ matrix.node-version }}
 
     - name: Install dependencies
-      run: yarn install --frozen-lockfile --ignore-scripts
-
-    - name: Build binaries
-      run: yarn node-pre-gyp configure build
+      run: yarn install --frozen-lockfile
 
     - name: Run tests
       run: yarn test
