@@ -36,11 +36,11 @@ jobs:
       run: yarn test
 
     - name: "[Linux] Install lcov"
-      if: matrix.os == 'ubuntu-latest'
+      if: matrix.os == 'ubuntu-16.04'
       run: sudo apt install lcov
 
     - name: "[Linux] Generate coverage"
-      if: matrix.os == 'ubuntu-latest'
+      if: matrix.os == 'ubuntu-16.04'
       run: |
         yarn nyc report --reporter=text-lcov > lcov-js.info
         lcov -c -d . --no-external -o lcov-cpp.info
@@ -48,7 +48,7 @@ jobs:
         lcov -a lcov-js.info -a lcov-cpp.info -o lcov.info
 
     - name: "[Linux] Send to Coveralls"
-      if: matrix.os == 'ubuntu-latest'
+      if: matrix.os == 'ubuntu-16.04'
       uses: coverallsapp/github-action@master
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -59,7 +59,7 @@ jobs:
     needs: build
 
     name: End Coveralls report
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-16.04
 
     steps:
     - name: End Coveralls parallel job
