@@ -14,7 +14,7 @@ jobs:
     env:
       YARN_GPG: no
       npm_config_debug: yes
-      npm_config_build_from_source: yes
+      npm_config_build_from_source: true
 
     steps:
     - name: Checkout

@@ -37,7 +37,7 @@ jobs:
     name: Build node-${{ matrix.node-version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     env:
-      npm_config_build_from_source: yes
+      npm_config_build_from_source: true
 
     steps:
     - name: Checkout
