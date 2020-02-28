@@ -1,6 +1,6 @@
 {
   "name": "argon2",
-  "version": "0.26.0",
+  "version": "0.26.1",
   "description": "An Argon2 library for Node",
   "main": "argon2.js",
   "files": [
@@ -61,12 +61,11 @@
   "binary": {
     "module_name": "argon2",
     "module_path": "./lib/binding/",
-    "package_name": "{module_name}-v{version}-{node_abi}-{platform}-{arch}-{libc}.tar.gz",
     "host": "https://github.com/ranisalt/node-argon2/releases/download/",
     "remote_path": "v{version}"
   },
   "engines": {
-    "node": ">=8.0.0"
+    "node": ">=10.0.0"
   },
   "standard": {
     "env": "mocha",
