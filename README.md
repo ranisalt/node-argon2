@@ -98,7 +98,7 @@ built per release using GitHub Actions.
 
 The current prebuilt binaries are built (and tested) with the following matrix:
 1. Node 10.x, 12.x, 13.x
-2. Ubuntu 18.04, Windows Server 2019, macOS Catalina 10.15
+2. Ubuntu 16.04, Windows Server 2019, macOS Catalina 10.15
 
 If your plaform is below the above requirements, you can follow the
 [Before Installing](#before-installing) section below to manually compile from
@@ -139,10 +139,16 @@ you'll need to specify that in the command.
 ### FAQ
 <details>
   <summary>How do I manually rebuild the binaries?</summary>
-  
+
   ```console
-  $ node-gyp rebuild -C ./node_modules/argon2
+  $ npx node-pre-gyp rebuild -C ./node_modules/argon2
   ```
+
+  > Run `node-pre-gyp` instead of `node-gyp` because node-argon2's `binding.gyp`
+  file relies on variables from `node-pre-gyp`.
+
+  > You can omit `npx` if you have a global installation of `node-pre-gyp`,
+  otherwise prefixing `npx` will use the local one in `./node_modules/.bin`
 </details>
 
 <details>
@@ -160,7 +166,7 @@ you'll need to specify that in the command.
   2. Ignore `node-argon2` install script and build manually.
   ```console
   $ npm install argon2 --ignore-scripts
-  $ node-gyp rebuild -C ./node_modules/argon2
+  $ npx node-pre-gyp rebuild -C ./node_modules/argon2
   ```
 </details>
 

@@ -7,7 +7,7 @@ on:
 jobs:
   publish:
     name: Publish package
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-16.04
 
     steps:
     - name: Checkout
@@ -32,10 +32,12 @@ jobs:
     strategy:
       matrix:
         node-version: [10.x, 12.x, 13.x]
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-16.04, macos-latest, windows-latest]
 
     name: Build node-${{ matrix.node-version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
+    env:
+      npm_config_build_from_source: true
 
     steps:
     - name: Checkout
@@ -49,10 +51,10 @@ jobs:
         node-version: ${{ matrix.node-version }}
 
     - name: Install dependencies
-      run: yarn install --frozen-lockfile --ignore-scripts
+      run: yarn install --frozen-lockfile
 
-    - name: Build artifacts
-      run: yarn node-pre-gyp configure build package
+    - name: Package artifacts
+      run: yarn node-pre-gyp package
 
     - name: Upload to Release
       uses: csexton/release-asset-action@v2
