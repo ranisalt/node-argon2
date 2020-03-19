@@ -80,11 +80,6 @@ describe('Argon2', () => {
       assert.equal(hashes.withAd, hash)
     })
 
-    it('with associated data', async () => {
-      const hash = await argon2.hash(password, { associatedData, salt })
-      assert.equal(hashes.withAd, hash)
-    })
-
     it('with secret', async () => {
       const hash = await argon2.hash(password, { secret, salt })
       assert.equal(hashes.withSecret, hash)
@@ -229,6 +224,11 @@ describe('Argon2', () => {
 
     it('verify with associated data', async () => {
       const hash = await argon2.hash(password, { associatedData })
+      assert(await argon2.verify(hash, 'password'))
+    })
+    
+    it('verify with secret', async () => {
+      const hash = await argon2.hash(password, { secret })
       assert(await argon2.verify(hash, 'password'))
     })
 
