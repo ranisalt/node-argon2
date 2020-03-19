@@ -72,5 +72,8 @@
     "ignore": [
       "test/test-d.js"
     ]
+  },
+  "resolutions": {
+    "minimist": ">=1.2.3"
   }
 }
