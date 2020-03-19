@@ -229,7 +229,7 @@ describe('Argon2', () => {
     
     it('verify with secret', async () => {
       const hash = await argon2.hash(password, { secret })
-      assert(await argon2.verify(hash, 'password'))
+      assert(await argon2.verify(hash, 'password', { secret }))
     })
 
     it('verify argon2d correct password', async () => {
