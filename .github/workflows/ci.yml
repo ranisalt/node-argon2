@@ -9,7 +9,7 @@ jobs:
         node-version: [10.x, 12.x, 13.x]
         os: [ubuntu-16.04, macos-latest, windows-latest]
 
-    name: Build node-${{ matrix.node-version }} on ${{ matrix.os }}
+    name: Test for node-${{ matrix.node-version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     env:
       YARN_GPG: no
@@ -33,10 +33,6 @@ jobs:
     - name: Run tests
       run: yarn test
 
-    - name: "[Alpine] run tests"
-      if: matrix.os == 'ubuntu-16.04'
-      run: docker run -w /src --entrypoint /bin/sh -v`pwd`:/src "node:12-alpine" scripts/test-alpine.sh
-
     - name: "[Linux] Install lcov"
       if: matrix.os == 'ubuntu-16.04'
       run: sudo apt install lcov
@@ -56,6 +52,10 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         path-to-lcov: ./lcov.info
         parallel: true
+
+    - name: "[Alpine] run tests"
+      if: matrix.os == 'ubuntu-16.04'
+      run: docker run -w /src --entrypoint /bin/sh -v`pwd`:/src "node:12-alpine" scripts/test-alpine.sh
 
   coverage-end:
     needs: build
