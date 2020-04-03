@@ -33,6 +33,10 @@ jobs:
     - name: Run tests
       run: yarn test
 
+    - name: "[Alpine] run tests"
+      if: matrix.os == 'ubuntu-16.04'
+      run: docker run -w /src --entrypoint /bin/sh -v`pwd`:/src "node:12-alpine" scripts/test-alpine.sh
+
     - name: "[Linux] Install lcov"
       if: matrix.os == 'ubuntu-16.04'
       run: sudo apt install lcov

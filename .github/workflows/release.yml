@@ -31,10 +31,10 @@ jobs:
   build:
     strategy:
       matrix:
-        node-version: [10.x, 12.x, 13.x]
+        node-version: [12.x]
         os: [ubuntu-16.04, macos-latest, windows-latest]
 
-    name: Build node-${{ matrix.node-version }} on ${{ matrix.os }}
+    name: Build on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     env:
       npm_config_build_from_source: true
@@ -55,6 +55,10 @@ jobs:
 
     - name: Package artifacts
       run: yarn node-pre-gyp package
+
+    - name: "[Alpine] Package artifacts"
+      if: matrix.os == 'ubuntu-16.04'
+      run: docker run -w /src --entrypoint /bin/sh -v`pwd`:/src "node:12-alpine" scripts/package-alpine.sh
 
     - name: Upload to Release
       uses: csexton/release-asset-action@v2
