@@ -7,7 +7,7 @@ echo "Running on $(node -v)"
 apk add make g++ python
 
 export npm_config_build_from_source=true
-export npm_config_debug=true
+export npm_config_debug=yes
 
 yarn install --frozen-lockfile
 yarn test

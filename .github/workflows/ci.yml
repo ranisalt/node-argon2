@@ -40,6 +40,7 @@ jobs:
     - name: "[Linux] Generate coverage"
       if: matrix.os == 'ubuntu-16.04'
       run: |
+        cp -rl build/* build-tmp-napi-v3
         yarn nyc report --reporter=text-lcov > lcov-js.info
         lcov -c -d . --no-external -o lcov-cpp.info
         lcov -r lcov-cpp.info "*/node_modules/*" -o lcov-cpp.info
