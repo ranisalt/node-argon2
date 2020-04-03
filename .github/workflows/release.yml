@@ -5,29 +5,29 @@ on:
     types: [published]
 
 jobs:
-  # publish:
-  #   name: Publish package
-  #   runs-on: ubuntu-16.04
+  publish:
+    name: Publish package
+    runs-on: ubuntu-16.04
 
-  #   steps:
-  #   - name: Checkout
-  #     uses: actions/checkout@v1
-  #     with:
-  #       submodules: true
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v1
+      with:
+        submodules: true
 
-  #   - name: Use Node.js 10
-  #     uses: actions/setup-node@v1
-  #     with:
-  #       node-version: 10
-  #       registry-url: https://registry.npmjs.org/
+    - name: Use Node.js 10
+      uses: actions/setup-node@v1
+      with:
+        node-version: 10
+        registry-url: https://registry.npmjs.org/
 
-  #   - name: Install dependencies
-  #     run: yarn install --frozen-lockfile
+    - name: Install dependencies
+      run: yarn install --frozen-lockfile
 
-  #   - name: Publish to NPM
-  #     run: yarn publish
-  #     env:
-  #       NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+    - name: Publish to NPM
+      run: yarn publish
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
   build:
     strategy:
       matrix:
@@ -65,7 +65,7 @@ jobs:
 
     - name: "[Alpine] Package artifacts"
       if: matrix.os == 'ubuntu-16.04'
-      run: docker run -w /src --entrypoint /bin/sh -v`pwd`:/src "node:12-alpine" scripts/package-alpine.sh
+      run: docker run -w /src --entrypoint /bin/sh -v`pwd`:/src "node:10-alpine" scripts/package-alpine.sh
 
     - name: "[Alpine] Upload to Release"
       if: matrix.os == 'ubuntu-16.04'
