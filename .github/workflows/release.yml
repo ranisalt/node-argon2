@@ -56,11 +56,19 @@ jobs:
     - name: Package artifacts
       run: yarn node-pre-gyp package
 
+    - name: Upload to Release
+      uses: csexton/release-asset-action@v2
+      with:
+        pattern: build/stage/**/argon2*.tar.gz
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        release-url: ${{ github.event.release.upload_url }}
+
     - name: "[Alpine] Package artifacts"
       if: matrix.os == 'ubuntu-16.04'
       run: docker run -w /src --entrypoint /bin/sh -v`pwd`:/src "node:12-alpine" scripts/package-alpine.sh
 
-    - name: Upload to Release
+    - name: "[Alpine] Upload to Release"
+      if: matrix.os == 'ubuntu-16.04'
       uses: csexton/release-asset-action@v2
       with:
         pattern: build/stage/**/argon2*.tar.gz
