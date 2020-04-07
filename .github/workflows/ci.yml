@@ -3,13 +3,13 @@ name: CI
 on: [push, pull_request]
 
 jobs:
-  build:
+  test:
     strategy:
       matrix:
         node-version: [10.x, 12.x, 13.x]
         os: [ubuntu-16.04, macos-latest, windows-latest]
 
-    name: Build node-${{ matrix.node-version }} on ${{ matrix.os }}
+    name: Test for node-${{ matrix.node-version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     env:
       YARN_GPG: no
@@ -40,6 +40,8 @@ jobs:
     - name: "[Linux] Generate coverage"
       if: matrix.os == 'ubuntu-16.04'
       run: |
+        cp -rl build/* build-tmp-napi-v3
+        rm -r build
         yarn nyc report --reporter=text-lcov > lcov-js.info
         lcov -c -d . --no-external -o lcov-cpp.info
         lcov -r lcov-cpp.info "*/node_modules/*" -o lcov-cpp.info
@@ -53,8 +55,32 @@ jobs:
         path-to-lcov: ./lcov.info
         parallel: true
 
+  test-alpine:
+    name: Test on Alpine Linux
+    runs-on: ubuntu-latest
+    container:
+      image: node:12-alpine
+      env:
+        YARN_GPG: no
+        npm_config_debug: yes
+        npm_config_build_from_source: true
+    steps:
+      - name: Install build deps
+        run: apk add make g++ python git
+
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+      
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Run tests
+        run: yarn test
+
   coverage-end:
-    needs: build
+    needs: test
 
     name: End Coveralls report
     runs-on: ubuntu-16.04

@@ -49,6 +49,9 @@
       "msvs_settings": {
         "VCCLCompilerTool": { "ExceptionHandling": 1 },
       },
+      "defines": [
+        "NAPI_VERSION=<(napi_build_version)",
+      ],
       "sources": [
         "src/argon2_node.cpp"
       ],

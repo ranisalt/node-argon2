@@ -60,9 +60,11 @@
   },
   "binary": {
     "module_name": "argon2",
-    "module_path": "./lib/binding/",
+    "module_path": "./lib/binding/napi-v{napi_build_version}",
     "host": "https://github.com/ranisalt/node-argon2/releases/download/",
-    "remote_path": "v{version}"
+    "remote_path": "v{version}",
+    "package_name": "{module_name}-v{version}-napi-v{napi_build_version}-{platform}-{arch}-{libc}.tar.gz",
+    "napi_versions": [3]
   },
   "engines": {
     "node": ">=10.0.0"
