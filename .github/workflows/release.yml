@@ -28,6 +28,7 @@ jobs:
       run: yarn publish
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
   build:
     strategy:
       matrix:
