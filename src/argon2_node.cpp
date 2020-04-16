@@ -5,6 +5,8 @@
 #include <napi.h>
 #include "../argon2/include/argon2.h"
 
+#include <ciso646>
+
 using namespace Napi;
 
 #ifndef _MSC_VER
@@ -29,6 +31,7 @@ struct Options {
     // TODO: remove ctors and initializers when GCC<5 stops shipping
     Options(Options&&) = default;
 
+    ustring secret;
     ustring ad;
 
     uint32_t hash_length;
@@ -50,8 +53,8 @@ argon2_context make_context(uint8_t* buf, const ustring& plain, const ustring& s
     ctx.pwdlen = plain.size();
     ctx.salt = const_cast<uint8_t*>(salt.data());
     ctx.saltlen = salt.length();
-    ctx.secret = nullptr;
-    ctx.secretlen = 0;
+    ctx.secret = opts.secret.empty() ? nullptr : const_cast<uint8_t*>(opts.secret.data());
+    ctx.secretlen = opts.secret.size();
     ctx.ad = opts.ad.empty() ? nullptr : const_cast<uint8_t*>(opts.ad.data());
     ctx.adlen = opts.ad.size();
     ctx.t_cost = opts.time_cost;
@@ -114,6 +117,7 @@ private:
 Options extract_opts(const Object& opts)
 {
     return {
+        opts.Has("secret") ? from_buffer(opts["secret"]) : ustring{},
         opts.Has("associatedData") ? from_buffer(opts["associatedData"]) : ustring{},
         opts["hashLength"].ToNumber(),
         opts["timeCost"].ToNumber(),

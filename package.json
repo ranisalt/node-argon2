@@ -1,20 +1,37 @@
 {
   "name": "argon2",
-  "version": "0.24.1",
+  "version": "0.26.2",
   "description": "An Argon2 library for Node",
   "main": "argon2.js",
+  "files": [
+    "src/argon2_node.cpp",
+    "argon2.d.ts",
+    "binding.gyp",
+    "argon2/CHANGELOG.md",
+    "argon2/LICENSE",
+    "argon2/include/",
+    "argon2/src/blake2/",
+    "argon2/src/argon2.c",
+    "argon2/src/core.c",
+    "argon2/src/core.h",
+    "argon2/src/encoding.c",
+    "argon2/src/encoding.h",
+    "argon2/src/opt.c",
+    "argon2/src/ref.c",
+    "argon2/src/thread.c",
+    "argon2/src/thread.h"
+  ],
   "types": "argon2.d.ts",
   "scripts": {
-    "install": "node-gyp-build",
+    "install": "node-pre-gyp install --fallback-to-build",
     "lint": "standard --verbose",
-    "prebuild": "prebuildify --napi --strip",
     "test": "nyc mocha test/test.js",
     "test:ts": "tsc -p . && node test/test-d.js",
     "postinstall": "opencollective-postinstall || true"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ranisalt/node-argon2.git"
+    "url": "https://github.com/ranisalt/node-argon2.git"
   },
   "keywords": [
     "argon2",
@@ -31,27 +48,40 @@
   "homepage": "https://github.com/ranisalt/node-argon2#readme",
   "dependencies": {
     "@phc/format": "^0.5.0",
-    "node-addon-api": "^1.7.1",
-    "node-gyp-build": "^4.1.0",
+    "node-addon-api": "^2.0.0",
+    "node-pre-gyp": "^0.14.0",
     "opencollective-postinstall": "^2.0.2"
   },
   "devDependencies": {
-    "@types/node": "^12.7.2",
+    "@types/node": "^13.1.0",
     "coveralls": "^3.0.3",
-    "mocha": "^6.1.4",
-    "nyc": "^14.1.0",
-    "prebuildify": "^3.0.0",
+    "mocha": "^7.0.1",
+    "node-gyp": "^6.1.0",
+    "nyc": "^15.0.0",
     "standard": "^14.0.0",
     "typescript": "^3.4.4"
   },
+  "binary": {
+    "module_name": "argon2",
+    "module_path": "./lib/binding/napi-v{napi_build_version}",
+    "host": "https://github.com/ranisalt/node-argon2/releases/download/",
+    "remote_path": "v{version}",
+    "package_name": "{module_name}-v{version}-napi-v{napi_build_version}-{platform}-{arch}-{libc}.tar.gz",
+    "napi_versions": [
+      3
+    ]
+  },
   "engines": {
-    "node": ">=8.0.0"
+    "node": ">=10.0.0"
   },
   "standard": {
     "env": "mocha",
     "ignore": [
       "test/test-d.js"
     ]
+  },
+  "resolutions": {
+    "minimist": ">=1.2.3"
   },
   "collective": {
     "type": "opencollective",

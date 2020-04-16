@@ -1,9 +1,11 @@
 # node-argon2
 
-[![Financial Contributors on Open Collective](https://opencollective.com/node-argon2/all/badge.svg?label=financial+contributors)](https://opencollective.com/node-argon2) [![Greenkeeper badge](https://badges.greenkeeper.io/ranisalt/node-argon2.svg)](https://greenkeeper.io/)
-[![NPM package][npm-image]][npm-url] [![Coverage status][coverage-image]][coverage-url] [![Code Quality][codequality-image]][codequality-url] [![Dependencies][david-dm-image]][david-dm-url]
-- Linux/OS X: [![Linux build status][travis-image]][travis-url]
-- Windows: [![Windows build status][appveyor-image]][appveyor-url]
+[![Financial contributors on Open Collective][opencollective-image]][opencollective-url]
+[![Build status][actions-image]][actions-url]
+[![NPM package][npm-image]][npm-url]
+[![Coverage status][coverage-image]][coverage-url]
+[![Code Quality][codequality-image]][codequality-url]
+[![Dependencies][david-image]][david-url]
 
 Bindings to the reference [Argon2](https://github.com/P-H-C/phc-winner-argon2)
 implementation.
@@ -90,12 +92,27 @@ Performance-wise, the libraries are equal. You can run the same benchmark suite
 if you are curious, but both can perform around 130 hashes/second on an Intel
 Core i5-4460 @ 3.2GHz with default options.
 
-### Before installing
+### Prebuilt Binaries
+**node-argon2** provides prebuilt binaries from `v0.26.0` onwards. They are
+built per release using GitHub Actions.
+
+The current prebuilt binaries are built (and tested) with the following matrix:
+1. Node 10.x, 12.x, 13.x
+2. Ubuntu 16.04, Alpine Linux, Windows Server 2019, macOS Catalina 10.15
+
+If your plaform is below the above requirements, you can follow the
+[Before Installing](#before-installing) section below to manually compile from
+source. It is also always recommended to build from source to ensure consistency
+of the compiled module.
+
+### Before Installing
+> You can skip this section if the prebuilt binaries work for you.
+
 You **MUST** have a **node-gyp** global install before proceeding with install,
 along with GCC >= 5 / Clang >= 3.3. On Windows, you must compile under Visual
 Studio 2015 or newer.
 
-**node-argon2** works only and is tested against Node >=8.0.0.
+**node-argon2** works only and is tested against Node >=10.0.0.
 
 #### OSX
 To install GCC >= 5 on OSX, use [homebrew](http://brew.sh/):
@@ -118,6 +135,40 @@ $ CXX=g++-6 npm install argon2
 
 **NOTE**: If your GCC or Clang binary is named something different than `g++-6`,
 you'll need to specify that in the command.
+
+### FAQ
+<details>
+  <summary>How do I manually rebuild the binaries?</summary>
+
+  ```console
+  $ npx node-pre-gyp rebuild -C ./node_modules/argon2
+  ```
+
+  > Run `node-pre-gyp` instead of `node-gyp` because node-argon2's `binding.gyp`
+  file relies on variables from `node-pre-gyp`.
+
+  > You can omit `npx` if you have a global installation of `node-pre-gyp`,
+  otherwise prefixing `npx` will use the local one in `./node_modules/.bin`
+</details>
+
+<details>
+  <summary>
+    How do I skip installing prebuilt binaries and manually compile from source?
+  </summary>
+  
+  You can do either of the two methods below:
+  
+  1. Force build from source on install.
+  ```console
+  $ npm install argon2 --build-from-source
+  ```
+  
+  2. Ignore `node-argon2` install script and build manually.
+  ```console
+  $ npm install argon2 --ignore-scripts
+  $ npx node-pre-gyp rebuild -C ./node_modules/argon2
+  ```
+</details>
 
 ## Contributors
 
@@ -154,15 +205,15 @@ Work licensed under the [MIT License](LICENSE). Please check
 [P-H-C/phc-winner-argon2](https://github.com/P-H-C/phc-winner-argon2) for
 license over Argon2 and the reference implementation.
 
+[opencollective-image]: https://opencollective.com/node-argon2/all/badge.svg?label=financial+contributors
+[opencollective-url]: https://opencollective.com/node-argon2
 [npm-image]: https://img.shields.io/npm/v/argon2.svg?style=flat-square
 [npm-url]: https://www.npmjs.com/package/argon2
-[travis-image]: https://img.shields.io/travis/ranisalt/node-argon2/master.svg?style=flat-square
-[travis-url]: https://travis-ci.org/ranisalt/node-argon2
-[appveyor-image]: https://img.shields.io/appveyor/ci/ranisalt/node-argon2/master.svg?style=flat-square
-[appveyor-url]: https://ci.appveyor.com/project/ranisalt/node-argon2
+[actions-image]: https://img.shields.io/github/workflow/status/ranisalt/node-argon2/CI?style=flat-square
+[actions-url]: https://github.com/ranisalt/node-argon2/actions
 [coverage-image]: https://img.shields.io/coveralls/github/ranisalt/node-argon2/master.svg?style=flat-square
 [coverage-url]: https://coveralls.io/github/ranisalt/node-argon2
 [codequality-image]: https://img.shields.io/codacy/grade/15927f4eb15747fd8a537e48a04bd4f6/master.svg?style=flat-square
 [codequality-url]: https://www.codacy.com/app/ranisalt/node-argon2
-[david-dm-image]: https://img.shields.io/david/ranisalt/node-argon2.svg?style=flat-square
-[david-dm-url]: https://david-dm.org/ranisalt/node-argon2
+[david-image]: https://img.shields.io/david/ranisalt/node-argon2.svg?style=flat-square
+[david-url]: https://david-dm.org/ranisalt/node-argon2

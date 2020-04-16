@@ -1,0 +1,94 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  publish:
+    name: Publish package
+    runs-on: ubuntu-16.04
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v1
+      with:
+        submodules: true
+
+    - name: Use Node.js 10
+      uses: actions/setup-node@v1
+      with:
+        node-version: 10
+        registry-url: https://registry.npmjs.org/
+
+    - name: Install dependencies
+      run: yarn install --frozen-lockfile
+
+    - name: Publish to NPM
+      run: yarn publish
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  build:
+    strategy:
+      matrix:
+        node-version: [10.x]
+        os: [ubuntu-16.04, macos-latest, windows-latest]
+
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    env:
+      npm_config_build_from_source: true
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v1
+      with:
+        submodules: true
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - name: Install dependencies
+      run: yarn install --frozen-lockfile
+
+    - name: Package artifacts
+      run: yarn node-pre-gyp package
+
+    - name: Upload to Release
+      uses: csexton/release-asset-action@v2
+      with:
+        pattern: build/stage/**/argon2*.tar.gz
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        release-url: ${{ github.event.release.upload_url }}
+
+  build-alpine:
+    name: Build on Alpine Linux
+    runs-on: ubuntu-latest
+    container:
+      image: node:10-alpine
+      env:
+        npm_config_build_from_source: true
+    steps:
+      - name: Install build deps
+        run: apk add make g++ python git
+
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+      
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Package artifacts
+        run: yarn node-pre-gyp package
+
+      - name: Upload to Release
+        uses: csexton/release-asset-action@v2
+        with:
+          pattern: build/stage/**/argon2*.tar.gz
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          release-url: ${{ github.event.release.upload_url }}
