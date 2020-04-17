@@ -13,10 +13,10 @@ const { deserialize, serialize } = require('@phc/format')
 const defaults = Object.freeze({
   hashLength: 32,
   saltLength: 16,
-  timeCost: 3,
+  timeCost: 1,
   memoryCost: 1 << 12,
   parallelism: 1,
-  type: types.argon2i,
+  type: types.argon2id,
   version
 })
 
