@@ -66,22 +66,22 @@ describe('Argon2', () => {
     })
 
     it('hash with null in password', async () => {
-      const hash = await argon2.hash('pass\0word', { salt })
+      const hash = await argon2.hash('pass\0word', { type: argon2id, salt })
       assert.equal(hashes.withNull, hash)
     })
 
     it('with raw hash, null in password', async () => {
-      const hash = await argon2.hash('pass\0word', { raw: true, salt })
+      const hash = await argon2.hash('pass\0word', { type: argon2id, raw: true, salt })
       assert(hashes.rawWithNull.equals(hash))
     })
 
     it('with associated data', async () => {
-      const hash = await argon2.hash(password, { associatedData, salt })
+      const hash = await argon2.hash(password, { type: argon2id, associatedData, salt })
       assert.equal(hashes.withAd, hash)
     })
 
     it('with secret', async () => {
-      const hash = await argon2.hash(password, { secret, salt })
+      const hash = await argon2.hash(password, { type: argon2id, secret, salt })
       assert.equal(hashes.withSecret, hash)
     })
   })
