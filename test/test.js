@@ -29,7 +29,7 @@ describe('Argon2', () => {
       timeCost: 3,
       memoryCost: 1 << 12,
       parallelism: 1,
-      type: argon2i,
+      type: argon2id,
       version: 0x13
     }, defaults)
   })
