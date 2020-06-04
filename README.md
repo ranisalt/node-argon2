@@ -45,6 +45,9 @@ try {
 }
 ```
 
+### Migrating from another hash function
+See [this article on the wiki](https://github.com/ranisalt/node-argon2/wiki/Migrating-from-another-hash-function) for steps how to migrate your existing code to Argon2. It's easy!
+
 ### TypeScript Usage
 A TypeScript type declaration file is published with this module. If you are
 using TypeScript >= 2.0.0 that means you do not need to install any additional
