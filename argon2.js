@@ -11,7 +11,7 @@ const { hash: _hash, limits, types, names, version } = require(bindingPath) /* e
 const { deserialize, serialize } = require('@phc/format')
 
 const defaults = Object.freeze({
-  hashLength: 32,
+  hashLength: 16,
   saltLength: 16,
   timeCost: 3,
   memoryCost: 1 << 12,
