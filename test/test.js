@@ -226,7 +226,7 @@ describe('Argon2', () => {
       const hash = await argon2.hash(password, { associatedData })
       assert(await argon2.verify(hash, 'password'))
     })
-    
+
     it('verify with secret', async () => {
       const hash = await argon2.hash(password, { secret })
       assert(await argon2.verify(hash, 'password', { secret }))

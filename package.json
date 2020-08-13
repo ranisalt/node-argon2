@@ -47,19 +47,19 @@
   },
   "homepage": "https://github.com/ranisalt/node-argon2#readme",
   "dependencies": {
-    "@phc/format": "^0.5.0",
+    "@phc/format": "^1.0.0",
     "node-addon-api": "^3.0.0",
     "node-pre-gyp": "^0.15.0",
     "opencollective-postinstall": "^2.0.3"
   },
   "devDependencies": {
-    "@types/node": "^14.0.0",
-    "coveralls": "^3.0.3",
-    "mocha": "^7.0.1",
-    "node-gyp": "^7.0.0",
-    "nyc": "^15.0.0",
-    "standard": "^14.0.0",
-    "typescript": "^3.4.4"
+    "@types/node": "^14.0.27",
+    "coveralls": "^3.1.0",
+    "mocha": "^8.1.1",
+    "node-gyp": "^7.1.0",
+    "nyc": "^15.1.0",
+    "standard": "^14.3.4",
+    "typescript": "^3.9.7"
   },
   "binary": {
     "module_name": "argon2",
