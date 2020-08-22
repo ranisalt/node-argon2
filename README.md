@@ -81,19 +81,22 @@ const hash = await argon2.hash(..);
 ```
 
 ### Differences from [node-argon2-ffi](https://github.com/cjlarose/argon2-ffi)
+The interface of both are very similar, notably node-argon2-ffi splits the
+argon2i and argon2d function set, but this module also has the argon2id option,
+which node-argon2-ffi **does not support**.  Also, while node-argon2-ffi
+suggests you promisify `crypto.randomBytes`, node-argon2 library does that
+internally.
+
+**node-argon2** is much lighter than **node-argon2-ffi**, at 184 KB for
+argon2@0.27.0 against 2.56 MB for argon2-ffi@1.2.0. Performance-wise, the
+libraries are equal. You can run the same benchmark suite if you are curious,
+but both can perform around 130 hashes/second on an Intel Core i5-4460 @ 3.2GHz
+with default options.
+
 This library is implemented natively, meaning it is an extension to the node
 engine. Thus, half of the code are C++ bindings, the other half are Javascript
 functions. node-argon2-ffi uses ffi, a mechanism to call functions from one
 language in another, and handles the type bindings (e.g. JS Number -> C++ int).
-
-The interface of both are very similar, notably node-argon2-ffi splits the
-argon2i and argon2d function set, but this module also has the argon2id option.
-Also, while node-argon2-ffi suggests you promisify `crypto.randomBytes`, this
-library does that internally.
-
-Performance-wise, the libraries are equal. You can run the same benchmark suite
-if you are curious, but both can perform around 130 hashes/second on an Intel
-Core i5-4460 @ 3.2GHz with default options.
 
 ### Prebuilt Binaries
 **node-argon2** provides prebuilt binaries from `v0.26.0` onwards. They are
