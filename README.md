@@ -208,7 +208,7 @@ Work licensed under the [MIT License](LICENSE). Please check
 [P-H-C/phc-winner-argon2](https://github.com/P-H-C/phc-winner-argon2) for
 license over Argon2 and the reference implementation.
 
-[opencollective-image]: https://opencollective.com/node-argon2/all/badge.svg?label=financial+contributors
+[opencollective-image]: https://img.shields.io/opencollective/all/node-argon2.svg?style=flat-square
 [opencollective-url]: https://opencollective.com/node-argon2
 [npm-image]: https://img.shields.io/npm/v/argon2.svg?style=flat-square
 [npm-url]: https://www.npmjs.com/package/argon2
