@@ -48,7 +48,7 @@
   "homepage": "https://github.com/ranisalt/node-argon2#readme",
   "dependencies": {
     "@phc/format": "^1.0.0",
-    "node-addon-api": "^3.0.0",
+    "node-addon-api": "^3.0.2",
     "node-pre-gyp": "^0.15.0",
     "opencollective-postinstall": "^2.0.3"
   },
