@@ -144,6 +144,10 @@ Value Hash(const CallbackInfo& info)
     return info.Env().Undefined();
 }
 
+constexpr uint32_t max(uint32_t a, uint32_t b) {
+    return a > b ? a : b;
+}
+
 Object init(Env env, Object exports)
 {
     auto limits = Object::New(env);
@@ -156,8 +160,8 @@ Object init(Env env, Object exports)
     };
 
     setMaxMin("hashLength", ARGON2_MAX_OUTLEN, ARGON2_MIN_OUTLEN);
-    setMaxMin("memoryCost", ARGON2_MAX_MEMORY, ARGON2_MIN_MEMORY);
-    setMaxMin("timeCost", ARGON2_MAX_TIME, ARGON2_MIN_TIME);
+    setMaxMin("memoryCost", ARGON2_MAX_MEMORY, max(ARGON2_MIN_MEMORY, 2048));
+    setMaxMin("timeCost", ARGON2_MAX_TIME, max(ARGON2_MIN_TIME, 2));
     setMaxMin("parallelism", ARGON2_MAX_LANES, ARGON2_MIN_LANES);
 
     auto types = Object::New(env);
