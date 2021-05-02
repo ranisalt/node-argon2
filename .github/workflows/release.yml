@@ -93,3 +93,59 @@ jobs:
           pattern: build/stage/**/argon2*.tar.gz
           github-token: ${{ secrets.GITHUB_TOKEN }}
           release-url: ${{ github.event.release.upload_url }}
+
+  build-arm:
+    name: Build on arm64
+    runs-on: ubuntu-latest
+    env:
+      npm_config_build_from_source: true
+    strategy:
+      matrix:
+        include:
+          - arch: aarch64
+            distro: ubuntu18.04
+          - arch: aarch64
+            distro: alpine_latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v1
+      with:
+        submodules: true
+
+    - uses: uraimo/run-on-arch-action@v2.0.10
+      name: Package artifacts
+      id: build
+      with:
+        arch: ${{ matrix.arch }}
+        distro: ${{ matrix.distro }}
+        setup: mkdir -p "${PWD}/artifacts"
+        dockerRunArgs: --volume "${PWD}:/repo"
+        env: |
+          npm_config_build_from_source: true
+        install: |
+          case "${{ matrix.distro }}" in
+            ubuntu*|jessie|stretch|buster)
+              apt-get update -y
+              apt-get install -y curl
+              curl -fsSL https://deb.nodesource.com/setup_12.x | bash -
+              apt-get install -y make g++ python nodejs
+              npm install --global yarn
+              ;;
+            alpine*)
+              apk add --update make g++ python3
+              apk add --no-cache --repository https://dl-cdn.alpinelinux.org/alpine/v3.12/main/ nodejs~=12 npm~=12
+              npm install --global yarn
+              ;;
+          esac
+        run: |
+          cd /repo
+          yarn install --frozen-lockfile
+          yarn node-pre-gyp package
+
+    - name: Upload to Release
+      uses: csexton/release-asset-action@v2
+      with:
+        pattern: build/stage/**/argon2*.tar.gz
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        release-url: ${{ github.event.release.upload_url }}
