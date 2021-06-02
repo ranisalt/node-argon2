@@ -7,7 +7,7 @@ jobs:
     strategy:
       matrix:
         node-version: [12.x, 14.x, 16.x]
-        os: [ubuntu-16.04, macos-latest, windows-latest]
+        os: [ubuntu-18.04, macos-10.15, windows-2019]
 
     name: Test for node-${{ matrix.node-version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -34,11 +34,11 @@ jobs:
       run: yarn test
 
     - name: "[Linux] Install lcov"
-      if: matrix.os == 'ubuntu-16.04'
+      if: matrix.os == 'ubuntu-18.04'
       run: sudo apt install lcov
 
     - name: "[Linux] Generate coverage"
-      if: matrix.os == 'ubuntu-16.04'
+      if: matrix.os == 'ubuntu-18.04'
       run: |
         cp -rl build/* build-tmp-napi-v3
         rm -r build
@@ -48,7 +48,7 @@ jobs:
         lcov -a lcov-js.info -a lcov-cpp.info -o lcov.info
 
     - name: "[Linux] Send to Coveralls"
-      if: matrix.os == 'ubuntu-16.04'
+      if: matrix.os == 'ubuntu-18.04'
       uses: coverallsapp/github-action@master
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -83,7 +83,7 @@ jobs:
     needs: test
 
     name: End Coveralls report
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-18.04
 
     steps:
     - name: End Coveralls parallel job

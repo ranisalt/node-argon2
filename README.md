@@ -104,7 +104,7 @@ built per release using GitHub Actions.
 
 The current prebuilt binaries are built (and tested) with the following matrix:
 1. Node 12.x, 14.x, 16.x
-2. Ubuntu 16.04, Alpine Linux, Windows Server 2019, macOS Catalina 10.15
+2. Ubuntu 18.04, Alpine Linux, Windows Server 2019, macOS Catalina 10.15
 
 If your plaform is below the above requirements, you can follow the
 [Before Installing](#before-installing) section below to manually compile from

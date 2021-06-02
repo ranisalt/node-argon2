@@ -7,7 +7,7 @@ on:
 jobs:
   publish:
     name: Publish package
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-18.04
 
     steps:
     - name: Checkout
@@ -33,7 +33,7 @@ jobs:
     strategy:
       matrix:
         node-version: [12.x]
-        os: [ubuntu-16.04, macos-latest, windows-latest]
+        os: [ubuntu-18.04, macos-10.15, windows-2019]
 
     name: Build on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
