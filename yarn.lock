@@ -208,10 +208,10 @@
   resolved "https://registry.yarnpkg.com/@istanbuljs/schema/-/schema-0.1.2.tgz#26520bf09abe4a5644cd5414e37125a8954241dd"
   integrity sha512-tsAQNx32a8CoFhjhijUIhI4kccIAgmGhy8LZMZgGfmXcpMbPRUqn5LWmgRttILi6yeGmBJd2xsPkFMs0PzgPCw==
 
-"@mapbox/node-pre-gyp@^1.0.1":
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/@mapbox/node-pre-gyp/-/node-pre-gyp-1.0.4.tgz#6c76e7a40138eac39e1a4dc869a083e43e236c00"
-  integrity sha512-M669Qo4nRT7iDmQEjQYC7RU8Z6dpz9UmSbkJ1OFEja3uevCdLKh7IZZki7L1TZj02kRyl82snXFY8QqkyfowrQ==
+"@mapbox/node-pre-gyp@^1.0.5":
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/@mapbox/node-pre-gyp/-/node-pre-gyp-1.0.5.tgz#2a0b32fcb416fb3f2250fd24cb2a81421a4f5950"
+  integrity sha512-4srsKPXWlIxp5Vbqz5uLfBN+du2fJChBoYn/f2h991WLdk7jUvcSk/McVLSv/X+xQIPI8eGD5GjrnygdyHnhPA==
   dependencies:
     detect-libc "^1.0.3"
     https-proxy-agent "^5.0.0"
