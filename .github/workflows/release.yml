@@ -15,10 +15,10 @@ jobs:
       with:
         submodules: true
 
-    - name: Use Node.js 10
+    - name: Use Node.js 12
       uses: actions/setup-node@v1
       with:
-        node-version: 10
+        node-version: 12
         registry-url: https://registry.npmjs.org/
 
     - name: Install dependencies
@@ -32,7 +32,7 @@ jobs:
   build:
     strategy:
       matrix:
-        node-version: [10.x]
+        node-version: [12.x]
         os: [ubuntu-16.04, macos-latest, windows-latest]
 
     name: Build on ${{ matrix.os }}
@@ -68,7 +68,7 @@ jobs:
     name: Build on Alpine Linux
     runs-on: ubuntu-latest
     container:
-      image: node:10-alpine
+      image: node:12-alpine
       env:
         npm_config_build_from_source: true
     steps:

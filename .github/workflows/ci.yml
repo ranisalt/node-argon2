@@ -6,7 +6,7 @@ jobs:
   test:
     strategy:
       matrix:
-        node-version: [10.x, 12.x, 14.x]
+        node-version: [12.x, 14.x, 16.x]
         os: [ubuntu-16.04, macos-latest, windows-latest]
 
     name: Test for node-${{ matrix.node-version }} on ${{ matrix.os }}
@@ -66,7 +66,7 @@ jobs:
         npm_config_build_from_source: true
     steps:
       - name: Install build deps
-        run: apk add make g++ python git
+        run: apk add make g++ python3 git
 
       - name: Checkout
         uses: actions/checkout@v2
