@@ -103,7 +103,7 @@ language in another, and handles the type bindings (e.g. JS Number -> C++ int).
 built per release using GitHub Actions.
 
 The current prebuilt binaries are built (and tested) with the following matrix:
-1. Node 10.x, 12.x, 13.x
+1. Node 12.x, 14.x, 16.x
 2. Ubuntu 16.04, Alpine Linux, Windows Server 2019, macOS Catalina 10.15
 
 If your plaform is below the above requirements, you can follow the
@@ -118,7 +118,7 @@ You **MUST** have a **node-gyp** global install before proceeding with install,
 along with GCC >= 5 / Clang >= 3.3. On Windows, you must compile under Visual
 Studio 2015 or newer.
 
-**node-argon2** works only and is tested against Node >=10.0.0.
+**node-argon2** works only and is tested against Node >=12.0.0.
 
 #### OSX
 To install GCC >= 5 on OSX, use [homebrew](http://brew.sh/):
