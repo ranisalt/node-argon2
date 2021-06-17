@@ -160,7 +160,7 @@ Object init(Env env, Object exports)
     };
 
     setMaxMin("hashLength", ARGON2_MAX_OUTLEN, ARGON2_MIN_OUTLEN);
-    setMaxMin("memoryCost", ARGON2_MAX_MEMORY, max(ARGON2_MIN_MEMORY, 2048));
+    setMaxMin("memoryCost", ARGON2_MAX_MEMORY, max(ARGON2_MIN_MEMORY, 1024));
     setMaxMin("timeCost", ARGON2_MAX_TIME, max(ARGON2_MIN_TIME, 2));
     setMaxMin("parallelism", ARGON2_MAX_LANES, ARGON2_MIN_LANES);
 
