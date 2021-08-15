@@ -43,19 +43,19 @@ struct Options {
     argon2_type type;
 };
 
-argon2_context make_context(uint8_t* buf, const ustring& plain, const ustring& salt, const Options& opts)
+argon2_context make_context(uint8_t* buf, ustring& plain, ustring& salt, Options& opts)
 {
     argon2_context ctx;
 
     ctx.out = buf;
     ctx.outlen = opts.hash_length;
-    ctx.pwd = const_cast<uint8_t*>(plain.data());
+    ctx.pwd = plain.data();
     ctx.pwdlen = plain.size();
-    ctx.salt = const_cast<uint8_t*>(salt.data());
-    ctx.saltlen = salt.length();
-    ctx.secret = opts.secret.empty() ? nullptr : const_cast<uint8_t*>(opts.secret.data());
+    ctx.salt = salt.data();
+    ctx.saltlen = salt.size();
+    ctx.secret = opts.secret.empty() ? nullptr : opts.secret.data();
     ctx.secretlen = opts.secret.size();
-    ctx.ad = opts.ad.empty() ? nullptr : const_cast<uint8_t*>(opts.ad.data());
+    ctx.ad = opts.ad.empty() ? nullptr : opts.ad.data();
     ctx.adlen = opts.ad.size();
     ctx.t_cost = opts.time_cost;
     ctx.m_cost = opts.memory_cost;
@@ -81,9 +81,9 @@ public:
 
     void Execute() override
     {
-        uint8_t* buf = new uint8_t[opts.hash_length];
+        auto buf = std::make_unique<uint8_t[]>(opts.hash_length);
 
-        auto ctx = make_context(buf, plain, salt, opts);
+        auto ctx = make_context(buf.get(), plain, salt, opts);
         int result = argon2_ctx(&ctx, opts.type);
 
         if (result != ARGON2_OK) {
@@ -91,12 +91,10 @@ public:
             SetError(argon2_error_message(result));
             /* LCOV_EXCL_STOP */
         } else {
-            hash.assign(buf, opts.hash_length);
+            hash.assign(buf.get(), opts.hash_length);
         }
 
-        std::fill_n(buf, opts.hash_length, 0);
-
-        delete[] buf;
+        std::fill_n(buf.get(), opts.hash_length, 0);
     }
 
     void OnOK() override
