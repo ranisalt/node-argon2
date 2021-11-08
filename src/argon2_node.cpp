@@ -63,7 +63,7 @@ argon2_context make_context(uint8_t* buf, ustring& plain, ustring& salt, Options
     ctx.threads = opts.parallelism;
     ctx.allocate_cbk = nullptr;
     ctx.free_cbk = nullptr;
-    ctx.flags = ARGON2_DEFAULT_FLAGS;
+    ctx.flags = ARGON2_FLAG_CLEAR_PASSWORD | ARGON2_FLAG_CLEAR_SECRET;
     ctx.version = opts.version;
 
     return ctx;
@@ -93,8 +93,6 @@ public:
         } else {
             hash.assign(buf.get(), opts.hash_length);
         }
-
-        std::fill_n(buf.get(), opts.hash_length, 0);
     }
 
     void OnOK() override
