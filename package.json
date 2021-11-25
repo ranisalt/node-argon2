@@ -1,6 +1,6 @@
 {
   "name": "argon2",
-  "version": "0.28.2",
+  "version": "0.28.3",
   "description": "An Argon2 library for Node",
   "main": "argon2.js",
   "files": [
@@ -47,19 +47,19 @@
   },
   "homepage": "https://github.com/ranisalt/node-argon2#readme",
   "dependencies": {
-    "@mapbox/node-pre-gyp": "^1.0.1",
+    "@mapbox/node-pre-gyp": "^1.0.7",
     "@phc/format": "^1.0.0",
     "node-addon-api": "^4.2.0",
     "opencollective-postinstall": "^2.0.3"
   },
   "devDependencies": {
-    "@types/node": "^16.9.6",
+    "@types/node": "^16.11.10",
     "coveralls": "^3.1.1",
-    "mocha": "^9.1.1",
-    "node-gyp": "^8.2.0",
+    "mocha": "^9.1.3",
+    "node-gyp": "^8.4.1",
     "nyc": "^15.1.0",
-    "standard": "^16.0.3",
-    "typescript": "^4.4.3"
+    "standard": "^16.0.4",
+    "typescript": "^4.5.2"
   },
   "binary": {
     "module_name": "argon2",
