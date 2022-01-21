@@ -23,11 +23,10 @@
   ],
   "types": "argon2.d.ts",
   "scripts": {
-    "install": "node-pre-gyp install --fallback-to-build",
+    "install": "node-gyp install --fallback-to-build",
     "lint": "standard --verbose",
     "test": "nyc mocha test/test.js",
-    "test:ts": "tsc -p . && node test/test-d.js",
-    "postinstall": "opencollective-postinstall || true"
+    "test:ts": "tsc -p . && node test/test-d.js"
   },
   "repository": {
     "type": "git",
