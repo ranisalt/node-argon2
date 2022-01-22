@@ -1,4 +1,4 @@
-# node-argon2
+# @dev.mohe/argon2
 
 [![Financial contributors on Open Collective][opencollective-image]][opencollective-url]
 [![Build status][actions-image]][actions-url]
