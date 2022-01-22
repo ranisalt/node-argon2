@@ -19,7 +19,7 @@ verify if a password matches a hash.
 
 To hash a password:
 ```js
-const argon2 = require('argon2');
+const argon2 = require('@dev.mohe/argon2');
 
 try {
   const hash = await argon2.hash("password");
@@ -75,7 +75,7 @@ or
 ```
 
 ```ts
-import * as argon2 from "argon2";
+import * as argon2 from "@dev.mohe/argon2";
 
 const hash = await argon2.hash(..);
 ```
