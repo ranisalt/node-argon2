@@ -1,6 +1,6 @@
 {
-  "name": "argon2",
-  "version": "0.28.3",
+  "name": "@dev.mohe/argon2",
+  "version": "0.29.0",
   "description": "An Argon2 library for Node",
   "main": "argon2.js",
   "files": [
@@ -23,7 +23,7 @@
   ],
   "types": "argon2.d.ts",
   "scripts": {
-    "install": "node-gyp install --fallback-to-build",
+    "prepare": "node-gyp rebuild",
     "lint": "standard --verbose",
     "test": "nyc mocha test/test.js",
     "test:ts": "tsc -p . && node test/test-d.js"
