@@ -1,10 +1,8 @@
 {
-    "compilerOptions": {
-        "target": "es2015",
-        "module": "commonjs",
-        "moduleResolution": "node"
-    },
-    "files": [
-        "test/test-d.ts"
-    ]
+  "compilerOptions": {
+    "target": "es2015",
+    "module": "commonjs",
+    "moduleResolution": "node"
+  },
+  "files": ["test/test-d.ts"]
 }

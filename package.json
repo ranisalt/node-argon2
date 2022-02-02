@@ -24,7 +24,7 @@
   "types": "argon2.d.ts",
   "scripts": {
     "install": "node-pre-gyp install --fallback-to-build",
-    "lint": "standard --verbose",
+    "format": "prettier --write \"**/*.{js,json,ts}\"",
     "test": "nyc mocha test/test.js",
     "test:ts": "tsc -p . && node test/test-d.js",
     "postinstall": "opencollective-postinstall || true"
@@ -57,7 +57,7 @@
     "mocha": "^9.2.0",
     "node-gyp": "^8.4.1",
     "nyc": "^15.1.0",
-    "standard": "^16.0.4",
+    "prettier": "^2.5.1",
     "typescript": "^4.5.5"
   },
   "binary": {
