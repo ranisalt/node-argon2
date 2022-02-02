@@ -26,8 +26,7 @@
     "install": "node-pre-gyp install --fallback-to-build",
     "format": "prettier --write \"**/*.{js,json,ts}\"",
     "test": "nyc mocha test/test.js",
-    "test:ts": "tsc -p . && node test/test-d.js",
-    "postinstall": "opencollective-postinstall || true"
+    "test:ts": "tsc -p . && node test/test-d.js"
   },
   "repository": {
     "type": "git",
@@ -49,8 +48,7 @@
   "dependencies": {
     "@mapbox/node-pre-gyp": "^1.0.8",
     "@phc/format": "^1.0.0",
-    "node-addon-api": "^4.3.0",
-    "opencollective-postinstall": "^2.0.3"
+    "node-addon-api": "^4.3.0"
   },
   "devDependencies": {
     "@types/node": "^17.0.14",
