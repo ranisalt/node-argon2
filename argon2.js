@@ -81,13 +81,19 @@ const needsRehash = (digest, options) => {
 };
 
 const verify = async (digest, plain, options) => {
+  const obj = deserialize(digest);
+  // Only these have the "params" key, so if the password was encoded
+  // using any other method, the destructuring throws an error
+  if (!['argon2i', 'argon2d', 'argon2id'].includes(obj.id)) {
+    return false; 
+  }
   const {
     id,
     version = 0x10,
     params: { m, t, p, data },
     salt,
     hash,
-  } = deserialize(digest);
+  } = obj;
 
   return timingSafeEqual(
     await bindingsHash(Buffer.from(plain), salt, {
