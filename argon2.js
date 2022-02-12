@@ -84,7 +84,7 @@ const verify = async (digest, plain, options) => {
   const obj = deserialize(digest);
   // Only these have the "params" key, so if the password was encoded
   // using any other method, the destructuring throws an error
-  if (!['argon2i', 'argon2d', 'argon2id'].includes(obj.id)) {
+  if (!(obj.id in types)) {
     return false; 
   }
 
