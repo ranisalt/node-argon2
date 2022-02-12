@@ -87,6 +87,7 @@ const verify = async (digest, plain, options) => {
   if (!['argon2i', 'argon2d', 'argon2id'].includes(obj.id)) {
     return false; 
   }
+
   const {
     id,
     version = 0x10,
