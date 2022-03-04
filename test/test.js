@@ -41,21 +41,6 @@ const hashes = Object.freeze({
 });
 
 describe("Argon2", () => {
-  it("defaults", () => {
-    assert.deepEqual(
-      {
-        hashLength: 32,
-        saltLength: 16,
-        timeCost: 3,
-        memoryCost: 1 << 12,
-        parallelism: 1,
-        type: argon2i,
-        version: 0x13,
-      },
-      defaults
-    );
-  });
-
   describe("hash", () => {
     it("hash with argon2i", async () => {
       const hash = await argon2.hash(password, { salt });

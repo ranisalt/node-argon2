@@ -3,15 +3,11 @@ const assert = require("assert");
 const { randomBytes, timingSafeEqual } = require("crypto");
 const { promisify } = require("util");
 
-const {
-  hash: _hash,
-  limits,
-  types,
-  names,
-  version,
-} = require("./lib/binding/napi-v3/argon2.node");
+const { hash: _hash } = require("./lib/binding/napi-v3/argon2.node");
 
 const { deserialize, serialize } = require("@phc/format");
+
+const types = Object.freeze({ argon2d: 0, argon2i: 1, argon2id: 2 });
 
 const defaults = Object.freeze({
   hashLength: 32,
@@ -20,7 +16,20 @@ const defaults = Object.freeze({
   memoryCost: 1 << 12,
   parallelism: 1,
   type: types.argon2i,
-  version,
+  version: 0x13,
+});
+
+const limits = Object.freeze({
+  hashLength: { min: 4, max: 2 ** 32 - 1 },
+  memoryCost: { min: 1 << 10, max: 2 ** 32 - 1 },
+  timeCost: { min: 2, max: 2 ** 32 - 1 },
+  parallelism: { min: 1, max: 2 ** 24 - 1 },
+});
+
+const names = Object.freeze({
+  [types.argon2d]: "argon2d",
+  [types.argon2i]: "argon2i",
+  [types.argon2id]: "argon2id",
 });
 
 const bindingsHash = promisify(_hash);
@@ -80,7 +89,7 @@ const verify = async (digest, plain, options) => {
   // Only these have the "params" key, so if the password was encoded
   // using any other method, the destructuring throws an error
   if (!(obj.id in types)) {
-    return false; 
+    return false;
   }
 
   const {

@@ -14,7 +14,6 @@ namespace {
 #endif
 
 using ustring = std::basic_string<uint8_t>;
-const char* type2string(argon2_type type) { return argon2_type2string(type, false); };
 
 ustring from_buffer(const Value& value)
 {
@@ -140,40 +139,8 @@ Value Hash(const CallbackInfo& info)
     return info.Env().Undefined();
 }
 
-constexpr uint32_t max(uint32_t a, uint32_t b) {
-    return a > b ? a : b;
-}
-
 Object init(Env env, Object exports)
 {
-    auto limits = Object::New(env);
-
-    const auto& setMaxMin = [&](const char* name, uint32_t max, uint32_t min) {
-        auto obj = Object::New(env);
-        obj["max"] = max;
-        obj["min"] = min;
-        limits[name] = obj;
-    };
-
-    setMaxMin("hashLength", ARGON2_MAX_OUTLEN, ARGON2_MIN_OUTLEN);
-    setMaxMin("memoryCost", ARGON2_MAX_MEMORY, max(ARGON2_MIN_MEMORY, 1024));
-    setMaxMin("timeCost", ARGON2_MAX_TIME, max(ARGON2_MIN_TIME, 2));
-    setMaxMin("parallelism", ARGON2_MAX_LANES, ARGON2_MIN_LANES);
-
-    auto types = Object::New(env);
-    types[type2string(Argon2_d)] = uint32_t(Argon2_d);
-    types[type2string(Argon2_i)] = uint32_t(Argon2_i);
-    types[type2string(Argon2_id)] = uint32_t(Argon2_id);
-
-    auto names = Object::New(env);
-    names[uint32_t(Argon2_d)] = type2string(Argon2_d);
-    names[uint32_t(Argon2_i)] = type2string(Argon2_i);
-    names[uint32_t(Argon2_id)] = type2string(Argon2_id);
-
-    exports["limits"] = limits;
-    exports["types"] = types;
-    exports["names"] = names;
-    exports["version"] = int(ARGON2_VERSION_NUMBER);
     exports["hash"] = Function::New(env, Hash);
     return exports;
 }
