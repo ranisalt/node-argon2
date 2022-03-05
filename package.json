@@ -23,7 +23,7 @@
   ],
   "types": "argon2.d.ts",
   "scripts": {
-    "install": "node-pre-gyp install --fallback-to-build",
+    "install": "node-gyp install --fallback-to-build",
     "format": "prettier --write \"**/*.{js,json,ts}\"",
     "test": "nyc mocha test/test.js",
     "test:ts": "tsc -p . && node test/test-d.js"

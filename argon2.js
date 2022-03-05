@@ -3,7 +3,7 @@ const assert = require("assert");
 const { randomBytes, timingSafeEqual } = require("crypto");
 const { promisify } = require("util");
 
-const { hash: _hash } = require("./lib/binding/napi-v3/argon2.node");
+const { hash: _hash } = require("./build/Release/argon2.node");
 
 const { deserialize, serialize } = require("@phc/format");
 
