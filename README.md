@@ -1,4 +1,4 @@
-# node-argon2
+# @dev.mohe/argon2
 
 [![Financial contributors on Open Collective][opencollective-image]][opencollective-url]
 [![Build status][actions-image]][actions-url]
@@ -18,7 +18,7 @@ verify if a password matches a hash.
 
 To hash a password:
 ```js
-const argon2 = require('argon2');
+const argon2 = require('@dev.mohe/argon2');
 
 try {
   const hash = await argon2.hash("password");
@@ -74,7 +74,7 @@ or
 ```
 
 ```ts
-import * as argon2 from "argon2";
+import * as argon2 from "@dev.mohe/argon2";
 
 const hash = await argon2.hash(..);
 ```
@@ -212,8 +212,8 @@ license over Argon2 and the reference implementation.
 
 [opencollective-image]: https://img.shields.io/opencollective/all/node-argon2.svg?style=flat-square
 [opencollective-url]: https://opencollective.com/node-argon2
-[npm-image]: https://img.shields.io/npm/v/argon2.svg?style=flat-square
-[npm-url]: https://www.npmjs.com/package/argon2
+[npm-image]: https://img.shields.io/npm/v/@dev.mohe/argon2.svg?style=flat-square
+[npm-url]: https://www.npmjs.com/package/@dev.mohe/argon2
 [actions-image]: https://img.shields.io/github/workflow/status/ranisalt/node-argon2/CI?style=flat-square
 [actions-url]: https://github.com/ranisalt/node-argon2/actions
 [coverage-image]: https://img.shields.io/codacy/coverage/82ca7b57a6ec4c68a02db89618c4094d?style=flat-square
