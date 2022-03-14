@@ -6,8 +6,8 @@ jobs:
   test:
     strategy:
       matrix:
-        node-version: [10.x, 12.x, 14.x]
-        os: [ubuntu-16.04, macos-latest, windows-latest]
+        node-version: [12.x, 14.x, 16.x]
+        os: [ubuntu-18.04, macos-10.15, windows-2019]
 
     name: Test for node-${{ matrix.node-version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -34,11 +34,11 @@ jobs:
       run: yarn test
 
     - name: "[Linux] Install lcov"
-      if: matrix.os == 'ubuntu-16.04'
+      if: matrix.os == 'ubuntu-18.04'
       run: sudo apt install lcov
 
     - name: "[Linux] Generate coverage"
-      if: matrix.os == 'ubuntu-16.04'
+      if: matrix.os == 'ubuntu-18.04'
       run: |
         cp -rl build/* build-tmp-napi-v3
         rm -r build
@@ -47,13 +47,12 @@ jobs:
         lcov -r lcov-cpp.info "*/node_modules/*" -o lcov-cpp.info
         lcov -a lcov-js.info -a lcov-cpp.info -o lcov.info
 
-    - name: "[Linux] Send to Coveralls"
-      if: matrix.os == 'ubuntu-16.04'
-      uses: coverallsapp/github-action@master
+    - name: "[Linux] Send to Codacy"
+      if: matrix.os == 'ubuntu-18.04'
+      uses: codacy/codacy-coverage-reporter-action@v1
       with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        path-to-lcov: ./lcov.info
-        parallel: true
+        coverage-reports: lcov.info
+        project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
 
   test-alpine:
     name: Test on Alpine Linux
@@ -64,9 +63,10 @@ jobs:
         YARN_GPG: no
         npm_config_debug: yes
         npm_config_build_from_source: true
+
     steps:
       - name: Install build deps
-        run: apk add make g++ python git
+        run: apk add make g++ python3 git
 
       - name: Checkout
         uses: actions/checkout@v2
@@ -78,16 +78,3 @@ jobs:
 
       - name: Run tests
         run: yarn test
-
-  coverage-end:
-    needs: test
-
-    name: End Coveralls report
-    runs-on: ubuntu-16.04
-
-    steps:
-    - name: End Coveralls parallel job
-      uses: coverallsapp/github-action@master
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        parallel-finished: true

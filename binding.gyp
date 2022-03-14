@@ -2,10 +2,21 @@
   "target_defaults": {
     "include_dirs": ["argon2/include"],
     "target_conditions": [
+      ["OS == 'linux' or OS == 'freebsd'", {
+        "cflags_cc": ["-std=c++17"],
+      }],
       ["OS == 'mac'", {
         "xcode_settings": {
+          "CLANG_CXX_LANGUAGE_STANDARD":"c++17",
           "CLANG_CXX_LIBRARY": "libc++",
           "MACOSX_DEPLOYMENT_TARGET": "10.7",
+        }
+      }],
+      ["OS == 'win'", {
+        "msvs_settings": {
+          "VCCLCompilerTool": {
+            "AdditionalOptions": ["-std:c++17"],
+          }
         }
       }]
     ],
@@ -71,13 +82,11 @@
     }, {
       "target_name": "action_after_build",
       "type": "none",
-      "dependencies": [ "<(module_name)" ],
-      "copies": [
-        {
-          "files": [ "<(PRODUCT_DIR)/<(module_name).node" ],
-          "destination": "<(module_path)"
-        }
-      ]
+      "dependencies": ["<(module_name)"],
+      "copies": [{
+        "files": ["<(PRODUCT_DIR)/<(module_name).node"],
+        "destination": "<(module_path)"
+      }]
     }
   ]
 }
