@@ -1,6 +1,6 @@
 {
   "name": "@dev.mohe/argon2",
-  "version": "0.29.2",
+  "version": "0.29.3",
   "description": "An Argon2 library for Node",
   "main": "argon2.js",
   "files": [
@@ -19,7 +19,8 @@
     "argon2/src/opt.c",
     "argon2/src/ref.c",
     "argon2/src/thread.c",
-    "argon2/src/thread.h"
+    "argon2/src/thread.h",
+    "build.sh"
   ],
   "types": "argon2.d.ts",
   "scripts": {
