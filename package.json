@@ -46,7 +46,7 @@
   },
   "homepage": "https://github.com/ranisalt/node-argon2#readme",
   "dependencies": {
-    "@mapbox/node-pre-gyp": "^1.0.8",
+    "@mapbox/node-pre-gyp": "^1.0.9",
     "@phc/format": "^1.0.0",
     "node-addon-api": "^4.3.0"
   },
