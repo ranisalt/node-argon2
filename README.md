@@ -111,7 +111,7 @@ source. It is also always recommended to build from source to ensure consistency
 of the compiled module.
 
 ### Before Installing
-> You can skip this section if the prebuilt binaries work for you.
+> You can skip this section if the prebuilt binaries works for you.
 
 You **MUST** have a **node-gyp** global install before proceeding with install,
 along with GCC >= 5 / Clang >= 3.3. On Windows, you must compile under Visual
