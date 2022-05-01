@@ -214,9 +214,9 @@ license over Argon2 and the reference implementation.
 [opencollective-url]: https://opencollective.com/node-argon2
 [npm-image]: https://img.shields.io/npm/v/argon2.svg?style=flat-square
 [npm-url]: https://www.npmjs.com/package/argon2
-[actions-image]: https://img.shields.io/github/workflow/status/ranisalt/node-argon2/CI?style=flat-square
+[actions-image]: https://img.shields.io/github/workflow/status/ranisalt/node-argon2/CI/master?style=flat-square
 [actions-url]: https://github.com/ranisalt/node-argon2/actions
-[coverage-image]: https://img.shields.io/codacy/coverage/82ca7b57a6ec4c68a02db89618c4094d?style=flat-square
-[coverage-url]: https://www.codacy.com/gh/ranisalt/node-argon2/dashboard
-[codequality-image]: https://img.shields.io/codacy/grade/15927f4eb15747fd8a537e48a04bd4f6/master.svg?style=flat-square
-[codequality-url]: https://www.codacy.com/app/ranisalt/node-argon2
+[coverage-image]: https://img.shields.io/codacy/coverage/3aa6daee00154e1492660ecb2f788f73/master.svg?style=flat-square
+[coverage-url]: https://app.codacy.com/gh/ranisalt/node-argon2
+[codequality-image]: https://img.shields.io/codacy/grade/3aa6daee00154e1492660ecb2f788f73/master.svg?style=flat-square
+[codequality-url]: https://app.codacy.com/gh/ranisalt/node-argon2
