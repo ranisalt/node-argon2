@@ -175,6 +175,14 @@ you'll need to specify that in the command.
   ```
 </details>
 
+<details>
+  <summary>
+    I installed Node as a <a href="https://snapcraft.io/node">Snap</a> and can't install node-argon2.
+  </summary>
+  
+  This seems to be an issue related to Snap. Installing Node normally fixes the problem.
+</details>
+
 ## Contributors
 
 ### Code Contributors
