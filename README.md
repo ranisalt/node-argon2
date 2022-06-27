@@ -177,10 +177,10 @@ you'll need to specify that in the command.
 
 <details>
   <summary>
-    I installed Node as a <a href="https://snapcraft.io/node">Snap</a> and can't install node-argon2.
+    I installed Node as a <a href="https://snapcraft.io/node">snap</a> and can't install node-argon2.
   </summary>
   
-  This seems to be an issue related to Snap. Installing Node normally fixes the problem.
+  This seems to be an issue related to snap. Installing Node normally fixes the problem.
 </details>
 
 ## Contributors
