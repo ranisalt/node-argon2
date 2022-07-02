@@ -43,12 +43,16 @@ const hashes = Object.freeze({
 describe("Argon2", () => {
   describe("hash", () => {
     it("hash with argon2i", async () => {
-      const hash = await argon2.hash(password, { salt });
+      const hash = await argon2.hash(password, { type: argon2i, salt });
       assert.equal(hashes.argon2i, hash);
     });
 
     it("argon2i with raw hash", async () => {
-      const hash = await argon2.hash(password, { raw: true, salt });
+      const hash = await argon2.hash(password, {
+        type: argon2i,
+        raw: true,
+        salt,
+      });
       assert(hashes.rawArgon2i.equals(hash));
     });
 
@@ -80,23 +84,35 @@ describe("Argon2", () => {
       assert(hashes.rawArgon2id.equals(hash));
     });
 
-    it("hash with null in password", async () => {
-      const hash = await argon2.hash("pass\0word", { salt });
+    it("argon2i hash with null in password", async () => {
+      const hash = await argon2.hash("pass\0word", { type: argon2i, salt });
       assert.equal(hashes.withNull, hash);
     });
 
-    it("with raw hash, null in password", async () => {
-      const hash = await argon2.hash("pass\0word", { raw: true, salt });
+    it("argon2i with raw hash, null in password", async () => {
+      const hash = await argon2.hash("pass\0word", {
+        type: argon2i,
+        raw: true,
+        salt,
+      });
       assert(hashes.rawWithNull.equals(hash));
     });
 
-    it("with associated data", async () => {
-      const hash = await argon2.hash(password, { associatedData, salt });
+    it("argon2i with associated data", async () => {
+      const hash = await argon2.hash(password, {
+        type: argon2i,
+        associatedData,
+        salt,
+      });
       assert.equal(hashes.withAd, hash);
     });
 
-    it("with secret", async () => {
-      const hash = await argon2.hash(password, { secret, salt });
+    it("argon2i with secret", async () => {
+      const hash = await argon2.hash(password, {
+        type: argon2i,
+        secret,
+        salt,
+      });
       assert.equal(hashes.withSecret, hash);
     });
   });
