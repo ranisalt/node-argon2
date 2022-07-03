@@ -7,7 +7,10 @@ jobs:
     strategy:
       matrix:
         node-version: [14.x, 16.x, 18.x]
-        os: [ubuntu-18.04, macos-10.15, windows-2019]
+        os: [ubuntu-18.04, ubuntu-20.04, macos-10.15, windows-2019]
+        exclude:
+          - node-version: 18.x
+            os: ubuntu-18.04
 
     name: Test for node-${{ matrix.node-version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
