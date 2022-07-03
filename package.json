@@ -1,6 +1,6 @@
 {
   "name": "argon2",
-  "version": "0.28.6",
+  "version": "0.28.7",
   "description": "An Argon2 library for Node",
   "main": "argon2.js",
   "files": [
@@ -51,7 +51,7 @@
     "node-addon-api": "^5.0.0"
   },
   "devDependencies": {
-    "@types/node": "^18.0.0",
+    "@types/node": "^18.0.1",
     "mocha": "^10.0.0",
     "node-gyp": "^9.0.0",
     "nyc": "^15.1.0",
