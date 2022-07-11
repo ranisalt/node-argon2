@@ -13,7 +13,7 @@ implementation.
 [node-argon2-cli](https://github.com/ranisalt/node-argon2-cli).**
 
 ### Usage
-It's possible to hash using either Argon2i (default), Argon2d and Argon2id, and
+It's possible to hash using either Argon2i, Argon2d and Argon2id (default), and
 verify if a password matches a hash.
 
 To hash a password:
