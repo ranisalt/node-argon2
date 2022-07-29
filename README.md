@@ -12,7 +12,7 @@ implementation.
 **Want to use it on command line? Instead check
 [node-argon2-cli](https://github.com/ranisalt/node-argon2-cli).**
 
-### Usage
+## Usage
 It's possible to hash using either Argon2i, Argon2d and Argon2id (default), and
 verify if a password matches a hash.
 
@@ -47,7 +47,7 @@ try {
 ### Migrating from another hash function
 See [this article on the wiki](https://github.com/ranisalt/node-argon2/wiki/Migrating-from-another-hash-function) for steps how to migrate your existing code to Argon2. It's easy!
 
-### TypeScript Usage
+### TypeScript usage
 A TypeScript type declaration file is published with this module. If you are
 using TypeScript >= 2.0.0 that means you do not need to install any additional
 typings in order to get access to the strongly typed interface. Simply use the
@@ -97,7 +97,7 @@ engine. Thus, half of the code are C++ bindings, the other half are Javascript
 functions. node-argon2-ffi uses ffi, a mechanism to call functions from one
 language in another, and handles the type bindings (e.g. JS Number -> C++ int).
 
-### Prebuilt Binaries
+## Prebuilt binaries
 **node-argon2** provides prebuilt binaries from `v0.26.0` onwards. They are
 built per release using GitHub Actions.
 
@@ -110,7 +110,7 @@ If your plaform is below the above requirements, you can follow the
 source. It is also always recommended to build from source to ensure consistency
 of the compiled module.
 
-### Before Installing
+## Before Installing
 > You can skip this section if the prebuilt binaries works for you.
 
 You **MUST** have a **node-gyp** global install before proceeding with install,
@@ -119,7 +119,7 @@ Studio 2015 or newer.
 
 **node-argon2** works only and is tested against Node >=12.0.0.
 
-#### OSX
+### OSX
 To install GCC >= 5 on OSX, use [homebrew](http://brew.sh/):
 ```console
 $ brew install gcc
@@ -141,18 +141,18 @@ $ CXX=g++-6 npm install argon2
 **NOTE**: If your GCC or Clang binary is named something different than `g++-6`,
 you'll need to specify that in the command.
 
-### FAQ
+## FAQ
 <details>
   <summary>How do I manually rebuild the binaries?</summary>
 
-  ```console
+  ```bash
   $ npx node-pre-gyp rebuild -C ./node_modules/argon2
   ```
 
-  > Run `node-pre-gyp` instead of `node-gyp` because node-argon2's `binding.gyp`
+  Run `node-pre-gyp` instead of `node-gyp` because node-argon2's `binding.gyp`
   file relies on variables from `node-pre-gyp`.
 
-  > You can omit `npx` if you have a global installation of `node-pre-gyp`,
+  You can omit `npx` if you have a global installation of `node-pre-gyp`,
   otherwise prefixing `npx` will use the local one in `./node_modules/.bin`
 </details>
 
@@ -160,16 +160,16 @@ you'll need to specify that in the command.
   <summary>
     How do I skip installing prebuilt binaries and manually compile from source?
   </summary>
-  
+
   You can do either of the two methods below:
-  
+
   1. Force build from source on install.
-  ```console
+  ```bash
   $ npm install argon2 --build-from-source
   ```
-  
+
   2. Ignore `node-argon2` install script and build manually.
-  ```console
+  ```bash
   $ npm install argon2 --ignore-scripts
   $ npx node-pre-gyp rebuild -C ./node_modules/argon2
   ```
@@ -177,12 +177,12 @@ you'll need to specify that in the command.
 
 ## Contributors
 
-### Code Contributors
+### Code contributors
 
 This project exists thanks to all the people who contribute. [[Contribute](CONTRIBUTING.md)].
 <a href="https://github.com/ranisalt/node-argon2/graphs/contributors"><img src="https://opencollective.com/node-argon2/contributors.svg?width=890&button=false" /></a>
 
-### Financial Contributors
+### Financial contributors
 
 Become a financial contributor and help us sustain our community. [[Contribute](https://opencollective.com/node-argon2/contribute)]
 
@@ -205,7 +205,7 @@ Support this project with your organization. Your logo will show up here with a 
 <a href="https://opencollective.com/node-argon2/organization/8/website"><img src="https://opencollective.com/node-argon2/organization/8/avatar.svg"></a>
 <a href="https://opencollective.com/node-argon2/organization/9/website"><img src="https://opencollective.com/node-argon2/organization/9/avatar.svg"></a>
 
-# License
+## License
 Work licensed under the [MIT License](LICENSE). Please check
 [P-H-C/phc-winner-argon2](https://github.com/P-H-C/phc-winner-argon2) for
 license over Argon2 and the reference implementation.
