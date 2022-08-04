@@ -6,8 +6,11 @@ jobs:
   test:
     strategy:
       matrix:
-        node-version: [12.x, 14.x, 16.x]
-        os: [ubuntu-18.04, macos-10.15, windows-2019]
+        node-version: [14.x, 16.x, 18.x]
+        os: [ubuntu-18.04, ubuntu-20.04, macos-10.15, windows-2019]
+        exclude:
+          - node-version: 18.x
+            os: ubuntu-18.04
 
     name: Test for node-${{ matrix.node-version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -42,7 +45,7 @@ jobs:
       run: |
         cp -rl build/* build-tmp-napi-v3
         rm -r build
-        yarn nyc report --reporter=text-lcov > lcov-js.info
+        yarn c8 report --reporter=text-lcov > lcov-js.info
         lcov -c -d . --no-external -o lcov-cpp.info
         lcov -r lcov-cpp.info "*/node_modules/*" -o lcov-cpp.info
         lcov -a lcov-js.info -a lcov-cpp.info -o lcov.info
@@ -58,7 +61,7 @@ jobs:
     name: Test on Alpine Linux
     runs-on: ubuntu-latest
     container:
-      image: node:12-alpine
+      image: node:14-alpine
       env:
         YARN_GPG: no
         npm_config_debug: yes
@@ -78,18 +81,3 @@ jobs:
 
       - name: Run tests
         run: yarn test
-
-  sonarcloud:
-    name: SonarCloud
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

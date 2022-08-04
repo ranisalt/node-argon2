@@ -15,10 +15,10 @@ jobs:
       with:
         submodules: true
 
-    - name: Use Node.js 12
+    - name: Use Node.js 14
       uses: actions/setup-node@v1
       with:
-        node-version: 12
+        node-version: 14
         registry-url: https://registry.npmjs.org/
 
     - name: Install dependencies
@@ -32,7 +32,7 @@ jobs:
   build:
     strategy:
       matrix:
-        node-version: [12.x]
+        node-version: [14.x]
         os: [ubuntu-18.04, macos-10.15, windows-2019]
 
     name: Build on ${{ matrix.os }}
@@ -68,7 +68,7 @@ jobs:
     name: Build on Alpine Linux
     runs-on: ubuntu-latest
     container:
-      image: node:12-alpine
+      image: node:14-alpine
       env:
         npm_config_build_from_source: true
 
@@ -128,13 +128,13 @@ jobs:
             ubuntu*|jessie|stretch|buster)
               apt-get update -y
               apt-get install -y curl
-              curl -fsSL https://deb.nodesource.com/setup_12.x | bash -
+              curl -fsSL https://deb.nodesource.com/setup_14.x | bash -
               apt-get install -y make g++ python nodejs
               npm install --global yarn
               ;;
             alpine*)
               apk add --update make g++ python3
-              apk add --no-cache --repository https://dl-cdn.alpinelinux.org/alpine/v3.12/main/ nodejs~=12 npm~=12
+              apk add --no-cache --repository https://dl-cdn.alpinelinux.org/alpine/v3.13/main/ nodejs~=14 npm~=14
               npm install --global yarn
               ;;
           esac
