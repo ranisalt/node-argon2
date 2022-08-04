@@ -15,7 +15,7 @@ const defaults = Object.freeze({
   timeCost: 3,
   memoryCost: 1 << 12,
   parallelism: 1,
-  type: types.argon2i,
+  type: types.argon2id,
   version: 0x13,
 });
 
