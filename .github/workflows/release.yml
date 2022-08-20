@@ -7,17 +7,18 @@ on:
 jobs:
   publish:
     name: Publish package
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v1
+      uses: actions/checkout@v3
       with:
         submodules: true
 
     - name: Use Node.js 14
-      uses: actions/setup-node@v1
+      uses: actions/setup-node@v3
       with:
+        cache: yarn
         node-version: 14
         registry-url: https://registry.npmjs.org/
 
@@ -32,8 +33,7 @@ jobs:
   build:
     strategy:
       matrix:
-        node-version: [14.x]
-        os: [ubuntu-18.04, macos-10.15, windows-2019]
+        os: [ubuntu-20.04, macos-11, windows-2019]
 
     name: Build on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -42,14 +42,15 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v1
+      uses: actions/checkout@v3
       with:
         submodules: true
 
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
+      uses: actions/setup-node@v3
       with:
-        node-version: ${{ matrix.node-version }}
+        cache: yarn
+        node-version: 14
 
     - name: Install dependencies
       run: yarn install --frozen-lockfile
@@ -77,10 +78,10 @@ jobs:
         run: apk add make g++ python3 git
 
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           submodules: true
-      
+
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
@@ -103,17 +104,17 @@ jobs:
       matrix:
         include:
           - arch: aarch64
-            distro: ubuntu18.04
+            distro: ubuntu20.04
           - arch: aarch64
             distro: alpine_latest
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v1
+      uses: actions/checkout@v3
       with:
         submodules: true
 
-    - uses: uraimo/run-on-arch-action@v2.0.10
+    - uses: uraimo/run-on-arch-action@v2.2.0
       name: Package artifacts
       id: build
       with:
