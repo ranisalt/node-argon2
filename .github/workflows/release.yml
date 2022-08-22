@@ -33,7 +33,11 @@ jobs:
   build:
     strategy:
       matrix:
+        node-version: [14]
         os: [ubuntu-20.04, macos-11, windows-2019]
+        include:
+          - node-version: 16
+            os: macos-m1
 
     name: Build on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -50,7 +54,7 @@ jobs:
       uses: actions/setup-node@v3
       with:
         cache: yarn
-        node-version: 14
+        node-version: ${{ matrix.node-version }}
 
     - name: Install dependencies
       run: yarn install --frozen-lockfile
