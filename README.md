@@ -135,14 +135,15 @@ you'll need to specify that in the command.
   <summary>How do I manually rebuild the binaries?</summary>
 
   ```bash
-  $ npx node-pre-gyp rebuild -C ./node_modules/argon2
+  $ npx @mapbox/node-pre-gyp rebuild -C ./node_modules/argon2
   ```
 
-  Run `node-pre-gyp` instead of `node-gyp` because node-argon2's `binding.gyp`
-  file relies on variables from `node-pre-gyp`.
+  Run `@mapbox/node-pre-gyp` instead of `node-gyp` because node-argon2's
+  `binding.gyp` file relies on variables from `@mapbox/node-pre-gyp`.
 
-  You can omit `npx` if you have a global installation of `node-pre-gyp`,
-  otherwise prefixing `npx` will use the local one in `./node_modules/.bin`
+  You can omit `npx @mapbox` and use just `node-pre-gyp` if you have a global
+  installation of `@mapbox/node-pre-gyp`, otherwise prefixing `npx` will use
+  the local one in `./node_modules/.bin`
 </details>
 
 <details>
@@ -160,7 +161,7 @@ you'll need to specify that in the command.
   2. Ignore `node-argon2` install script and build manually.
   ```bash
   $ npm install argon2 --ignore-scripts
-  $ npx node-pre-gyp rebuild -C ./node_modules/argon2
+  $ npx @mapbox/node-pre-gyp rebuild -C ./node_modules/argon2
   ```
 </details>
 
