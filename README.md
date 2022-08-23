@@ -79,45 +79,34 @@ import * as argon2 from "argon2";
 const hash = await argon2.hash(..);
 ```
 
-### Differences from [node-argon2-ffi](https://github.com/cjlarose/argon2-ffi)
-The interface of both are very similar, notably, node-argon2-ffi splits the
-argon2i and argon2d function set, but this module also has the argon2id option,
-which node-argon2-ffi **does not support**.  Also, while node-argon2-ffi
-suggests you promisify `crypto.randomBytes`, node-argon2 library does that
-internally.
-
-**node-argon2** is much lighter than **node-argon2-ffi**, at 184 KB for
-argon2@0.27.0 against 2.56 MB for argon2-ffi@1.2.0. Performance-wise, the
-libraries are equal. You can run the same benchmark suite if you are curious,
-but both can perform around 130 hashes/second on an Intel Core i5-4460 @ 3.2GHz
-with default options.
-
-This library is implemented natively, meaning it is an extension to the node
-engine. Thus, half of the code is C++ bindings, the other half is Javascript
-functions. node-argon2-ffi uses ffi, a mechanism to call functions from one
-language in another, and handles the type bindings (e.g. JS Number -> C++ int).
-
 ## Prebuilt binaries
 **node-argon2** provides prebuilt binaries from `v0.26.0` onwards. They are
-built per release using GitHub Actions.
+built every release using GitHub Actions.
 
-The current prebuilt binaries are built (and tested) with the following matrix:
-1. Node 12.x, 14.x, 16.x
-2. Ubuntu 18.04, Alpine Linux, Windows Server 2019, macOS Catalina 10.15
+The current prebuilt binaries are built and tested with the following systems:
+- Ubuntu 20.04 (x86-64; ARM64 from v0.28.2)
+- MacOS 11 (x86-64)
+- MacOS 12 (ARM64 from v0.29.0)
+- Windows Server 2019 (x86-64)
+- Alpine Linux 3.13 (x86-64 from v0.28.1; ARM64 from v0.28.2)
+- FreeBSD 13.1 (x86-64 from v0.29.1)
 
-If your platform is below the above requirements, you can follow the
-[Before Installing](#before-installing) section below to manually compile from
-source. It is also always recommended to build from source to ensure consistency
-of the compiled module.
+Binaries should also work for any version more recent than the ones listed
+above. For example, the binary for Ubuntu 20.04 also works on Ubuntu 22.04, or
+any other Linux system that ships a newer version of glibc; the binary for
+MacOS 11 also works on MacOS 12. If your platform is below the above
+requirements, you can follow the [Before installing](#before-installing)
+section below to manually compile from source. It is also always recommended to
+build from source to ensure consistency of the compiled module.
 
-## Before Installing
-> You can skip this section if the prebuilt binaries work for you.
+## Before installing
+*You can skip this section if the [prebuilt binaries](#prebuilt-binaries) work for you.*
 
 You **MUST** have a **node-gyp** global install before proceeding with the install,
 along with GCC >= 5 / Clang >= 3.3. On Windows, you must compile under Visual
 Studio 2015 or newer.
 
-**node-argon2** works only and is tested against Node >=12.0.0.
+**node-argon2** works only and is tested against Node >=14.0.0.
 
 ### OSX
 To install GCC >= 5 on OSX, use [homebrew](http://brew.sh/):
@@ -135,10 +124,10 @@ Finally, once node-gyp is installed and ready to go, you can install this
 library, specifying the GCC or Clang binary to use:
 
 ```console
-$ CXX=g++-6 npm install argon2
+$ CXX=g++-12 npm install argon2
 ```
 
-**NOTE**: If your GCC or Clang binary is named something different than `g++-6`,
+**NOTE**: If your GCC or Clang binary is named something different than `g++-12`,
 you'll need to specify that in the command.
 
 ## FAQ
@@ -182,6 +171,24 @@ you'll need to specify that in the command.
   
   This seems to be an issue related to snap (see [#345 (comment)](https://github.com/ranisalt/node-argon2/issues/345#issuecomment-1164178674)). Installing Node with another package manager, such as [asdf](https://asdf-vm.com/) or [nvm](https://github.com/nvm-sh/nvm), is a possible workaround.
 </details>
+
+### Differences from [node-argon2-ffi](https://github.com/cjlarose/argon2-ffi)
+The interface of both are very similar, notably, node-argon2-ffi splits the
+argon2i and argon2d function set, but this module also has the argon2id option,
+which node-argon2-ffi **does not support**.  Also, while node-argon2-ffi
+suggests you promisify `crypto.randomBytes`, node-argon2 library does that
+internally.
+
+**node-argon2** is much lighter than **node-argon2-ffi**, at 184 KB for
+argon2@0.29.1 against 2.56 MB for argon2-ffi@1.2.0. Performance-wise, the
+libraries are equal. You can run the same benchmark suite if you are curious,
+but both can perform around 130 hashes/second on an Intel Core i5-4460 @ 3.2GHz
+with default options.
+
+This library is implemented natively, meaning it is an extension to the node
+engine. Thus, half of the code is C++ bindings, the other half is Javascript
+functions. node-argon2-ffi uses ffi, a mechanism to call functions from one
+language in another, and handles the type bindings (e.g. JS Number -> C++ int).
 
 ## Contributors
 
