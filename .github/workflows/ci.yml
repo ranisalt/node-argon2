@@ -2,6 +2,11 @@ name: CI
 
 on: [push, pull_request]
 
+env:
+  YARN_GPG: no
+  npm_config_debug: yes
+  npm_config_build_from_source: true
+
 jobs:
   test:
     strategy:
@@ -14,11 +19,6 @@ jobs:
 
     name: Test for node-${{ matrix.node-version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
-    env:
-      YARN_GPG: no
-      npm_config_debug: yes
-      npm_config_build_from_source: true
-
     steps:
     - name: Checkout
       uses: actions/checkout@v3
@@ -63,10 +63,6 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: node:14-alpine
-      env:
-        YARN_GPG: no
-        npm_config_debug: yes
-        npm_config_build_from_source: true
 
     steps:
       - name: Install build deps
@@ -82,3 +78,26 @@ jobs:
 
       - name: Run tests
         run: yarn test
+
+  test-freebsd:
+    strategy:
+      matrix:
+        node-version: [14, 16, 18]
+
+    name: Test for node-${{ matrix.node-version }} on FreeBSD
+    runs-on: macos-12
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - uses: vmactions/freebsd-vm@v0
+        with:
+          envs: 'YARN_GPG npm_config_debug npm_config_build_from_source'
+          prepare: |
+            pkg install -y gmake python3 yarn-node${{ matrix.node-version }}
+          run: |
+            yarn install --frozen-lockfile
+            yarn test

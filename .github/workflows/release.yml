@@ -4,6 +4,9 @@ on:
   release:
     types: [published]
 
+env:
+  npm_config_build_from_source: true
+
 jobs:
   publish:
     name: Publish package
@@ -41,8 +44,6 @@ jobs:
 
     name: Build on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
-    env:
-      npm_config_build_from_source: true
 
     steps:
     - name: Checkout
@@ -74,8 +75,6 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: node:14-alpine
-      env:
-        npm_config_build_from_source: true
 
     steps:
       - name: Install build deps
@@ -102,8 +101,6 @@ jobs:
   build-arm:
     name: Build on arm64
     runs-on: ubuntu-latest
-    env:
-      npm_config_build_from_source: true
     strategy:
       matrix:
         include:
@@ -154,3 +151,30 @@ jobs:
         pattern: build/stage/**/argon2*.tar.gz
         github-token: ${{ secrets.GITHUB_TOKEN }}
         release-url: ${{ github.event.release.upload_url }}
+
+  build-freebsd:
+    name: Build on FreeBSD
+    runs-on: macos-12
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - uses: vmactions/freebsd-vm@v0
+        name: Package artifacts
+        with:
+          envs: 'npm_config_build_from_source'
+          prepare: |
+            pkg install -y gmake python3 yarn-node14
+          run: |
+            yarn install --frozen-lockfile
+            yarn node-pre-gyp package
+
+      - name: Upload to Release
+        uses: csexton/release-asset-action@v2
+        with:
+          pattern: build/stage/**/argon2*.tar.gz
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          release-url: ${{ github.event.release.upload_url }}
