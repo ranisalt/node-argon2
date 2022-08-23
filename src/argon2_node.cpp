@@ -28,9 +28,6 @@ Buffer<uint8_t> to_buffer(const Env& env, const ustring& str)
 }
 
 struct Options {
-    // TODO: remove ctors and initializers when GCC<5 stops shipping
-    Options(Options&&) = default;
-
     ustring secret;
     ustring ad;
 
@@ -72,11 +69,10 @@ argon2_context make_context(uint8_t* buf, ustring& plain, ustring& salt, Options
 class HashWorker final: public AsyncWorker {
 public:
     HashWorker(const Function& callback, ustring&& plain, ustring&& salt, Options&& opts):
-        // TODO: use brackets when GCC <5 stops shipping
-        AsyncWorker(callback, "argon2:HashWorker"),
-        plain(std::move(plain)),
-        salt(std::move(salt)),
-        opts(std::move(opts))
+        AsyncWorker{callback, "argon2:HashWorker"},
+        plain{std::move(plain)},
+        salt{std::move(salt)},
+        opts{std::move(opts)}
     {}
 
     void Execute() override
