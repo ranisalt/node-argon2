@@ -1,28 +1,21 @@
+#include "argon2/include/argon2.h"
+
 #include <cassert>
 #include <cstdint>
+#include <napi.h>
 #include <vector>
 
-#include <napi.h>
-#include "../argon2/include/argon2.h"
-
-#include <ciso646>
-
 using namespace Napi;
-
-#ifndef _MSC_VER
-namespace {
-#endif
-
 using ustring = std::vector<uint8_t>;
 
-ustring from_buffer(const Value& value)
+static ustring from_buffer(const Value& value)
 {
     const auto& buf = value.As<Buffer<uint8_t>>();
     const auto& data = buf.Data();
     return {data, data + buf.Length()};
 }
 
-Buffer<uint8_t> to_buffer(const Env& env, const ustring& str)
+static Buffer<uint8_t> to_buffer(const Env& env, const ustring& str)
 {
     return Buffer<uint8_t>::Copy(env, str.data(), str.size());
 }
@@ -40,7 +33,7 @@ struct Options {
     argon2_type type;
 };
 
-argon2_context make_context(uint8_t* buf, ustring& plain, ustring& salt, Options& opts)
+static argon2_context make_context(uint8_t* buf, ustring& plain, ustring& salt, Options& opts)
 {
     argon2_context ctx;
 
@@ -106,7 +99,7 @@ private:
     ustring hash;
 };
 
-Options extract_opts(const Object& opts)
+static Options extract_opts(const Object& opts)
 {
     return {
         opts.Has("secret") ? from_buffer(opts["secret"]) : ustring{},
@@ -120,13 +113,9 @@ Options extract_opts(const Object& opts)
     };
 }
 
-#ifndef _MSC_VER
-}
-#endif
-
-Value Hash(const CallbackInfo& info)
+static Value Hash(const CallbackInfo& info)
 {
-    assert(info.Length() == 4 and info[0].IsBuffer() and info[1].IsBuffer() and info[2].IsObject() and info[3].IsFunction());
+    assert(info.Length() == 4 && info[0].IsBuffer() && info[1].IsBuffer() && info[2].IsObject() && info[3].IsFunction());
 
     auto worker = new HashWorker{
         info[3].As<Function>(), from_buffer(info[0]), from_buffer(info[1]), extract_opts(info[2].As<Object>())
@@ -136,7 +125,7 @@ Value Hash(const CallbackInfo& info)
     return info.Env().Undefined();
 }
 
-Object init(Env env, Object exports)
+static Object init(Env env, Object exports)
 {
     exports["hash"] = Function::New(env, Hash);
     return exports;
