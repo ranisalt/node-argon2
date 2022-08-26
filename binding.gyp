@@ -42,7 +42,7 @@
       ],
       "type": "static_library"
     }, {
-      "target_name": "argon2",
+      "target_name": "<(module_name)",
       "xcode_settings": {
         "GCC_ENABLE_CPP_EXCEPTIONS": "YES",
       },
@@ -53,7 +53,7 @@
         "NAPI_VERSION=<(napi_build_version)",
       ],
       "sources": [
-        "src/argon2_node.cpp"
+        "argon2.cpp"
       ],
       "cflags_cc!": ["-fno-exceptions"],
       "include_dirs": ["<!@(node -p \"require('node-addon-api').include\")"],
