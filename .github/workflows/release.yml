@@ -171,6 +171,7 @@ jobs:
           run: |
             yarn install --frozen-lockfile
             yarn node-pre-gyp package
+          sync: sshfs
 
       - name: Upload to Release
         uses: csexton/release-asset-action@v2
