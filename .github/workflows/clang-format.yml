@@ -1,0 +1,24 @@
+name: Check code style
+
+on:
+  push:
+    paths:
+      - .clang-format
+      - '*.cpp'
+
+  pull_request:
+    paths:
+      - .clang-format
+      - '*.cpp'
+
+jobs:
+  check-format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install clang-format
+        run: sudo apt update -q && sudo apt install -yq clang-format
+
+      - name: Check code style
+        run: clang-format -n -style=file --Werror *.cpp

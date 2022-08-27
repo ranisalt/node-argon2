@@ -1,5 +1,5 @@
-#include "argon2/include/argon2.h"
 
+#include "argon2/include/argon2.h"
 #include <cassert>
 #include <cstdint>
 #include <napi.h>
@@ -8,15 +8,13 @@
 using namespace Napi;
 using ustring = std::vector<uint8_t>;
 
-static ustring from_buffer(const Value& value)
-{
-    const auto& buf = value.As<Buffer<uint8_t>>();
-    const auto& data = buf.Data();
+static ustring from_buffer(const Value &value) {
+    const auto &buf = value.As<Buffer<uint8_t>>();
+    const auto &data = buf.Data();
     return {data, data + buf.Length()};
 }
 
-static Buffer<uint8_t> to_buffer(const Env& env, const ustring& str)
-{
+static Buffer<uint8_t> to_buffer(const Env &env, const ustring &str) {
     return Buffer<uint8_t>::Copy(env, str.data(), str.size());
 }
 
@@ -33,8 +31,8 @@ struct Options {
     argon2_type type;
 };
 
-static argon2_context make_context(uint8_t* buf, ustring& plain, ustring& salt, Options& opts)
-{
+static argon2_context make_context(uint8_t *buf, ustring &plain, ustring &salt,
+                                   Options &opts) {
     argon2_context ctx;
 
     ctx.out = buf;
@@ -59,17 +57,14 @@ static argon2_context make_context(uint8_t* buf, ustring& plain, ustring& salt, 
     return ctx;
 }
 
-class HashWorker final: public AsyncWorker {
+class HashWorker final : public AsyncWorker {
 public:
-    HashWorker(const Function& callback, ustring&& plain, ustring&& salt, Options&& opts):
-        AsyncWorker{callback, "argon2:HashWorker"},
-        plain{std::move(plain)},
-        salt{std::move(salt)},
-        opts{std::move(opts)}
-    {}
+    HashWorker(const Function &callback, ustring &&plain, ustring &&salt,
+               Options &&opts)
+        : AsyncWorker{callback, "argon2:HashWorker"}, plain{std::move(plain)},
+          salt{std::move(salt)}, opts{std::move(opts)} {}
 
-    void Execute() override
-    {
+    void Execute() override {
         auto buf = std::make_unique<uint8_t[]>(opts.hash_length);
 
         auto ctx = make_context(buf.get(), plain, salt, opts);
@@ -84,9 +79,8 @@ public:
         }
     }
 
-    void OnOK() override
-    {
-        const auto& env = Env();
+    void OnOK() override {
+        const auto &env = Env();
         HandleScope scope{env};
         Callback()({env.Undefined(), to_buffer(env, hash)});
     }
@@ -99,11 +93,11 @@ private:
     ustring hash;
 };
 
-static Options extract_opts(const Object& opts)
-{
+static Options extract_opts(const Object &opts) {
     return {
         opts.Has("secret") ? from_buffer(opts["secret"]) : ustring{},
-        opts.Has("associatedData") ? from_buffer(opts["associatedData"]) : ustring{},
+        opts.Has("associatedData") ? from_buffer(opts["associatedData"])
+                                   : ustring{},
         opts["hashLength"].ToNumber(),
         opts["timeCost"].ToNumber(),
         opts["memoryCost"].ToNumber(),
@@ -113,20 +107,19 @@ static Options extract_opts(const Object& opts)
     };
 }
 
-static Value Hash(const CallbackInfo& info)
-{
-    assert(info.Length() == 4 && info[0].IsBuffer() && info[1].IsBuffer() && info[2].IsObject() && info[3].IsFunction());
+static Value Hash(const CallbackInfo &info) {
+    assert(info.Length() == 4 && info[0].IsBuffer() && info[1].IsBuffer() &&
+           info[2].IsObject() && info[3].IsFunction());
 
-    auto worker = new HashWorker{
-        info[3].As<Function>(), from_buffer(info[0]), from_buffer(info[1]), extract_opts(info[2].As<Object>())
-    };
+    auto worker = new HashWorker{info[3].As<Function>(), from_buffer(info[0]),
+                                 from_buffer(info[1]),
+                                 extract_opts(info[2].As<Object>())};
 
     worker->Queue();
     return info.Env().Undefined();
 }
 
-static Object init(Env env, Object exports)
-{
+static Object init(Env env, Object exports) {
     exports["hash"] = Function::New(env, Hash);
     return exports;
 }
