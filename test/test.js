@@ -8,32 +8,32 @@ const secret = Buffer.alloc(16, "secret");
 
 // hashes for argon2i and argon2d with default options
 const hashes = Object.freeze({
-  argon2i:
-    "$argon2i$v=19$m=4096,t=3,p=1$c2FsdHNhbHRzYWx0c2FsdA$Iv3dSMJ431p24TEj68Kxokm/ilAC9HfwREDIVPM/1/0",
-  withNull:
-    "$argon2i$v=19$m=4096,t=3,p=1$c2FsdHNhbHRzYWx0c2FsdA$Z3fEValT7xBg6b585WOlY2gufWl95ZfkFA8mPtWJ3UM",
-  withAd:
-    "$argon2i$v=19$m=4096,t=3,p=1,data=YWRhZGFkYWRhZGFkYWRhZA$c2FsdHNhbHRzYWx0c2FsdA$1VVB4lnD1cmZaeQIlqyOMQ17g6H9rlC5S/vlYOWuD+M",
-  withSecret:
-    "$argon2i$v=19$m=4096,t=3,p=1$c2FsdHNhbHRzYWx0c2FsdA$qHHdLtcfshhdjiAAOF2IpJ/DQ+uM+uybVouj3ZwAuk4",
-  argon2d:
-    "$argon2d$v=19$m=4096,t=3,p=1$c2FsdHNhbHRzYWx0c2FsdA$3CYaDoobFaprD02HTMVVRLsrSgJjZK5QmqYWnWDEAlw",
   argon2id:
-    "$argon2id$v=19$m=4096,t=3,p=1$c2FsdHNhbHRzYWx0c2FsdA$fxbFVdPGPQ1NJoy87CaTabyrXOKZepZ9SGBFwPkPJ28",
-  rawArgon2i: Buffer.from(
-    "22fddd48c278df5a76e13123ebc2b1a249bf8a5002f477f04440c854f33fd7fd",
+    "$argon2id$v=19$m=65536,t=3,p=4$c2FsdHNhbHRzYWx0c2FsdA$rBWULD5jOGpQy32rLvGcmvQMVqIVNAmrCtekWvUA8bw",
+  withNull:
+    "$argon2id$v=19$m=65536,t=3,p=4$c2FsdHNhbHRzYWx0c2FsdA$NqchDOxwWbcBzA+0gtsCtyspEQxqKFf4/PO/AoIvo+Q",
+  withAd:
+    "$argon2id$v=19$m=65536,t=3,p=4,data=YWRhZGFkYWRhZGFkYWRhZA$c2FsdHNhbHRzYWx0c2FsdA$TEIIM4GBSUxvMLolL9ePXYP5G/qcr0vywQqqm/ILvsM",
+  withSecret:
+    "$argon2id$v=19$m=65536,t=3,p=4$c2FsdHNhbHRzYWx0c2FsdA$8dZyo1MdHgdzBm+VU7+tyW06dUO7B9FyaPImH5ejVOU",
+  argon2i:
+    "$argon2i$v=19$m=65536,t=3,p=4$c2FsdHNhbHRzYWx0c2FsdA$1Ccmp7ECb+Rb5XPjqRwEuAjCufY1xQDOJwnHrB+orZ4",
+  argon2d:
+    "$argon2d$v=19$m=65536,t=3,p=4$c2FsdHNhbHRzYWx0c2FsdA$VtxJNl5Jr/yZ2UIhvfvL4sGPdDQyGCcy45Cs7rIdFq8",
+  rawArgon2id: Buffer.from(
+    "ac15942c3e63386a50cb7dab2ef19c9af40c56a2153409ab0ad7a45af500f1bc",
     "hex"
   ),
   rawWithNull: Buffer.from(
-    "6777c455a953ef1060e9be7ce563a563682e7d697de597e4140f263ed589dd43",
+    "36a7210cec7059b701cc0fb482db02b72b29110c6a2857f8fcf3bf02822fa3e4",
+    "hex"
+  ),
+  rawArgon2i: Buffer.from(
+    "d42726a7b1026fe45be573e3a91c04b808c2b9f635c500ce2709c7ac1fa8ad9e",
     "hex"
   ),
   rawArgon2d: Buffer.from(
-    "dc261a0e8a1b15aa6b0f4d874cc55544bb2b4a026364ae509aa6169d60c4025c",
-    "hex"
-  ),
-  rawArgon2id: Buffer.from(
-    "7f16c555d3c63d0d4d268cbcec269369bcab5ce2997a967d486045c0f90f276f",
+    "56dc49365e49affc99d94221bdfbcbe2c18f743432182732e390aceeb21d16af",
     "hex"
   ),
   oldFormat:
@@ -84,32 +84,29 @@ describe("Argon2", () => {
       assert(hashes.rawArgon2id.equals(hash));
     });
 
-    it("argon2i hash with null in password", async () => {
-      const hash = await argon2.hash("pass\0word", { type: argon2i, salt });
+    it("with null in password", async () => {
+      const hash = await argon2.hash("pass\0word", { salt });
       assert.equal(hashes.withNull, hash);
     });
 
-    it("argon2i with raw hash, null in password", async () => {
+    it("with raw hash, null in password", async () => {
       const hash = await argon2.hash("pass\0word", {
-        type: argon2i,
         raw: true,
         salt,
       });
       assert(hashes.rawWithNull.equals(hash));
     });
 
-    it("argon2i with associated data", async () => {
+    it("with associated data", async () => {
       const hash = await argon2.hash(password, {
-        type: argon2i,
         associatedData,
         salt,
       });
       assert.equal(hashes.withAd, hash);
     });
 
-    it("argon2i with secret", async () => {
+    it("with secret", async () => {
       const hash = await argon2.hash(password, {
-        type: argon2i,
         secret,
         salt,
       });

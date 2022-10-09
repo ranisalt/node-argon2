@@ -13,8 +13,8 @@ const defaults = Object.freeze({
   hashLength: 32,
   saltLength: 16,
   timeCost: 3,
-  memoryCost: 1 << 12,
-  parallelism: 1,
+  memoryCost: 1 << 16,
+  parallelism: 4,
   type: types.argon2id,
   version: 0x13,
 });
