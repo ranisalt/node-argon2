@@ -1,9 +1,12 @@
 "use strict";
 const assert = require("assert");
 const { randomBytes, timingSafeEqual } = require("crypto");
+const path = require("path");
 const { promisify } = require("util");
+const binary = require("@mapbox/node-pre-gyp");
 
-const { hash: _hash } = require("./lib/binding/napi-v3/argon2.node");
+const bindingPath = binary.find(path.resolve(__dirname, "./package.json"));
+const { hash: _hash } = require(bindingPath);
 
 const { deserialize, serialize } = require("@phc/format");
 
