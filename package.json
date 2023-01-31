@@ -4,7 +4,7 @@
   "description": "An Argon2 library for Node",
   "main": "argon2.js",
   "files": [
-    "argon2.cpp",
+    "argon2_node.cpp",
     "argon2.d.ts",
     "binding.gyp",
     "argon2/CHANGELOG.md",

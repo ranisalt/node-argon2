@@ -53,7 +53,7 @@
         "NAPI_VERSION=<(napi_build_version)",
       ],
       "sources": [
-        "argon2.cpp"
+        "argon2_node.cpp"
       ],
       "cflags_cc!": ["-fno-exceptions"],
       "include_dirs": ["<!@(node -p \"require('node-addon-api').include\")"],
