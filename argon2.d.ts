@@ -2,12 +2,16 @@
 
 /// <reference types="node" />
 
+export const argon2d: 0;
+export const argon2i: 1;
+export const argon2id: 2;
+
 export interface Options {
   hashLength?: number;
   timeCost?: number;
   memoryCost?: number;
   parallelism?: number;
-  type?: 0 | 1 | 2;
+  type?: typeof argon2d | typeof argon2i | typeof argon2id;
   version?: number;
   salt?: Buffer;
   saltLength?: number;
@@ -27,10 +31,6 @@ export interface OptionLimits {
   timeCost: NumericLimit;
   parallelism: NumericLimit;
 }
-
-export const argon2d: 0;
-export const argon2i: 1;
-export const argon2id: 2;
 
 export const defaults: Options;
 export const limits: OptionLimits;
