@@ -48,7 +48,7 @@
   "dependencies": {
     "@mapbox/node-pre-gyp": "^1.0.10",
     "@phc/format": "^1.0.0",
-    "node-addon-api": "^5.0.0"
+    "node-addon-api": "^5.1.0"
   },
   "devDependencies": {
     "@types/node": "^18.11.18",
