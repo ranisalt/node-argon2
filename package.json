@@ -38,7 +38,8 @@
     "argon2/src/opt.c",
     "argon2/src/ref.c",
     "argon2/src/thread.c",
-    "argon2/src/thread.h"
+    "argon2/src/thread.h",
+    "prebuilds/**/*"
   ],
   "binary": {
     "module_name": "argon2",
@@ -51,21 +52,23 @@
     ]
   },
   "scripts": {
+    "build": "prebuildify --napi --strip",
     "format": "prettier --write \"*.{js,json}\"",
-    "install": "node-pre-gyp install --fallback-to-build",
+    "install": "node-gyp-build",
     "prepack": "yarn prepare",
     "prepare": "tsc",
     "test": "c8 node --test test.js"
   },
   "dependencies": {
-    "@mapbox/node-pre-gyp": "^1.0.11",
     "@phc/format": "^1.0.0",
-    "node-addon-api": "^7.0.0"
+    "node-gyp-build": "^4.6.0"
   },
   "devDependencies": {
     "@types/node": "^20.8.10",
     "c8": "^8.0.1",
+    "node-addon-api": "^7.0.0",
     "node-gyp": "^10.0.1",
+    "prebuildify": "^5.0.1",
     "prettier": "^3.0.0",
     "typescript": "^5.2.2"
   },
