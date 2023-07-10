@@ -5,7 +5,7 @@ const { promisify } = require("node:util");
 const { deserialize, serialize } = require("@phc/format");
 const gypBuild = require("node-gyp-build");
 
-const { hash: _hash } = gypBuild(__dirname);
+const { hash: _hash } = gypBuild(fileURLToPath(new URL(".", import.meta.url)));
 
 const bindingsHash = promisify(_hash);
 
@@ -28,11 +28,11 @@ const defaults = Object.freeze({
   timeCost: 3,
   memoryCost: 1 << 16,
   parallelism: 4,
-  type: types.argon2id,
+  type: argon2id,
   version: 0x13,
 });
 
-const limits = Object.freeze({
+export const limits = Object.freeze({
   hashLength: { min: 4, max: 2 ** 32 - 1 },
   memoryCost: { min: 1 << 10, max: 2 ** 32 - 1 },
   timeCost: { min: 2, max: 2 ** 32 - 1 },
@@ -53,7 +53,7 @@ const limits = Object.freeze({
  * @property {Buffer} [secret]
  */
 
-/**
+/**>
  * Hashes a password with Argon2, producing a raw hash
  *
  * @overload

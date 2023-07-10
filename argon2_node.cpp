@@ -124,4 +124,4 @@ static Object init(Env env, Object exports) {
     return exports;
 }
 
-NODE_API_MODULE(argon2_lib, init);
+NODE_API_MODULE(argon2_lib, init)

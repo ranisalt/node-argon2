@@ -4,15 +4,12 @@ on:
   release:
     types: [published]
 
-env:
-  npm_config_build_from_source: true
-
 jobs:
   build:
     strategy:
       matrix:
         os: [ubuntu-20.04, macos-11, macos-m1, windows-2019]
-
+x
     name: Build on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
 
@@ -28,13 +25,15 @@ jobs:
           cache: yarn
           node-version: 18
 
+      - run: corepack enable yarn
+
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
       - name: Prebuild
         run: yarn build
 
-      - name: Upload Artifact
+      - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
           path: prebuilds/**/*.node
@@ -60,7 +59,7 @@ jobs:
       - name: Prebuild
         run: yarn build
 
-      - name: Upload Artifact
+      - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
           path: prebuilds/**/*.node
@@ -82,16 +81,13 @@ jobs:
         with:
           submodules: true
 
-      - uses: uraimo/run-on-arch-action@v2
-        name: Package artifacts
-        id: build
+      - name: Prebuild
+        uses: uraimo/run-on-arch-action@v2
         with:
           arch: ${{ matrix.arch }}
           distro: ${{ matrix.distro }}
           setup: mkdir -p "${PWD}/artifacts"
           dockerRunArgs: --volume "${PWD}:/repo"
-          env: |
-            npm_config_build_from_source: true
           install: |
             case "${{ matrix.distro }}" in
               ubuntu*|jessie|stretch|buster)
@@ -112,7 +108,7 @@ jobs:
             yarn install --frozen-lockfile
             yarn build
 
-      - name: Upload Artifact
+      - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
           path: prebuilds/**/*.node
@@ -127,8 +123,8 @@ jobs:
         with:
           submodules: true
 
-      - uses: vmactions/freebsd-vm@v1
-        name: Package artifacts
+      - name: Package artifacts
+        uses: vmactions/freebsd-vm@v1
         with:
           envs: "npm_config_build_from_source"
           prepare: |
@@ -138,7 +134,7 @@ jobs:
             yarn build
           sync: sshfs
 
-      - name: Upload Artifact
+      - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
           path: prebuilds/**/*.node
@@ -161,12 +157,8 @@ jobs:
           node-version: 18
           registry-url: https://registry.npmjs.org/
 
-      - uses: actions/download-artifact@v3
-        with:
-          name: my-artifact
-
-      - name: Display structure of downloaded files
-        run: ls -R
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
 
       - name: Publish to NPM
         run: yarn publish
