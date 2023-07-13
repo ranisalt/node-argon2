@@ -58,7 +58,7 @@
     "install": "node-gyp-build",
     "prepack": "yarn prepare",
     "prepare": "tsc",
-    "test": "node --experimental-test-coverage --test test.mjs"
+    "test": "c8 node --test test.mjs"
   },
   "dependencies": {
     "@phc/format": "^1.0.0",
