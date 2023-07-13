@@ -32,24 +32,28 @@ jobs:
       run: yarn install --frozen-lockfile
 
     - name: Run tests
+      if: matrix.node-version < 20 || matrix.os != 'ubuntu-20.04'
       run: yarn test
 
-    - name: "[Linux] Generate coverage"
-      if: matrix.os == 'ubuntu-20.04'
+    - name: Run tests with coverage
+      if: matrix.node-version >= 20 && matrix.os == 'ubuntu-20.04'
+      run: yarn test-coverage
+
+    - name: Generate coverage
+      if: matrix.node-version >= 20 && matrix.os == 'ubuntu-20.04'
+      env:
+        NODE_V8_COVERAGE: coverage/tmp
       run: |
         sudo apt install lcov
-        cp -rl build/* build-tmp-napi-v3
-        rm -r build
-        yarn c8 report --reporter=text-lcov > lcov-js.info
+        yarn dlx c8 report --reporter=text-lcov > lcov-js.info
         lcov -c -d . --no-external -o lcov-cpp.info
         lcov -r lcov-cpp.info "*/node_modules/*" -o lcov-cpp.info
-        lcov -a lcov-js.info -a lcov-cpp.info -o lcov.info
 
-    - name: "[Linux] Send to Codacy"
-      if: matrix.os == 'ubuntu-20.04'
+    - name: Send coverage to Codacy
+      if: matrix.node-version >= 20 && matrix.os == 'ubuntu-20.04'
       uses: codacy/codacy-coverage-reporter-action@v1
       with:
-        coverage-reports: lcov.info
+        coverage-reports: lcov-cpp.info, lcov-js.info
         project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
 
   test-alpine:
