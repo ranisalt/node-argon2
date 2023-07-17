@@ -67,7 +67,6 @@
   },
   "devDependencies": {
     "@types/node": "^20.8.10",
-    "node-addon-api": "^7.0.0",
     "node-gyp": "^10.0.1",
     "prebuildify": "^5.0.1",
     "prettier": "^3.0.0",
