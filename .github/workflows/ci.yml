@@ -37,15 +37,15 @@ jobs:
 
     - name: Run tests with coverage
       if: matrix.node-version >= 20
+      env:
+        NODE_V8_COVERAGE: coverage/tmp
       run: yarn test-coverage
 
     - name: Generate coverage
       if: matrix.node-version >= 20 && matrix.os == 'ubuntu-20.04'
-      env:
-        NODE_V8_COVERAGE: coverage/tmp
       run: |
         sudo apt install lcov
-        yarn dlx c8 report --reporter=text-lcov > lcov-js.info
+        npx c8 report --reporter=text-lcov > lcov-js.info
         lcov -c -d . --no-external -o lcov-cpp.info
         lcov -r lcov-cpp.info "*/node_modules/*" -o lcov-cpp.info
 
