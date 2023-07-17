@@ -3,8 +3,6 @@
 [![Financial contributors on Open Collective][opencollective-image]][opencollective-url]
 [![Build status][actions-image]][actions-url]
 [![NPM package][npm-image]][npm-url]
-[![Coverage status][coverage-image]][coverage-url]
-[![Code Quality][codequality-image]][codequality-url]
 
 Bindings to the reference [Argon2](https://github.com/P-H-C/phc-winner-argon2)
 implementation.
@@ -212,7 +210,3 @@ license over Argon2 and the reference implementation.
 [npm-url]: https://www.npmjs.com/package/argon2
 [actions-image]: https://img.shields.io/github/actions/workflow/status/ranisalt/node-argon2/ci.yml?branch=master&style=flat-square
 [actions-url]: https://github.com/ranisalt/node-argon2/actions
-[coverage-image]: https://img.shields.io/codacy/coverage/3aa6daee00154e1492660ecb2f788f73/master.svg?style=flat-square
-[coverage-url]: https://app.codacy.com/gh/ranisalt/node-argon2
-[codequality-image]: https://img.shields.io/codacy/grade/3aa6daee00154e1492660ecb2f788f73/master.svg?style=flat-square
-[codequality-url]: https://app.codacy.com/gh/ranisalt/node-argon2

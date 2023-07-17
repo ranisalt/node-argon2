@@ -1,9 +1,9 @@
-"use strict";
-const assert = require("node:assert");
-const { randomBytes, timingSafeEqual } = require("node:crypto");
-const { promisify } = require("node:util");
-const { deserialize, serialize } = require("@phc/format");
-const gypBuild = require("node-gyp-build");
+import assert from "node:assert";
+import { randomBytes, timingSafeEqual } from "node:crypto";
+import { fileURLToPath } from "node:url";
+import { promisify } from "node:util";
+import { deserialize, serialize } from "@phc/format";
+import gypBuild from "node-gyp-build";
 
 const { hash: _hash } = gypBuild(fileURLToPath(new URL(".", import.meta.url)));
 
@@ -12,8 +12,12 @@ const bindingsHash = promisify(_hash);
 /** @type {(size: number) => Promise<Buffer>} */
 const generateSalt = promisify(randomBytes);
 
-/** @enum {0 | 1 | 2} */
-const types = Object.freeze({ argon2d: 0, argon2i: 1, argon2id: 2 });
+export const argon2d = 0;
+export const argon2i = 1;
+export const argon2id = 2;
+
+/** @enum {argon2i | argon2d | argon2id} */
+const types = Object.freeze({ argon2d, argon2i, argon2id });
 
 /** @enum {'argon2d' | 'argon2i' | 'argon2id'} */
 const names = Object.freeze({
@@ -74,7 +78,7 @@ export const limits = Object.freeze({
  * @param {Options & { raw?: boolean }} options
  * @returns {Promise<Buffer | string>}
  */
-async function hash(plain, options) {
+export async function hash(plain, options) {
   const { raw, salt, saltLength, ...rest } = { ...defaults, ...options };
 
   for (const [key, { min, max }] of Object.entries(limits)) {
@@ -115,7 +119,7 @@ async function hash(plain, options) {
  * @param {Options} [options] The current parameters for Argon2
  * @return {boolean} `true` if the digest parameters do not match the parameters in `options`, otherwise `false`
  */
-function needsRehash(digest, options) {
+export function needsRehash(digest, options) {
   const { memoryCost, timeCost, version } = { ...defaults, ...options };
 
   const {
@@ -132,7 +136,7 @@ function needsRehash(digest, options) {
  * @param {Options} [options] The current parameters for Argon2
  * @return {Promise<boolean>} `true` if the digest parameters matches the hash generated from `plain`, otherwise `false`
  */
-async function verify(digest, plain, options) {
+export async function verify(digest, plain, options) {
   const {
     id,
     version = 0x10,
@@ -160,5 +164,3 @@ async function verify(digest, plain, options) {
     )
   );
 }
-
-module.exports = { defaults, hash, needsRehash, verify, ...types };

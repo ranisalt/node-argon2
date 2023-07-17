@@ -37,24 +37,7 @@ jobs:
 
     - name: Run tests with coverage
       if: matrix.node-version >= 20
-      env:
-        NODE_V8_COVERAGE: coverage/tmp
       run: yarn test-coverage
-
-    - name: Generate coverage
-      if: matrix.node-version >= 20 && matrix.os == 'ubuntu-20.04'
-      run: |
-        sudo apt install lcov
-        npx c8 report --reporter=text-lcov > lcov-js.info
-        lcov -c -d . --no-external -o lcov-cpp.info
-        lcov -r lcov-cpp.info "*/node_modules/*" -o lcov-cpp.info
-
-    - name: Send coverage to Codacy
-      if: matrix.node-version >= 20 && matrix.os == 'ubuntu-20.04'
-      uses: codacy/codacy-coverage-reporter-action@v1
-      with:
-        coverage-reports: lcov-cpp.info, lcov-js.info
-        project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
 
   test-alpine:
     name: Test on Alpine Linux

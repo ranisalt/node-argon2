@@ -54,7 +54,7 @@
   },
   "scripts": {
     "build": "prebuildify --napi --strip --tag-armv --tag-libc",
-    "format": "prettier --write \"*.{js,json}\"",
+    "format": "prettier --write \"*.{json,mjs}\"",
     "install": "node-gyp-build",
     "prepack": "yarn prepare",
     "prepare": "tsc",
