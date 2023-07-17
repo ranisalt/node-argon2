@@ -19,11 +19,11 @@ x
         with:
           submodules: true
 
-      - name: Use Node.js 18
-        uses: actions/setup-node@v4
+      - name: Use Node.js 20
+        uses: actions/setup-node@v3
         with:
           cache: yarn
-          node-version: 18
+          node-version: 20
 
       - run: corepack enable yarn
 
@@ -42,7 +42,7 @@ x
     name: Build on Alpine Linux
     runs-on: ubuntu-latest
     container:
-      image: node:18-alpine
+      image: node:20-alpine
 
     steps:
       - name: Install build deps
@@ -91,15 +91,15 @@ x
           install: |
             case "${{ matrix.distro }}" in
               ubuntu*|jessie|stretch|buster)
-                apt-get update -y
-                apt-get install -y curl
-                curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
-                apt-get install -y make g++ python nodejs
+                apt update -yq
+                apt install -yq curl make g++ python
+                curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+                apt install -yq nodejs
                 npm install --global yarn
                 ;;
               alpine*)
                 apk add --update make g++ python3
-                apk add --no-cache --repository https://dl-cdn.alpinelinux.org/alpine/v3.17/main/ nodejs~=18 npm
+                apk add --no-cache --repository https://dl-cdn.alpinelinux.org/alpine/v3.17/main/ nodejs~=20 npm~=20
                 npm install --global yarn
                 ;;
             esac
@@ -128,7 +128,7 @@ x
         with:
           envs: "npm_config_build_from_source"
           prepare: |
-            pkg install -y gmake python3 yarn-node18
+            pkg install -y gmake python3 yarn-node20
           run: |
             yarn install --frozen-lockfile
             yarn build
@@ -150,11 +150,11 @@ x
         with:
           submodules: true
 
-      - name: Use Node.js 18
+      - name: Use Node.js 20
         uses: actions/setup-node@v3
         with:
           cache: yarn
-          node-version: 18
+          node-version: 20
           registry-url: https://registry.npmjs.org/
 
       - name: Download artifacts

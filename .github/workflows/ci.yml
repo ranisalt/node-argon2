@@ -32,11 +32,11 @@ jobs:
       run: yarn install --frozen-lockfile
 
     - name: Run tests
-      if: matrix.node-version < 20 || matrix.os != 'ubuntu-20.04'
+      if: matrix.node-version < 20
       run: yarn test
 
     - name: Run tests with coverage
-      if: matrix.node-version >= 20 && matrix.os == 'ubuntu-20.04'
+      if: matrix.node-version >= 20
       run: yarn test-coverage
 
     - name: Generate coverage
