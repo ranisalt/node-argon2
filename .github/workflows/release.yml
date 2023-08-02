@@ -18,11 +18,11 @@ jobs:
       with:
         submodules: true
 
-    - name: Use Node.js 14
+    - name: Use Node.js 16
       uses: actions/setup-node@v3
       with:
         cache: yarn
-        node-version: 14
+        node-version: 16
         registry-url: https://registry.npmjs.org/
 
     - name: Install dependencies
@@ -36,11 +36,7 @@ jobs:
   build:
     strategy:
       matrix:
-        node-version: [14]
         os: [ubuntu-20.04, macos-11, windows-2019]
-        include:
-          - node-version: 16
-            os: macos-m1
 
     name: Build on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -51,11 +47,11 @@ jobs:
       with:
         submodules: true
 
-    - name: Use Node.js ${{ matrix.node-version }}
+    - name: Use Node.js 16
       uses: actions/setup-node@v3
       with:
         cache: yarn
-        node-version: ${{ matrix.node-version }}
+        node-version: 16
 
     - name: Install dependencies
       run: yarn install --frozen-lockfile
@@ -74,7 +70,7 @@ jobs:
     name: Build on Alpine Linux
     runs-on: ubuntu-latest
     container:
-      image: node:14-alpine
+      image: node:16-alpine
 
     steps:
       - name: Install build deps
@@ -130,13 +126,13 @@ jobs:
             ubuntu*|jessie|stretch|buster)
               apt-get update -y
               apt-get install -y curl
-              curl -fsSL https://deb.nodesource.com/setup_14.x | bash -
+              curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
               apt-get install -y make g++ python nodejs
               npm install --global yarn
               ;;
             alpine*)
               apk add --update make g++ python3
-              apk add --no-cache --repository https://dl-cdn.alpinelinux.org/alpine/v3.13/main/ nodejs~=14 npm~=14
+              apk add --no-cache --repository https://dl-cdn.alpinelinux.org/alpine/v3.13/main/ nodejs~=16 npm~=16
               npm install --global yarn
               ;;
           esac
@@ -167,7 +163,7 @@ jobs:
         with:
           envs: 'npm_config_build_from_source'
           prepare: |
-            pkg install -y gmake python3 yarn-node14
+            pkg install -y gmake python3 yarn-node16
           run: |
             yarn install --frozen-lockfile
             yarn node-pre-gyp package
