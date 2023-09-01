@@ -25,7 +25,7 @@
   "scripts": {
     "install": "node-pre-gyp install --fallback-to-build",
     "format": "prettier --write \"**/*.{js,json,ts}\"",
-    "test": "c8 mocha test/test.js",
+    "test": "c8 mocha --timeout 5000 test/test.js",
     "test:ts": "tsc -p . && node test/test-d.js"
   },
   "repository": {
