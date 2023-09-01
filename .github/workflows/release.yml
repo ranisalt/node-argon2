@@ -132,7 +132,7 @@ jobs:
               ;;
             alpine*)
               apk add --update make g++ python3
-              apk add --no-cache --repository https://dl-cdn.alpinelinux.org/alpine/v3.13/main/ nodejs~=16 npm~=16
+              apk add --no-cache --repository https://dl-cdn.alpinelinux.org/alpine/v3.15/main/ nodejs~=16 npm
               npm install --global yarn
               ;;
           esac
