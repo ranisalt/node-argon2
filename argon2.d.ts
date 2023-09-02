@@ -36,7 +36,7 @@ export const defaults: Options;
 export const limits: OptionLimits;
 export function hash(
   plain: Buffer | string,
-  options: Options & { raw: true }
+  options: Options & { raw?: true }
 ): Promise<Buffer>;
 export function hash(
   plain: Buffer | string,
