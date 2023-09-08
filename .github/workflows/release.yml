@@ -36,7 +36,7 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-20.04, macos-11, windows-2019]
+        os: [ubuntu-20.04, macos-11, macos-m1, windows-2019]
 
     name: Build on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
