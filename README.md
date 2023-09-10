@@ -210,7 +210,7 @@ license over Argon2 and the reference implementation.
 [opencollective-url]: https://opencollective.com/node-argon2
 [npm-image]: https://img.shields.io/npm/v/argon2.svg?style=flat-square
 [npm-url]: https://www.npmjs.com/package/argon2
-[actions-image]: https://img.shields.io/github/workflow/status/ranisalt/node-argon2/CI/master?style=flat-square
+[actions-image]: https://img.shields.io/github/actions/workflow/status/ranisalt/node-argon2/ci.yml?branch=master&style=flat-square
 [actions-url]: https://github.com/ranisalt/node-argon2/actions
 [coverage-image]: https://img.shields.io/codacy/coverage/3aa6daee00154e1492660ecb2f788f73/master.svg?style=flat-square
 [coverage-url]: https://app.codacy.com/gh/ranisalt/node-argon2
