@@ -44,7 +44,7 @@ const assertLimits =
     const value = options[key];
     assert(
       min <= value && value <= max,
-      `Invalid ${key}, must be between ${min} and ${max}.`
+      `Invalid ${key}, must be between ${min} and ${max}.`,
     );
   };
 
@@ -114,7 +114,7 @@ const verify = async (digest, plain, options) => {
       parallelism: +p,
       ...(data ? { associatedData: Buffer.from(data, "base64") } : {}),
     }),
-    hash
+    hash,
   );
 };
 
