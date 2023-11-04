@@ -11,7 +11,7 @@ jobs:
   test:
     strategy:
       matrix:
-        node-version: [16, 18, 20]
+        node-version: [18, 20]
         os: [ubuntu-20.04, macos-11, macos-m1, windows-2019]
 
     name: Test for node-${{ matrix.node-version }} on ${{ matrix.os }}
@@ -59,7 +59,7 @@ jobs:
     name: Test on Alpine Linux
     runs-on: ubuntu-latest
     container:
-      image: node:16-alpine
+      image: node:18-alpine
 
     steps:
       - name: Install build deps
@@ -79,7 +79,7 @@ jobs:
   test-freebsd:
     strategy:
       matrix:
-        node-version: [16, 18, 20]
+        node-version: [18, 20]
 
     name: Test for node-${{ matrix.node-version }} on FreeBSD
     runs-on: macos-12

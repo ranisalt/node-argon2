@@ -68,7 +68,7 @@ The current prebuilt binaries are built and tested with the following systems:
 - MacOS 11 (x86-64)
 - MacOS 12 (ARM64 from v0.29.0)
 - Windows Server 2019 (x86-64)
-- Alpine Linux 3.13 (x86-64 from v0.28.1; ARM64 from v0.28.2)
+- Alpine Linux 3.17+ (x86-64 from v0.28.1; ARM64 from v0.28.2)
 - FreeBSD 13.1 (x86-64 from v0.29.1)
 
 Binaries should also work for any version more recent than the ones listed
@@ -86,7 +86,7 @@ You **MUST** have a **node-gyp** global install before proceeding with the insta
 along with GCC >= 5 / Clang >= 3.3. On Windows, you must compile under Visual
 Studio 2015 or newer.
 
-**node-argon2** works only and is tested against Node >=14.0.0.
+**node-argon2** works only and is tested against Node >=18.0.0.
 
 ### OSX
 To install GCC >= 5 on OSX, use [homebrew](http://brew.sh/):
@@ -149,7 +149,7 @@ you'll need to specify that in the command.
   <summary>
     I installed Node as a <a href="https://snapcraft.io/node">snap</a>, and I can't install node-argon2.
   </summary>
-  
+
   This seems to be an issue related to snap (see [#345 (comment)](https://github.com/ranisalt/node-argon2/issues/345#issuecomment-1164178674)). Installing Node with another package manager, such as [asdf](https://asdf-vm.com/) or [nvm](https://github.com/nvm-sh/nvm), is a possible workaround.
 </details>
 
