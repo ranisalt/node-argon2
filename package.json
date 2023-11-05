@@ -64,13 +64,13 @@
   },
   "devDependencies": {
     "@types/node": "^20.8.10",
-    "c8": "^8.0.1",
     "node-gyp": "^10.0.1",
-    "prettier": "^3.0.0",
+    "prettier": "^3.0.3",
     "typescript": "^5.2.2"
   },
+  "packageManager": "pnpm@8.10.2+sha256.487609e857f1c11780cc98dd0bfe4c8a8b11c7f23bc3a4493ac7d263d6fb6c8c",
   "engines": {
-    "node": ">=16.17.0"
+    "node": ">=18.13.0"
   },
   "collective": {
     "type": "opencollective",

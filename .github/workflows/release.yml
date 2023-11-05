@@ -21,15 +21,17 @@ jobs:
     - name: Use Node.js 18
       uses: actions/setup-node@v4
       with:
-        cache: yarn
         node-version: 18
-        registry-url: https://registry.npmjs.org/
+
+    - name: Install pnpm
+      run: corepack enable && corepack prepare --activate pnpm@latest
 
     - name: Install dependencies
-      run: yarn install --frozen-lockfile
+      run: pnpm install --frozen-lockfile
 
     - name: Publish to NPM
-      run: yarn publish
+      if: ${{ !env.ACT }}
+      run: pnpm publish
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
@@ -50,17 +52,20 @@ jobs:
     - name: Use Node.js 18
       uses: actions/setup-node@v4
       with:
-        cache: yarn
         node-version: 18
 
+    - name: Install pnpm
+      run: corepack enable && corepack prepare --activate pnpm@latest
+
     - name: Install dependencies
-      run: yarn install --frozen-lockfile
+      run: pnpm install --frozen-lockfile
 
     - name: Package artifacts
-      run: yarn node-pre-gyp package
+      run: pnpm node-pre-gyp package
 
     - name: Upload to Release
       uses: csexton/release-asset-action@v2
+      if: ${{ !env.ACT }}
       with:
         pattern: build/stage/**/argon2*.tar.gz
         github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -81,14 +86,23 @@ jobs:
         with:
           submodules: true
 
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install pnpm
+        run: corepack enable && corepack prepare --activate pnpm@latest
+
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
 
       - name: Package artifacts
-        run: yarn node-pre-gyp package
+        run: pnpm node-pre-gyp package
 
       - name: Upload to Release
         uses: csexton/release-asset-action@v2
+        if: ${{ !env.ACT }}
         with:
           pattern: build/stage/**/argon2*.tar.gz
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -123,26 +137,25 @@ jobs:
           npm_config_build_from_source: true
         install: |
           case "${{ matrix.distro }}" in
-            ubuntu*|jessie|stretch|buster)
-              apt-get update -y
-              apt-get install -y curl
+            ubuntu*)
+              apt update -q && apt install -yq curl make g++ python
               curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
-              apt-get install -y make g++ python nodejs
-              npm install --global yarn
               ;;
             alpine*)
               apk add --update make g++ python3
-              apk add --no-cache --repository https://dl-cdn.alpinelinux.org/alpine/v3.17/main/ nodejs~=18 npm
-              npm install --global yarn
+              apk add --repository https://dl-cdn.alpinelinux.org/alpine/v3.17/main/ nodejs~=18 npm
               ;;
           esac
+          corepack enable && corepack prepare --activate pnpm@latest
+
         run: |
           cd /repo
-          yarn install --frozen-lockfile
-          yarn node-pre-gyp package
+          pnpm install --frozen-lockfile
+          pnpm node-pre-gyp package
 
     - name: Upload to Release
       uses: csexton/release-asset-action@v2
+      if: ${{ !env.ACT }}
       with:
         pattern: build/stage/**/argon2*.tar.gz
         github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -163,14 +176,16 @@ jobs:
         with:
           envs: 'npm_config_build_from_source'
           prepare: |
-            pkg install -y gmake python3 yarn-node18
+            pkg install -y gmake python3 node18
+            corepack enable && corepack prepare pnpm@latest --activate
           run: |
-            yarn install --frozen-lockfile
-            yarn node-pre-gyp package
+            pnpm install --frozen-lockfile
+            pnpm node-pre-gyp package
           sync: sshfs
 
       - name: Upload to Release
         uses: csexton/release-asset-action@v2
+        if: ${{ !env.ACT }}
         with:
           pattern: build/stage/**/argon2*.tar.gz
           github-token: ${{ secrets.GITHUB_TOKEN }}
