@@ -1,7 +1,7 @@
 // @ts-check
-const assert = require("node:assert/strict");
-const { describe, it } = require("node:test");
-const argon2 = require("./argon2.js");
+import assert from "node:assert/strict";
+import { describe, it } from "node:test";
+import * as argon2 from "./argon2.mjs";
 
 const { argon2i, argon2d, argon2id } = argon2;
 const password = "password";
