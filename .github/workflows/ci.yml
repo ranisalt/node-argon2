@@ -8,65 +8,49 @@ env:
 
 jobs:
   test:
+    name: Test for node-${{ matrix.node-version }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         node-version: [18, 20]
         os: [ubuntu-20.04, macos-11, macos-m1, windows-2019]
 
-    name: Test for node-${{ matrix.node-version }} on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
+    - uses: actions/checkout@v4
       with:
         submodules: true
 
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
+    - uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
 
-    - name: Install pnpm
-      run: corepack enable && corepack prepare --activate pnpm@latest
-
-    - name: Install dependencies
-      run: pnpm install --frozen-lockfile
-
-    - name: Run tests
-      run: pnpm test
+    - run: corepack enable
+    - run: pnpm install --frozen-lockfile
+    - run: pnpm test
 
   test-alpine:
+    name: Test for node-${{ matrix.node-version }} on Alpine Linux
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         node-version: [18, 20]
 
-    name: Test for node-${{ matrix.node-version }} on Alpine Linux
-    runs-on: ubuntu-latest
     container:
       image: node:${{ matrix.node-version }}-alpine
 
     steps:
-      - name: Install build deps
-        run: apk add make g++ python3 git
-
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           submodules: true
 
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
 
-      - name: Install pnpm
-        run: corepack enable && corepack prepare --activate pnpm@latest
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Run tests
-        run: pnpm test
+      - run: corepack enable
+      - run: apk add make g++ python3 git
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm test
 
   test-freebsd:
     strategy:
@@ -77,8 +61,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           submodules: true
 
@@ -87,7 +70,7 @@ jobs:
           envs: 'npm_config_debug npm_config_build_from_source'
           prepare: |
             pkg install -y gmake python3 node${{ matrix.node-version }}
-            corepack enable && corepack prepare --activate pnpm@latest
+            corepack enable
           run: |
             pnpm install --frozen-lockfile
             pnpm test

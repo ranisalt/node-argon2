@@ -13,58 +13,45 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
+    - uses: actions/checkout@v4
       with:
         submodules: true
 
-    - name: Use Node.js 18
-      uses: actions/setup-node@v4
+    - uses: actions/setup-node@v4
       with:
         node-version: 18
 
-    - name: Install pnpm
-      run: corepack enable && corepack prepare --activate pnpm@latest
+    - run: corepack enable
+    - run: pnpm install --frozen-lockfile
 
-    - name: Install dependencies
-      run: pnpm install --frozen-lockfile
-
-    - name: Publish to NPM
+    - run: pnpm publish
       if: ${{ !env.ACT }}
-      run: pnpm publish
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
   build:
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-20.04, macos-11, macos-m1, windows-2019]
 
-    name: Build on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
+    - uses: actions/checkout@v4
       with:
         submodules: true
 
-    - name: Use Node.js 18
-      uses: actions/setup-node@v4
+    - uses: actions/setup-node@v4
       with:
         node-version: 18
 
-    - name: Install pnpm
-      run: corepack enable && corepack prepare --activate pnpm@latest
-
-    - name: Install dependencies
-      run: pnpm install --frozen-lockfile
+    - run: corepack enable
+    - run: pnpm install --frozen-lockfile
 
     - name: Package artifacts
       run: pnpm node-pre-gyp package
 
-    - name: Upload to Release
-      uses: csexton/release-asset-action@v2
+    - uses: csexton/release-asset-action@v2
       if: ${{ !env.ACT }}
       with:
         pattern: build/stage/**/argon2*.tar.gz
@@ -78,30 +65,22 @@ jobs:
       image: node:18-alpine
 
     steps:
-      - name: Install build deps
-        run: apk add make g++ python3 git
-
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           submodules: true
 
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
 
-      - name: Install pnpm
-        run: corepack enable && corepack prepare --activate pnpm@latest
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - run: corepack enable
+      - run: apk add make g++ python3 git
+      - run: pnpm install --frozen-lockfile
 
       - name: Package artifacts
         run: pnpm node-pre-gyp package
 
-      - name: Upload to Release
-        uses: csexton/release-asset-action@v2
+      - uses: csexton/release-asset-action@v2
         if: ${{ !env.ACT }}
         with:
           pattern: build/stage/**/argon2*.tar.gz
@@ -120,8 +99,7 @@ jobs:
             distro: alpine_latest
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
+    - uses: actions/checkout@v4
       with:
         submodules: true
 
@@ -146,15 +124,14 @@ jobs:
               apk add --repository https://dl-cdn.alpinelinux.org/alpine/v3.17/main/ nodejs~=18 npm
               ;;
           esac
-          corepack enable && corepack prepare --activate pnpm@latest
+          corepack enable
 
         run: |
           cd /repo
           pnpm install --frozen-lockfile
           pnpm node-pre-gyp package
 
-    - name: Upload to Release
-      uses: csexton/release-asset-action@v2
+    - uses: csexton/release-asset-action@v2
       if: ${{ !env.ACT }}
       with:
         pattern: build/stage/**/argon2*.tar.gz
@@ -166,8 +143,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           submodules: true
 
@@ -183,8 +159,7 @@ jobs:
             pnpm node-pre-gyp package
           sync: sshfs
 
-      - name: Upload to Release
-        uses: csexton/release-asset-action@v2
+      - uses: csexton/release-asset-action@v2
         if: ${{ !env.ACT }}
         with:
           pattern: build/stage/**/argon2*.tar.gz
