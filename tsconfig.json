@@ -5,5 +5,5 @@
     "moduleResolution": "node",
     "strict": true
   },
-  "files": ["test/test-d.ts"]
+  "files": ["test-d.ts"]
 }

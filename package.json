@@ -24,8 +24,8 @@
   "types": "argon2.d.ts",
   "scripts": {
     "install": "node-pre-gyp install --fallback-to-build",
-    "format": "prettier --write \"**/*.{js,json,ts}\"",
-    "test": "c8 mocha --timeout 5000 test/test.js",
+    "format": "prettier --write \"*.{js,json,ts}\"",
+    "test": "c8 node --test test.js",
     "test:ts": "tsc -p . && node test/test-d.js"
   },
   "repository": {
@@ -53,7 +53,6 @@
   "devDependencies": {
     "@types/node": "^20.8.10",
     "c8": "^8.0.1",
-    "mocha": "^10.2.0",
     "node-gyp": "^10.0.1",
     "prettier": "^3.0.0",
     "typescript": "^5.1.6"
@@ -69,12 +68,11 @@
     ]
   },
   "engines": {
-    "node": ">=14.0.0"
+    "node": ">=16.17.0"
   },
   "standard": {
-    "env": "mocha",
     "ignore": [
-      "test/test-d.js"
+      "test-d.js"
     ]
   },
   "collective": {
