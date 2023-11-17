@@ -15,7 +15,7 @@ jobs:
   check-format:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install clang-format
         run: sudo apt update -q && sudo apt install -yq clang-format

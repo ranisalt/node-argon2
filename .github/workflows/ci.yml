@@ -18,12 +18,12 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         submodules: true
 
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         cache: yarn
         node-version: ${{ matrix.node-version }}
@@ -66,7 +66,7 @@ jobs:
         run: apk add make g++ python3 git
 
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: true
 
@@ -82,15 +82,15 @@ jobs:
         node-version: [18, 20]
 
     name: Test for node-${{ matrix.node-version }} on FreeBSD
-    runs-on: macos-12
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: true
 
-      - uses: vmactions/freebsd-vm@v0
+      - uses: vmactions/freebsd-vm@v1
         with:
           envs: 'YARN_GPG npm_config_debug npm_config_build_from_source'
           prepare: |

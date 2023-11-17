@@ -14,12 +14,12 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         submodules: true
 
     - name: Use Node.js 18
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         cache: yarn
         node-version: 18
@@ -43,12 +43,12 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         submodules: true
 
     - name: Use Node.js 18
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         cache: yarn
         node-version: 18
@@ -77,7 +77,7 @@ jobs:
         run: apk add make g++ python3 git
 
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: true
 
@@ -107,7 +107,7 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         submodules: true
 
@@ -150,15 +150,15 @@ jobs:
 
   build-freebsd:
     name: Build on FreeBSD
-    runs-on: macos-12
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: true
 
-      - uses: vmactions/freebsd-vm@v0
+      - uses: vmactions/freebsd-vm@v1
         name: Package artifacts
         with:
           envs: 'npm_config_build_from_source'
