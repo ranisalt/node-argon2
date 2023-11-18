@@ -1,3 +1,4 @@
+// @ts-check
 const assert = require("node:assert/strict");
 const { describe, it } = require("node:test");
 const argon2 = require("./argon2.js");

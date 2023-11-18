@@ -2,10 +2,29 @@
   "name": "argon2",
   "version": "0.31.2",
   "description": "An Argon2 library for Node",
+  "keywords": [
+    "argon2",
+    "crypto",
+    "encryption",
+    "hashing",
+    "password"
+  ],
+  "homepage": "https://github.com/ranisalt/node-argon2#readme",
+  "bugs": {
+    "url": "https://github.com/ranisalt/node-argon2/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ranisalt/node-argon2.git"
+  },
+  "license": "MIT",
+  "author": "Ranieri Althoff <ranisalt+argon2@gmail.com>",
   "main": "argon2.js",
+  "types": "argon2.d.ts",
   "files": [
     "argon2_node.cpp",
     "argon2.d.ts",
+    "argon2.d.ts.map",
     "binding.gyp",
     "argon2/CHANGELOG.md",
     "argon2/LICENSE",
@@ -21,30 +40,23 @@
     "argon2/src/thread.c",
     "argon2/src/thread.h"
   ],
-  "types": "argon2.d.ts",
+  "binary": {
+    "module_name": "argon2",
+    "module_path": "./lib/binding/napi-v{napi_build_version}",
+    "remote_path": "v{version}",
+    "package_name": "{module_name}-v{version}-napi-v{napi_build_version}-{platform}-{arch}-{libc}.tar.gz",
+    "host": "https://github.com/ranisalt/node-argon2/releases/download/",
+    "napi_versions": [
+      3
+    ]
+  },
   "scripts": {
+    "format": "prettier --write \"*.{js,json}\"",
     "install": "node-pre-gyp install --fallback-to-build",
-    "format": "prettier --write \"*.{js,json,ts}\"",
-    "test": "c8 node --test test.js",
-    "test:ts": "tsc -p . && node test/test-d.js"
+    "prepack": "yarn prepare",
+    "prepare": "tsc",
+    "test": "c8 node --test test.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/ranisalt/node-argon2.git"
-  },
-  "keywords": [
-    "argon2",
-    "crypto",
-    "encryption",
-    "hashing",
-    "password"
-  ],
-  "author": "Ranieri Althoff <ranisalt+argon2@gmail.com>",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/ranisalt/node-argon2/issues"
-  },
-  "homepage": "https://github.com/ranisalt/node-argon2#readme",
   "dependencies": {
     "@mapbox/node-pre-gyp": "^1.0.11",
     "@phc/format": "^1.0.0",
@@ -55,25 +67,10 @@
     "c8": "^8.0.1",
     "node-gyp": "^10.0.1",
     "prettier": "^3.0.0",
-    "typescript": "^5.1.6"
-  },
-  "binary": {
-    "module_name": "argon2",
-    "module_path": "./lib/binding/napi-v{napi_build_version}",
-    "host": "https://github.com/ranisalt/node-argon2/releases/download/",
-    "remote_path": "v{version}",
-    "package_name": "{module_name}-v{version}-napi-v{napi_build_version}-{platform}-{arch}-{libc}.tar.gz",
-    "napi_versions": [
-      3
-    ]
+    "typescript": "^5.2.2"
   },
   "engines": {
     "node": ">=16.17.0"
-  },
-  "standard": {
-    "ignore": [
-      "test-d.js"
-    ]
   },
   "collective": {
     "type": "opencollective",

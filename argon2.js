@@ -1,16 +1,28 @@
 "use strict";
-const assert = require("assert");
-const { randomBytes, timingSafeEqual } = require("crypto");
-const path = require("path");
-const { promisify } = require("util");
+const assert = require("node:assert");
+const { randomBytes, timingSafeEqual } = require("node:crypto");
+const path = require("node:path");
+const { promisify } = require("node:util");
 const binary = require("@mapbox/node-pre-gyp");
+const { deserialize, serialize } = require("@phc/format");
 
 const bindingPath = binary.find(path.resolve(__dirname, "./package.json"));
 const { hash: _hash } = require(bindingPath);
 
-const { deserialize, serialize } = require("@phc/format");
+const bindingsHash = promisify(_hash);
 
+/** @type {(size: number) => Promise<Buffer>} */
+const generateSalt = promisify(randomBytes);
+
+/** @enum {0 | 1 | 2} */
 const types = Object.freeze({ argon2d: 0, argon2i: 1, argon2id: 2 });
+
+/** @enum {'argon2d' | 'argon2i' | 'argon2id'} */
+const names = Object.freeze({
+  [types.argon2d]: "argon2d",
+  [types.argon2i]: "argon2i",
+  [types.argon2id]: "argon2id",
+});
 
 const defaults = Object.freeze({
   hashLength: 32,
@@ -29,33 +41,55 @@ const limits = Object.freeze({
   parallelism: { min: 1, max: 2 ** 24 - 1 },
 });
 
-const names = Object.freeze({
-  [types.argon2d]: "argon2d",
-  [types.argon2i]: "argon2i",
-  [types.argon2id]: "argon2id",
-});
+/**
+ * @typedef {object} Options
+ * @property {number} [hashLength=32]
+ * @property {number} [timeCost=3]
+ * @property {number} [memoryCost=65536]
+ * @property {number} [parallelism=4]
+ * @property {number} [saltLength=16]
+ * @property {keyof typeof names} [type=argon2id]
+ * @property {number} [version=19]
+ * @property {Buffer} [salt]
+ * @property {Buffer} [associatedData]
+ * @property {Buffer} [secret]
+ */
 
-const bindingsHash = promisify(_hash);
-const generateSalt = promisify(randomBytes);
+/**
+ * Hashes a password with Argon2, producing a raw hash
+ *
+ * @overload
+ * @param {Buffer | string} plain The plaintext password to be hashed
+ * @param {Options & { raw: true }} options The parameters for Argon2
+ * @return {Promise<Buffer>} The raw hash generated from `plain`
+ */
+/**
+ * Hashes a password with Argon2, producing an encoded hash
+ *
+ * @overload
+ * @param {Buffer | string} plain The plaintext password to be hashed
+ * @param {Options & { raw?: boolean }} [options] The parameters for Argon2
+ * @return {Promise<string>} The encoded hash generated from `plain`
+ */
+/**
+ * @param {Buffer | string} plain
+ * @param {Options & { raw?: boolean }} options
+ * @returns {Promise<Buffer | string>}
+ */
+async function hash(plain, options) {
+  const { raw, salt, saltLength, ...rest } = { ...defaults, ...options };
 
-const assertLimits =
-  (options) =>
-  ([key, { max, min }]) => {
-    const value = options[key];
+  for (const [key, { min, max }] of Object.entries(limits)) {
+    const value = rest[key];
     assert(
       min <= value && value <= max,
       `Invalid ${key}, must be between ${min} and ${max}.`,
     );
-  };
+  }
 
-const hash = async (plain, { raw, salt, ...options } = {}) => {
-  options = { ...defaults, ...options };
+  const salt_ = salt ?? (await generateSalt(saltLength));
 
-  Object.entries(limits).forEach(assertLimits(options));
-
-  salt = salt || (await generateSalt(options.saltLength));
-
-  const hash = await bindingsHash(Buffer.from(plain), salt, options);
+  const hash = await bindingsHash(Buffer.from(plain), salt_, rest);
   if (raw) {
     return hash;
   }
@@ -67,55 +101,66 @@ const hash = async (plain, { raw, salt, ...options } = {}) => {
     timeCost: t,
     parallelism: p,
     associatedData: data,
-  } = options;
+  } = rest;
+
   return serialize({
     id: names[type],
     version,
     params: { m, t, p, ...(data ? { data } : {}) },
-    salt,
+    salt: salt_,
     hash,
   });
-};
+}
 
-const needsRehash = (digest, options) => {
+/**
+ * @param {string} digest The digest to be checked
+ * @param {Options} [options] The current parameters for Argon2
+ * @return {boolean} `true` if the digest parameters do not match the parameters in `options`, otherwise `false`
+ */
+function needsRehash(digest, options) {
   const { memoryCost, timeCost, version } = { ...defaults, ...options };
 
   const {
     version: v,
     params: { m, t },
   } = deserialize(digest);
+
   return +v !== +version || +m !== +memoryCost || +t !== +timeCost;
-};
+}
 
-const verify = async (digest, plain, options) => {
-  const obj = deserialize(digest);
-  // Only these have the "params" key, so if the password was encoded
-  // using any other method, the destructuring throws an error
-  if (!(obj.id in types)) {
-    return false;
-  }
-
+/**
+ * @param {string} digest The digest to be checked
+ * @param {Buffer | string} plain The plaintext password to be verified
+ * @param {Options} [options] The current parameters for Argon2
+ * @return {Promise<boolean>} `true` if the digest parameters matches the hash generated from `plain`, otherwise `false`
+ */
+async function verify(digest, plain, options) {
   const {
     id,
     version = 0x10,
     params: { m, t, p, data },
     salt,
     hash,
-  } = obj;
+  } = deserialize(digest);
 
-  return timingSafeEqual(
-    await bindingsHash(Buffer.from(plain), salt, {
-      ...options,
-      type: types[id],
-      version: +version,
-      hashLength: hash.length,
-      memoryCost: +m,
-      timeCost: +t,
-      parallelism: +p,
-      ...(data ? { associatedData: Buffer.from(data, "base64") } : {}),
-    }),
-    hash,
+  // Only "types" have the "params" key, so if the password was encoded
+  // using any other method, the destructuring throws an error
+  return (
+    id in types &&
+    timingSafeEqual(
+      await bindingsHash(Buffer.from(plain), salt, {
+        ...options,
+        type: types[id],
+        version: +version,
+        hashLength: hash.length,
+        memoryCost: +m,
+        timeCost: +t,
+        parallelism: +p,
+        ...(data ? { associatedData: Buffer.from(data, "base64") } : {}),
+      }),
+      hash,
+    )
   );
-};
+}
 
-module.exports = { defaults, limits, hash, needsRehash, verify, ...types };
+module.exports = { defaults, hash, needsRehash, verify, ...types };
