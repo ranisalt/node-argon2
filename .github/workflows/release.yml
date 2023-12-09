@@ -13,45 +13,54 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout
+      uses: actions/checkout@v4
       with:
         submodules: true
 
-    - uses: actions/setup-node@v4
+    - name: Use Node.js 18
+      uses: actions/setup-node@v4
       with:
+        cache: yarn
         node-version: 18
 
-    - run: corepack enable
-    - run: pnpm install --frozen-lockfile
+    - name: Install dependencies
+      run: yarn install
 
-    - run: pnpm publish
+    - name: Publish to NPM
+      run: yarn publish
       if: ${{ !env.ACT }}
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
   build:
-    name: Build on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-20.04, macos-11, macos-m1, windows-2019]
 
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout
+      uses: actions/checkout@v4
       with:
         submodules: true
 
-    - uses: actions/setup-node@v4
+    - name: Use Node.js 18
+      uses: actions/setup-node@v4
       with:
+        cache: yarn
         node-version: 18
 
-    - run: corepack enable
-    - run: pnpm install --frozen-lockfile
+    - name: Install dependencies
+      run: yarn install
 
     - name: Package artifacts
-      run: pnpm node-pre-gyp package
+      run: yarn node-pre-gyp package
 
-    - uses: csexton/release-asset-action@v2
+    - name: Upload to Release
+      uses: csexton/release-asset-action@v2
       if: ${{ !env.ACT }}
       with:
         pattern: build/stage/**/argon2*.tar.gz
@@ -65,22 +74,27 @@ jobs:
       image: node:18-alpine
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Install build deps
+        run: apk add make g++ python3 git
+
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
           submodules: true
 
-      - uses: actions/setup-node@v4
+      - name: Use Node.js 18
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
 
-      - run: corepack enable
-      - run: apk add make g++ python3 git
-      - run: pnpm install --frozen-lockfile
+      - name: Install dependencies
+        run: yarn install
 
       - name: Package artifacts
-        run: pnpm node-pre-gyp package
+        run: yarn node-pre-gyp package
 
-      - uses: csexton/release-asset-action@v2
+      - name: Upload to Release
+        uses: csexton/release-asset-action@v2
         if: ${{ !env.ACT }}
         with:
           pattern: build/stage/**/argon2*.tar.gz
@@ -88,8 +102,6 @@ jobs:
           release-url: ${{ github.event.release.upload_url }}
 
   build-arm:
-    name: Build on arm64
-    runs-on: ubuntu-latest
     strategy:
       matrix:
         include:
@@ -98,13 +110,17 @@ jobs:
           - arch: aarch64
             distro: alpine_latest
 
+    name: Build on arm64
+    runs-on: ubuntu-latest
+
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout
+      uses: actions/checkout@v4
       with:
         submodules: true
 
-    - uses: uraimo/run-on-arch-action@v2
-      name: Package artifacts
+    - name: Package artifacts
+      uses: uraimo/run-on-arch-action@v2
       id: build
       with:
         arch: ${{ matrix.arch }}
@@ -121,17 +137,18 @@ jobs:
               ;;
             alpine*)
               apk add --update make g++ python3
-              apk add --repository https://dl-cdn.alpinelinux.org/alpine/v3.17/main/ nodejs~=18 npm
+              apk add --no-cache --repository https://dl-cdn.alpinelinux.org/alpine/v3.17/main/ nodejs~=18 npm
               ;;
           esac
           corepack enable
 
         run: |
           cd /repo
-          pnpm install --frozen-lockfile
-          pnpm node-pre-gyp package
+          yarn install --frozen-lockfile
+          yarn node-pre-gyp package
 
-    - uses: csexton/release-asset-action@v2
+    - name: Upload to Release
+      uses: csexton/release-asset-action@v2
       if: ${{ !env.ACT }}
       with:
         pattern: build/stage/**/argon2*.tar.gz
@@ -147,19 +164,19 @@ jobs:
         with:
           submodules: true
 
-      - uses: vmactions/freebsd-vm@v1
-        name: Package artifacts
+      - name: Package artifacts
+        uses: vmactions/freebsd-vm@v1
         with:
           envs: 'npm_config_build_from_source'
           prepare: |
-            pkg install -y gmake python3 node18
-            corepack enable && corepack prepare pnpm@latest --activate
+            pkg install -y gmake python3 yarn-node18
           run: |
-            pnpm install --frozen-lockfile
-            pnpm node-pre-gyp package
+            yarn install --frozen-lockfile
+            yarn node-pre-gyp package
           sync: sshfs
 
-      - uses: csexton/release-asset-action@v2
+      - name: Upload to Release
+        uses: csexton/release-asset-action@v2
         if: ${{ !env.ACT }}
         with:
           pattern: build/stage/**/argon2*.tar.gz

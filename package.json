@@ -68,7 +68,7 @@
     "prettier": "^3.0.3",
     "typescript": "^5.2.2"
   },
-  "packageManager": "pnpm@8.10.2+sha256.487609e857f1c11780cc98dd0bfe4c8a8b11c7f23bc3a4493ac7d263d6fb6c8c",
+  "packageManager": "yarn@4.0.2+sha256.825003a0f561ad09a3b1ac4a3b3ea6207af2796d54f62a9420520915721f5186",
   "engines": {
     "node": ">=18.13.0"
   },

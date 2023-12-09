@@ -3,54 +3,66 @@ name: CI
 on: [push, pull_request]
 
 env:
+  YARN_GPG: no
   npm_config_debug: yes
   npm_config_build_from_source: true
 
 jobs:
   test:
-    name: Test for node-${{ matrix.node-version }} on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         node-version: [18, 20]
         os: [ubuntu-20.04, macos-11, macos-m1, windows-2019]
 
+    name: Test for node-${{ matrix.node-version }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout
+      uses: actions/checkout@v4
       with:
         submodules: true
 
-    - uses: actions/setup-node@v4
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
       with:
+        cache: yarn
         node-version: ${{ matrix.node-version }}
 
-    - run: corepack enable
-    - run: pnpm install --frozen-lockfile
-    - run: pnpm test
+    - name: Install dependencies
+      run: yarn install
+
+    - name: Run tests
+      run: yarn test
 
   test-alpine:
-    name: Test for node-${{ matrix.node-version }} on Alpine Linux
-    runs-on: ubuntu-latest
     strategy:
       matrix:
         node-version: [18, 20]
+
+    name: Test for node-${{ matrix.node-version }} on Alpine Linux
+    runs-on: ubuntu-latest
 
     container:
       image: node:${{ matrix.node-version }}-alpine
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
           submodules: true
 
-      - uses: actions/setup-node@v4
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
         with:
+          cache: yarn
           node-version: ${{ matrix.node-version }}
 
-      - run: corepack enable
-      - run: apk add make g++ python3 git
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm test
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Run tests
+        run: yarn test
 
   test-freebsd:
     strategy:
@@ -61,17 +73,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
           submodules: true
 
       - uses: vmactions/freebsd-vm@v1
         with:
-          envs: 'npm_config_debug npm_config_build_from_source'
+          envs: 'YARN_GPG npm_config_debug npm_config_build_from_source'
           prepare: |
-            pkg install -y gmake python3 node${{ matrix.node-version }}
-            corepack enable
+            pkg install -y gmake python3 yarn-node${{ matrix.node-version }}
           run: |
-            pnpm install --frozen-lockfile
-            pnpm test
+            yarn install
+            yarn test
           sync: sshfs
