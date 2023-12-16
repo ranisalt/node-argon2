@@ -16,34 +16,35 @@ jobs:
 
     name: Test for node-${{ matrix.node-version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
+
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-      with:
-        submodules: true
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true
 
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
-      with:
-        cache: yarn
-        node-version: ${{ matrix.node-version }}
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          cache: yarn
+          node-version: ${{ matrix.node-version }}
 
-    - name: Install dependencies
-      run: yarn install --frozen-lockfile
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
 
-    - name: Run tests
-      if: matrix.node-version < 20
-      run: yarn test
-
-    - name: Run tests with coverage
-      if: matrix.node-version >= 20
-      run: yarn test-coverage
+      - name: Run tests
+        run: yarn test
 
   test-alpine:
-    name: Test on Alpine Linux
+    strategy:
+      matrix:
+        node-version: [18, 20]
+
+    name: Test for node-${{ matrix.node-version }} on Alpine Linux
     runs-on: ubuntu-latest
+
     container:
-      image: node:18-alpine
+      image: node:${{ matrix.node-version }}-alpine
 
     steps:
       - name: Install build deps
@@ -79,7 +80,7 @@ jobs:
           envs: 'YARN_GPG npm_config_debug npm_config_build_from_source'
           prepare: |
             pkg install -y gmake python3 yarn-node${{ matrix.node-version }}
-          run: |
             yarn install --frozen-lockfile
+          run: |
             yarn test
           sync: sshfs

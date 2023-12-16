@@ -43,13 +43,8 @@
     "prebuilds/**/*"
   ],
   "binary": {
-    "module_name": "argon2",
-    "module_path": "./lib/binding/napi-v{napi_build_version}",
-    "remote_path": "v{version}",
-    "package_name": "{module_name}-v{version}-napi-v{napi_build_version}-{platform}-{arch}-{libc}.tar.gz",
-    "host": "https://github.com/ranisalt/node-argon2/releases/download/",
     "napi_versions": [
-      3
+      8
     ]
   },
   "scripts": {

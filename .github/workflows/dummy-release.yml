@@ -1,8 +1,6 @@
 name: Release
 
-on:
-  release:
-    types: [published]
+on: [push]
 
 jobs:
   build:
@@ -101,7 +99,7 @@ jobs:
                 apk add --no-cache --repository https://dl-cdn.alpinelinux.org/alpine/v3.17/main/ nodejs~=20 npm~=20
                 ;;
             esac
-            corepack enable yarn
+            npm install --global yarn
           run: |
             cd /repo
             yarn install --frozen-lockfile --ignore-scripts
@@ -128,8 +126,8 @@ jobs:
           envs: "npm_config_build_from_source"
           prepare: |
             pkg install -y gmake python3 yarn-node20
-            yarn install --frozen-lockfile --ignore-scripts
           run: |
+            yarn install --frozen-lockfile --ignore-scripts
             yarn build
           sync: sshfs
 
@@ -152,9 +150,6 @@ jobs:
         with:
           submodules: true
         
-      - name: Display structure of downloaded files
-        run: ls -R
-
       - name: Download artifacts
         id: download-artifact
         uses: actions/download-artifact@v3
@@ -162,8 +157,10 @@ jobs:
       - name: Rename prebuild artifacts directory
         run: mv artifact/ prebuilds/
 
-      - name: Publish to NPM
-        run: yarn publish
-        if: ${{ !env.ACT }}
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Display structure of downloaded files
+        run: ls -R
+
+      - name: Inspect package
+        run: |
+          yarn pack
+          tar --list --verbose --file argon2-*.tgz
