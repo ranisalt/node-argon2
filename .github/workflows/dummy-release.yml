@@ -6,9 +6,17 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-20.04, macos-11, macos-m1, windows-2019]
+        include:
+          - os: ubuntu-20.04
+            arch: linux-x64-glibc
+          - os: macos-11
+            arch: darwin-x64
+          - os: macos-m1
+            arch: darwin-arm64
+          - os: windows-2019
+            arch: win32-x64
 
-    name: Build on ${{ matrix.os }}
+    name: Build for ${{ matrix.arch }}
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -30,20 +38,21 @@ jobs:
         run: yarn build
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
+          name: prebuild-${{ matrix.arch }}
           path: prebuilds/**/*.node
 
-  build-alpine:
-    name: Build on Alpine Linux
-    runs-on: ubuntu-latest
+  build-linux-arm64-glibc:
+    name: Build for linux-arm64-glibc
+    runs-on: buildjet-2vcpu-ubuntu-2204-arm
 
     container:
-      image: node:20-alpine
+      image: node:20
 
     steps:
       - name: Install build deps
-        run: apk add make g++ python3 git
+        run: apt update -yq && apt install -yq g++ git make python3
 
       - name: Checkout
         uses: actions/checkout@v4
@@ -57,20 +66,41 @@ jobs:
         run: yarn build
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
+          name: prebuild-linux-arm64-glibc
           path: prebuilds/**/*.node
 
-  build-arm:
-    strategy:
-      matrix:
-        include:
-          - arch: aarch64
-            distro: ubuntu_latest
-          - arch: aarch64
-            distro: alpine_latest
+  build-linux-x64-musl:
+    name: Build for linux-x64-musl
+    runs-on: ubuntu-latest
 
-    name: Build on arm64
+    container:
+      image: node:20-alpine
+
+    steps:
+      - name: Install build deps
+        run: apk add --no-cache g++ git make python3
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile --ignore-scripts
+
+      - name: Prebuild
+        run: yarn build
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: prebuild-linux-x64-musl
+          path: prebuilds/**/*.node
+
+  build-linux-arm64-musl:
+    name: Build for linux-arm64-musl
     runs-on: ubuntu-latest
 
     steps:
@@ -82,38 +112,25 @@ jobs:
       - name: Prebuild
         uses: uraimo/run-on-arch-action@v2
         with:
-          arch: ${{ matrix.arch }}
-          distro: ${{ matrix.distro }}
+          arch: aarch64
+          distro: alpine_latest
           setup: mkdir -p "${PWD}/artifacts"
-          dockerRunArgs: --volume "${PWD}:/repo"
+          dockerRunArgs: --volume "${PWD}:/repo" --workdir /repo
           install: |
-            case "${{ matrix.distro }}" in
-              ubuntu*)
-                apt update -yq
-                apt install -yq ca-certificates curl g++ gnupg make python3
-                curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
-                echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" >> /etc/apt/sources.list.d/nodesource.list
-                apt update -yq
-                apt install -yq nodejs yarn
-                ;;
-              alpine*)
-                apk add --update make g++ python3
-                apk add --no-cache --repository https://dl-cdn.alpinelinux.org/alpine/v3.19/main/ nodejs~=20 yarn
-                ;;
-            esac
-
+            apk add --update make g++ python3
+            apk add --no-cache --repository https://dl-cdn.alpinelinux.org/alpine/v3.19/main/ nodejs~=20 yarn
           run: |
-            cd /repo
             yarn install --frozen-lockfile --ignore-scripts
             yarn build
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
+          name: prebuild-linux-arm64-musl
           path: prebuilds/**/*.node
 
-  build-freebsd:
-    name: Build on FreeBSD
+  build-freebsd-x64:
+    name: Build for freebsd-x64
     runs-on: ubuntu-latest
 
     steps:
@@ -122,10 +139,9 @@ jobs:
         with:
           submodules: true
 
-      - name: Package artifacts
+      - name: Prebuild
         uses: vmactions/freebsd-vm@v1
         with:
-          envs: "npm_config_build_from_source"
           prepare: |
             pkg install -y gmake python3 yarn-node20
           run: |
@@ -134,17 +150,20 @@ jobs:
           sync: sshfs
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
+          name: prebuild-freebsd-x64
           path: prebuilds/**/*.node
 
   publish:
     name: Publish package
-    runs-on: ubuntu-20.04
-    needs: [build, build-alpine, build-arm, build-freebsd]
-
-    container:
-      image: node:20-alpine
+    runs-on: ubuntu-latest
+    needs:
+      - build
+      - build-freebsd-x64
+      - build-linux-arm64-glibc
+      - build-linux-arm64-musl
+      - build-linux-x64-musl
 
     steps:
       - name: Checkout
@@ -154,15 +173,16 @@ jobs:
 
       - name: Download artifacts
         id: download-artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
 
-      - name: Rename prebuild artifacts directory
-        run: mv artifact/ prebuilds/
-
-      - name: Display structure of downloaded files
-        run: ls -R
+      - name: Move prebuild artifacts
+        run: mkdir prebuilds && cp --recursive prebuild-*/* prebuilds/
 
       - name: Inspect package
-        run: |
-          yarn pack
-          tar --list --verbose --file argon2-*.tgz
+        run: yarn pack && tar --list --verbose --file argon2-*.tgz
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: package
+          path: argon2-*.tgz
