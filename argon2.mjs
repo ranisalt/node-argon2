@@ -137,30 +137,29 @@ export function needsRehash(digest, options) {
  * @return {Promise<boolean>} `true` if the digest parameters matches the hash generated from `plain`, otherwise `false`
  */
 export async function verify(digest, plain, options) {
+  const { id, ...rest } = deserialize(digest);
+  if (!(id in types)) {
+    return false;
+  }
+
   const {
-    id,
     version = 0x10,
     params: { m, t, p, data },
     salt,
     hash,
-  } = deserialize(digest);
+  } = rest;
 
-  // Only "types" have the "params" key, so if the password was encoded
-  // using any other method, the destructuring throws an error
-  return (
-    id in types &&
-    timingSafeEqual(
-      await bindingsHash(Buffer.from(plain), salt, {
-        ...options,
-        type: types[id],
-        version: +version,
-        hashLength: hash.length,
-        memoryCost: +m,
-        timeCost: +t,
-        parallelism: +p,
-        ...(data ? { associatedData: Buffer.from(data, "base64") } : {}),
-      }),
-      hash,
-    )
+  return timingSafeEqual(
+    await bindingsHash(Buffer.from(plain), salt, {
+      ...options,
+      type: types[id],
+      version: +version,
+      hashLength: hash.length,
+      memoryCost: +m,
+      timeCost: +t,
+      parallelism: +p,
+      ...(data ? { associatedData: Buffer.from(data, "base64") } : {}),
+    }),
+    hash,
   );
 }

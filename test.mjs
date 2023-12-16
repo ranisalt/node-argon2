@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import * as argon2 from "./argon2.mjs";
 
-const { argon2i, argon2d, argon2id, defaults, limits } = argon2;
+const { argon2i, argon2d, argon2id, limits } = argon2;
 
 const password = "password";
 const salt = Buffer.alloc(16, "salt");
@@ -213,19 +213,15 @@ describe("needsRehash", () => {
   });
 
   it("needs rehash low memory cost", async () => {
-    const hash = await argon2.hash(password, {
-      memoryCost: defaults.memoryCost / 2,
-    });
+    const hash = await argon2.hash(password, { memoryCost: 1 << 15 });
     assert(argon2.needsRehash(hash));
-    assert(!argon2.needsRehash(hash, { memoryCost: defaults.memoryCost / 2 }));
+    assert(!argon2.needsRehash(hash, { memoryCost: 1 << 15 }));
   });
 
   it("needs rehash low time cost", async () => {
-    const hash = await argon2.hash(password, {
-      timeCost: defaults.timeCost - 1,
-    });
+    const hash = await argon2.hash(password, { timeCost: 2 });
     assert(argon2.needsRehash(hash));
-    assert(!argon2.needsRehash(hash, { timeCost: defaults.timeCost - 1 }));
+    assert(!argon2.needsRehash(hash, { timeCost: 2 }));
   });
 });
 

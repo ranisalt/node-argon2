@@ -66,7 +66,7 @@ jobs:
       matrix:
         include:
           - arch: aarch64
-            distro: ubuntu20.04
+            distro: ubuntu_latest
           - arch: aarch64
             distro: alpine_latest
 
@@ -88,18 +88,20 @@ jobs:
           dockerRunArgs: --volume "${PWD}:/repo"
           install: |
             case "${{ matrix.distro }}" in
-              ubuntu*|jessie|stretch|buster)
+              ubuntu*)
                 apt update -yq
-                apt install -yq curl make g++ python
-                curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
-                apt install -yq nodejs
+                apt install -yq ca-certificates curl g++ gnupg make python3
+                curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
+                echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" >> /etc/apt/sources.list.d/nodesource.list
+                apt update -yq
+                apt install -yq nodejs yarn
                 ;;
               alpine*)
                 apk add --update make g++ python3
-                apk add --no-cache --repository https://dl-cdn.alpinelinux.org/alpine/v3.17/main/ nodejs~=20 npm~=20
+                apk add --no-cache --repository https://dl-cdn.alpinelinux.org/alpine/v3.19/main/ nodejs~=20 yarn
                 ;;
             esac
-            npm install --global yarn
+
           run: |
             cd /repo
             yarn install --frozen-lockfile --ignore-scripts
@@ -149,7 +151,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: true
-        
+
       - name: Download artifacts
         id: download-artifact
         uses: actions/download-artifact@v3
