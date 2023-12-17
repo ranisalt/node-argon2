@@ -44,7 +44,7 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-      image: node:${{ matrix.node-version }}-alpine
+      image: node:${{ matrix.node-version }}-alpine3.18
 
     steps:
       - name: Install build deps

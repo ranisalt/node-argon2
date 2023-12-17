@@ -66,8 +66,8 @@ The current prebuilt binaries are built and tested with the following systems:
 - MacOS 11 (x86-64)
 - MacOS 12 (ARM64 from v0.29.0)
 - Windows Server 2019 (x86-64)
-- Alpine Linux 3.17+ (x86-64 from v0.28.1; ARM64 from v0.28.2)
-- FreeBSD 13.1 (x86-64 from v0.29.1)
+- Alpine Linux 3.18 (x86-64 from v0.28.1; ARM64 from v0.28.2)
+- FreeBSD 14 (x86-64 from v0.29.1)
 
 Binaries should also work for any version more recent than the ones listed
 above. For example, the binary for Ubuntu 20.04 also works on Ubuntu 22.04, or
