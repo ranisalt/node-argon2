@@ -61,7 +61,7 @@
     "node-gyp-build": "^4.7.1"
   },
   "devDependencies": {
-    "@types/node": "^20.10.4",
+    "@types/node": "^20.10.5",
     "node-gyp": "^10.0.1",
     "prebuildify": "^5.0.1",
     "prettier": "^3.1.1",
