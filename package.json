@@ -40,7 +40,7 @@
     "argon2/src/ref.c",
     "argon2/src/thread.c",
     "argon2/src/thread.h",
-    "prebuilds/**/*"
+    "prebuilds/**/*.node"
   ],
   "binary": {
     "napi_versions": [
