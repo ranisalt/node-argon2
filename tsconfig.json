@@ -9,5 +9,5 @@
     "emitDeclarationOnly": true,
     "strict": true
   },
-  "files": ["argon2.js"]
+  "files": ["argon2.mjs"]
 }

@@ -5,15 +5,22 @@
       ["OS == 'mac'", {
         "xcode_settings": {
           "CLANG_CXX_LIBRARY": "libc++",
-          "MACOSX_DEPLOYMENT_TARGET": "10.7",
+          "GCC_ENABLE_CPP_EXCEPTIONS": "YES",
+          "MACOSX_DEPLOYMENT_TARGET": "10.7"
         }
       }],
+      ["OS == 'win'", {
+        "defines+": ["_HAS_EXCEPTIONS=1"],
+        "msvs_settings": {
+          "VCCLCompilerTool": { "ExceptionHandling": 1 }
+        }
+      }]
     ],
     "configurations": {
       "Release": {
         "target_conditions": [
           ["OS != 'win'", {
-            "cflags+": ["-fdata-sections", "-ffunction-sections", "-fvisibility=hidden"],
+            "cflags+": ["-fdata-sections", "-ffunction-sections", "-flto", "-fvisibility=hidden"],
             "ldflags+": ["-Wl,--gc-sections"]
           }]
         ],
@@ -26,10 +33,10 @@
       "target_name": "libargon2",
       "sources": [
         "argon2/src/argon2.c",
-        "argon2/src/core.c",
         "argon2/src/blake2/blake2b.c",
-        "argon2/src/thread.c",
+        "argon2/src/core.c",
         "argon2/src/encoding.c",
+        "argon2/src/thread.c"
       ],
       "cflags+": ["-Wno-type-limits"],
       "conditions": [
@@ -42,40 +49,29 @@
       ],
       "type": "static_library"
     }, {
-      "target_name": "<(module_name)",
-      "xcode_settings": {
-        "GCC_ENABLE_CPP_EXCEPTIONS": "YES",
-      },
-      "msvs_settings": {
-        "VCCLCompilerTool": { "ExceptionHandling": 1 },
-      },
-      "defines": [
+      "target_name": "argon2",
+      "defines+": [
         "NAPI_VERSION=<(napi_build_version)",
+        "NODE_ADDON_API_DISABLE_DEPRECATED",
+        "NODE_API_NO_EXTERNAL_BUFFERS_ALLOWED"
       ],
       "sources": [
         "argon2_node.cpp"
       ],
+      "cflags_cc+": ["-Wall", "-Wextra", "-Wconversion", "-Wformat", "-Wnon-virtual-dtor", "-pedantic", "-Werror"],
       "cflags_cc!": ["-fno-exceptions"],
-      "include_dirs": ["<!@(node -p \"require('node-addon-api').include\")"],
+      "include_dirs": ["<!(node -p \"require('node-addon-api').include_dir\")"],
       "dependencies": ["libargon2"],
       "configurations": {
         "Debug": {
           "conditions": [
             ["OS == 'linux'", {
               "cflags": ["--coverage"],
-              "ldflags": ["-fprofile-arcs", "-ftest-coverage"],
+              "ldflags": ["-fprofile-arcs", "-ftest-coverage"]
             }]
           ]
         }
       }
-    }, {
-      "target_name": "action_after_build",
-      "type": "none",
-      "dependencies": ["<(module_name)"],
-      "copies": [{
-        "files": ["<(PRODUCT_DIR)/<(module_name).node"],
-        "destination": "<(module_path)"
-      }]
     }
   ]
 }

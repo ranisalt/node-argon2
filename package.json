@@ -19,7 +19,8 @@
   },
   "license": "MIT",
   "author": "Ranieri Althoff <ranisalt+argon2@gmail.com>",
-  "main": "argon2.js",
+  "type": "module",
+  "main": "argon2.mjs",
   "types": "argon2.d.ts",
   "files": [
     "argon2_node.cpp",
@@ -38,36 +39,33 @@
     "argon2/src/opt.c",
     "argon2/src/ref.c",
     "argon2/src/thread.c",
-    "argon2/src/thread.h"
+    "argon2/src/thread.h",
+    "prebuilds/**/*.node"
   ],
   "binary": {
-    "module_name": "argon2",
-    "module_path": "./lib/binding/napi-v{napi_build_version}",
-    "remote_path": "v{version}",
-    "package_name": "{module_name}-v{version}-napi-v{napi_build_version}-{platform}-{arch}-{libc}.tar.gz",
-    "host": "https://github.com/ranisalt/node-argon2/releases/download/",
     "napi_versions": [
-      3
+      8
     ]
   },
   "scripts": {
-    "format": "prettier --write \"*.{js,json}\"",
-    "install": "node-pre-gyp install --fallback-to-build",
+    "build": "prebuildify --napi --strip --tag-armv --tag-libc",
+    "format": "prettier --write \"*.{json,mjs}\"",
+    "install": "node-gyp-build",
     "prepack": "yarn prepare",
     "prepare": "tsc",
-    "test": "c8 node --test test.js"
+    "test": "node --test test.mjs"
   },
   "dependencies": {
-    "@mapbox/node-pre-gyp": "^1.0.11",
     "@phc/format": "^1.0.0",
-    "node-addon-api": "^7.0.0"
+    "node-addon-api": "^7.0.0",
+    "node-gyp-build": "^4.7.1"
   },
   "devDependencies": {
-    "@types/node": "^20.8.10",
-    "c8": "^8.0.1",
+    "@types/node": "^20.10.5",
     "node-gyp": "^10.0.1",
-    "prettier": "^3.0.0",
-    "typescript": "^5.2.2"
+    "prebuildify": "^5.0.1",
+    "prettier": "^3.1.1",
+    "typescript": "^5.3.3"
   },
   "engines": {
     "node": ">=16.17.0"

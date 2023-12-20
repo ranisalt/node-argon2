@@ -4,77 +4,73 @@ on:
   release:
     types: [published]
 
-env:
-  npm_config_build_from_source: true
+  workflow_dispatch:
+    inputs:
+      new-version:
+        description: New version to be published, overrides tag
+        required: true
+        type: string
+
+      npm-tag:
+        description: NPM tag
+        required: true
+        default: latest
+        type: choice
+        options:
+          - latest
+          - next
 
 jobs:
-  publish:
-    name: Publish package
-    runs-on: ubuntu-20.04
-
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-      with:
-        submodules: true
-
-    - name: Use Node.js 18
-      uses: actions/setup-node@v4
-      with:
-        cache: yarn
-        node-version: 18
-        registry-url: https://registry.npmjs.org/
-
-    - name: Install dependencies
-      run: yarn install --frozen-lockfile
-
-    - name: Publish to NPM
-      run: yarn publish
-      env:
-        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
   build:
     strategy:
       matrix:
-        os: [ubuntu-20.04, macos-11, macos-m1, windows-2019]
+        include:
+          - os: ubuntu-20.04
+            arch: linux-x64-glibc
+          - os: macos-11
+            arch: darwin-x64
+          - os: macos-m1
+            arch: darwin-arm64
+          - os: windows-2019
+            arch: win32-x64
 
-    name: Build on ${{ matrix.os }}
+    name: Build for ${{ matrix.arch }}
     runs-on: ${{ matrix.os }}
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-      with:
-        submodules: true
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true
 
-    - name: Use Node.js 18
-      uses: actions/setup-node@v4
-      with:
-        cache: yarn
-        node-version: 18
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          cache: yarn
+          node-version: 20
 
-    - name: Install dependencies
-      run: yarn install --frozen-lockfile
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile --ignore-scripts
 
-    - name: Package artifacts
-      run: yarn node-pre-gyp package
+      - name: Prebuild
+        run: yarn build
 
-    - name: Upload to Release
-      uses: csexton/release-asset-action@v2
-      with:
-        pattern: build/stage/**/argon2*.tar.gz
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        release-url: ${{ github.event.release.upload_url }}
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: prebuild-${{ matrix.arch }}
+          path: prebuilds/**/*.node
 
-  build-alpine:
-    name: Build on Alpine Linux
-    runs-on: ubuntu-latest
+  build-linux-arm64-glibc:
+    name: Build for linux-arm64-glibc
+    runs-on: buildjet-2vcpu-ubuntu-2204-arm
+
     container:
-      image: node:18-alpine
+      image: node:20
 
     steps:
       - name: Install build deps
-        run: apk add make g++ python3 git
+        run: apt update -yq && apt install -yq g++ git make python3
 
       - name: Checkout
         uses: actions/checkout@v4
@@ -82,74 +78,47 @@ jobs:
           submodules: true
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install --frozen-lockfile --ignore-scripts
 
-      - name: Package artifacts
-        run: yarn node-pre-gyp package
+      - name: Prebuild
+        run: yarn build
 
-      - name: Upload to Release
-        uses: csexton/release-asset-action@v2
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
         with:
-          pattern: build/stage/**/argon2*.tar.gz
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          release-url: ${{ github.event.release.upload_url }}
+          name: prebuild-linux-arm64-glibc
+          path: prebuilds/**/*.node
 
-  build-arm:
-    name: Build on arm64
+  build-linux-x64-musl:
+    name: Build for linux-x64-musl
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        include:
-          - arch: aarch64
-            distro: ubuntu20.04
-          - arch: aarch64
-            distro: alpine_latest
+
+    container:
+      image: node:20-alpine
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-      with:
-        submodules: true
+      - name: Install build deps
+        run: apk add --no-cache g++ git make python3
 
-    - uses: uraimo/run-on-arch-action@v2
-      name: Package artifacts
-      id: build
-      with:
-        arch: ${{ matrix.arch }}
-        distro: ${{ matrix.distro }}
-        setup: mkdir -p "${PWD}/artifacts"
-        dockerRunArgs: --volume "${PWD}:/repo"
-        env: |
-          npm_config_build_from_source: true
-        install: |
-          case "${{ matrix.distro }}" in
-            ubuntu*|jessie|stretch|buster)
-              apt-get update -y
-              apt-get install -y curl
-              curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
-              apt-get install -y make g++ python nodejs
-              npm install --global yarn
-              ;;
-            alpine*)
-              apk add --update make g++ python3
-              apk add --no-cache --repository https://dl-cdn.alpinelinux.org/alpine/v3.17/main/ nodejs~=18 npm
-              npm install --global yarn
-              ;;
-          esac
-        run: |
-          cd /repo
-          yarn install --frozen-lockfile
-          yarn node-pre-gyp package
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true
 
-    - name: Upload to Release
-      uses: csexton/release-asset-action@v2
-      with:
-        pattern: build/stage/**/argon2*.tar.gz
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        release-url: ${{ github.event.release.upload_url }}
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile --ignore-scripts
 
-  build-freebsd:
-    name: Build on FreeBSD
+      - name: Prebuild
+        run: yarn build
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: prebuild-linux-x64-musl
+          path: prebuilds/**/*.node
+
+  build-linux-arm64-musl:
+    name: Build for linux-arm64-musl
     runs-on: ubuntu-latest
 
     steps:
@@ -158,20 +127,77 @@ jobs:
         with:
           submodules: true
 
-      - uses: vmactions/freebsd-vm@v1
-        name: Package artifacts
+      - name: Prebuild
+        uses: uraimo/run-on-arch-action@v2
         with:
-          envs: 'npm_config_build_from_source'
-          prepare: |
-            pkg install -y gmake python3 yarn-node18
+          arch: aarch64
+          distro: alpine_latest
+          setup: mkdir -p "${PWD}/artifacts"
+          dockerRunArgs: --volume "${PWD}:/repo" --workdir /repo
+          install: |
+            apk add --update make g++ python3
+            apk add --no-cache --repository https://dl-cdn.alpinelinux.org/alpine/v3.19/main/ nodejs~=20 yarn
           run: |
-            yarn install --frozen-lockfile
-            yarn node-pre-gyp package
+            yarn install --frozen-lockfile --ignore-scripts
+            yarn build
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: prebuild-linux-arm64-musl
+          path: prebuilds/**/*.node
+
+  build-freebsd-x64:
+    name: Build for freebsd-x64
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Prebuild
+        uses: vmactions/freebsd-vm@v1
+        with:
+          prepare: |
+            pkg install -y gmake python3 yarn-node20
+          run: |
+            yarn install --frozen-lockfile --ignore-scripts
+            yarn build
           sync: sshfs
 
-      - name: Upload to Release
-        uses: csexton/release-asset-action@v2
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
         with:
-          pattern: build/stage/**/argon2*.tar.gz
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          release-url: ${{ github.event.release.upload_url }}
+          name: prebuild-freebsd-x64
+          path: prebuilds/**/*.node
+
+  publish:
+    name: Publish package
+    runs-on: ubuntu-latest
+    needs:
+      - build
+      - build-freebsd-x64
+      - build-linux-arm64-glibc
+      - build-linux-arm64-musl
+      - build-linux-x64-musl
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Download artifacts
+        id: download-artifact
+        uses: actions/download-artifact@v4
+
+      - name: Move prebuild artifacts
+        run: mkdir prebuilds && cp --recursive prebuild-*/* prebuilds/
+
+      - name: Publish to NPM
+        run: yarn publish --tag ${{ inputs.npm-tag }} --new-version ${{ inputs.new-version || github.ref_name }}
+        if: ${{ !env.ACT }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

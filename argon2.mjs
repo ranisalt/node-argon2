@@ -1,21 +1,23 @@
-"use strict";
-const assert = require("node:assert");
-const { randomBytes, timingSafeEqual } = require("node:crypto");
-const path = require("node:path");
-const { promisify } = require("node:util");
-const binary = require("@mapbox/node-pre-gyp");
-const { deserialize, serialize } = require("@phc/format");
+import assert from "node:assert";
+import { randomBytes, timingSafeEqual } from "node:crypto";
+import { fileURLToPath } from "node:url";
+import { promisify } from "node:util";
+import { deserialize, serialize } from "@phc/format";
+import gypBuild from "node-gyp-build";
 
-const bindingPath = binary.find(path.resolve(__dirname, "./package.json"));
-const { hash: _hash } = require(bindingPath);
+const { hash: _hash } = gypBuild(fileURLToPath(new URL(".", import.meta.url)));
 
 const bindingsHash = promisify(_hash);
 
 /** @type {(size: number) => Promise<Buffer>} */
 const generateSalt = promisify(randomBytes);
 
-/** @enum {0 | 1 | 2} */
-const types = Object.freeze({ argon2d: 0, argon2i: 1, argon2id: 2 });
+export const argon2d = 0;
+export const argon2i = 1;
+export const argon2id = 2;
+
+/** @enum {argon2i | argon2d | argon2id} */
+const types = Object.freeze({ argon2d, argon2i, argon2id });
 
 /** @enum {'argon2d' | 'argon2i' | 'argon2id'} */
 const names = Object.freeze({
@@ -30,11 +32,11 @@ const defaults = Object.freeze({
   timeCost: 3,
   memoryCost: 1 << 16,
   parallelism: 4,
-  type: types.argon2id,
+  type: argon2id,
   version: 0x13,
 });
 
-const limits = Object.freeze({
+export const limits = Object.freeze({
   hashLength: { min: 4, max: 2 ** 32 - 1 },
   memoryCost: { min: 1 << 10, max: 2 ** 32 - 1 },
   timeCost: { min: 2, max: 2 ** 32 - 1 },
@@ -55,7 +57,7 @@ const limits = Object.freeze({
  * @property {Buffer} [secret]
  */
 
-/**
+/**>
  * Hashes a password with Argon2, producing a raw hash
  *
  * @overload
@@ -76,7 +78,7 @@ const limits = Object.freeze({
  * @param {Options & { raw?: boolean }} options
  * @returns {Promise<Buffer | string>}
  */
-async function hash(plain, options) {
+export async function hash(plain, options) {
   const { raw, salt, saltLength, ...rest } = { ...defaults, ...options };
 
   for (const [key, { min, max }] of Object.entries(limits)) {
@@ -117,7 +119,7 @@ async function hash(plain, options) {
  * @param {Options} [options] The current parameters for Argon2
  * @return {boolean} `true` if the digest parameters do not match the parameters in `options`, otherwise `false`
  */
-function needsRehash(digest, options) {
+export function needsRehash(digest, options) {
   const { memoryCost, timeCost, version } = { ...defaults, ...options };
 
   const {
@@ -134,33 +136,30 @@ function needsRehash(digest, options) {
  * @param {Options} [options] The current parameters for Argon2
  * @return {Promise<boolean>} `true` if the digest parameters matches the hash generated from `plain`, otherwise `false`
  */
-async function verify(digest, plain, options) {
+export async function verify(digest, plain, options) {
+  const { id, ...rest } = deserialize(digest);
+  if (!(id in types)) {
+    return false;
+  }
+
   const {
-    id,
     version = 0x10,
     params: { m, t, p, data },
     salt,
     hash,
-  } = deserialize(digest);
+  } = rest;
 
-  // Only "types" have the "params" key, so if the password was encoded
-  // using any other method, the destructuring throws an error
-  return (
-    id in types &&
-    timingSafeEqual(
-      await bindingsHash(Buffer.from(plain), salt, {
-        ...options,
-        type: types[id],
-        version: +version,
-        hashLength: hash.length,
-        memoryCost: +m,
-        timeCost: +t,
-        parallelism: +p,
-        ...(data ? { associatedData: Buffer.from(data, "base64") } : {}),
-      }),
-      hash,
-    )
+  return timingSafeEqual(
+    await bindingsHash(Buffer.from(plain), salt, {
+      ...options,
+      type: types[id],
+      version: +version,
+      hashLength: hash.length,
+      memoryCost: +m,
+      timeCost: +t,
+      parallelism: +p,
+      ...(data ? { associatedData: Buffer.from(data, "base64") } : {}),
+    }),
+    hash,
   );
 }
-
-module.exports = { defaults, hash, needsRehash, verify, ...types };

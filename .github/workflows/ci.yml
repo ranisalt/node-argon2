@@ -2,11 +2,6 @@ name: CI
 
 on: [push, pull_request]
 
-env:
-  YARN_GPG: no
-  npm_config_debug: yes
-  npm_config_build_from_source: true
-
 jobs:
   test:
     strategy:
@@ -16,50 +11,35 @@ jobs:
 
     name: Test for node-${{ matrix.node-version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
+
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-      with:
-        submodules: true
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true
 
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
-      with:
-        cache: yarn
-        node-version: ${{ matrix.node-version }}
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          cache: yarn
+          node-version: ${{ matrix.node-version }}
 
-    - name: Install dependencies
-      run: yarn install --frozen-lockfile
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
 
-    - name: Run tests
-      run: yarn test
-
-    - name: "[Linux] Install lcov"
-      if: matrix.os == 'ubuntu-20.04'
-      run: sudo apt install lcov
-
-    - name: "[Linux] Generate coverage"
-      if: matrix.os == 'ubuntu-20.04'
-      run: |
-        cp -rl build/* build-tmp-napi-v3
-        rm -r build
-        yarn c8 report --reporter=text-lcov > lcov-js.info
-        lcov -c -d . --no-external -o lcov-cpp.info
-        lcov -r lcov-cpp.info "*/node_modules/*" -o lcov-cpp.info
-        lcov -a lcov-js.info -a lcov-cpp.info -o lcov.info
-
-    - name: "[Linux] Send to Codacy"
-      if: matrix.os == 'ubuntu-20.04'
-      uses: codacy/codacy-coverage-reporter-action@v1
-      with:
-        coverage-reports: lcov.info
-        project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
+      - name: Run tests
+        run: yarn test
 
   test-alpine:
-    name: Test on Alpine Linux
+    strategy:
+      matrix:
+        node-version: [18, 20]
+
+    name: Test for node-${{ matrix.node-version }} on Alpine Linux
     runs-on: ubuntu-latest
+
     container:
-      image: node:18-alpine
+      image: node:${{ matrix.node-version }}-alpine3.18
 
     steps:
       - name: Install build deps
@@ -92,7 +72,6 @@ jobs:
 
       - uses: vmactions/freebsd-vm@v1
         with:
-          envs: 'YARN_GPG npm_config_debug npm_config_build_from_source'
           prepare: |
             pkg install -y gmake python3 yarn-node${{ matrix.node-version }}
           run: |

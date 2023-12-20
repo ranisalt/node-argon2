@@ -38,13 +38,13 @@ static argon2_context make_context(uint8_t *buf, ustring &plain, ustring &salt,
     ctx.out = buf;
     ctx.outlen = opts.hash_length;
     ctx.pwd = plain.data();
-    ctx.pwdlen = plain.size();
+    ctx.pwdlen = static_cast<uint32_t>(plain.size());
     ctx.salt = salt.data();
-    ctx.saltlen = salt.size();
+    ctx.saltlen = static_cast<uint32_t>(salt.size());
     ctx.secret = opts.secret.empty() ? nullptr : opts.secret.data();
-    ctx.secretlen = opts.secret.size();
+    ctx.secretlen = static_cast<uint32_t>(opts.secret.size());
     ctx.ad = opts.ad.empty() ? nullptr : opts.ad.data();
-    ctx.adlen = opts.ad.size();
+    ctx.adlen = static_cast<uint32_t>(opts.ad.size());
     ctx.t_cost = opts.time_cost;
     ctx.m_cost = opts.memory_cost;
     ctx.lanes = opts.parallelism;
@@ -124,4 +124,4 @@ static Object init(Env env, Object exports) {
     return exports;
 }
 
-NODE_API_MODULE(argon2_lib, init);
+NODE_API_MODULE(argon2_lib, init)
