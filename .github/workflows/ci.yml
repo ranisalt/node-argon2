@@ -2,11 +2,6 @@ name: CI
 
 on: [push, pull_request]
 
-env:
-  YARN_GPG: no
-  npm_config_debug: yes
-  npm_config_build_from_source: true
-
 jobs:
   test:
     strategy:
@@ -77,10 +72,9 @@ jobs:
 
       - uses: vmactions/freebsd-vm@v1
         with:
-          envs: 'YARN_GPG npm_config_debug npm_config_build_from_source'
           prepare: |
             pkg install -y gmake python3 yarn-node${{ matrix.node-version }}
-            yarn install --frozen-lockfile
           run: |
+            yarn install --frozen-lockfile
             yarn test
           sync: sshfs
