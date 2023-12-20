@@ -200,4 +200,4 @@ jobs:
         run: yarn publish --tag ${{ inputs.npm-tag }} --new-version ${{ inputs.new-version || github.ref_name }}
         if: ${{ !env.ACT }}
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
