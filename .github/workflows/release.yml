@@ -132,7 +132,6 @@ jobs:
         with:
           arch: aarch64
           distro: alpine_latest
-          setup: mkdir -p "${PWD}/artifacts"
           dockerRunArgs: --volume "${PWD}:/repo" --workdir /repo
           install: |
             apk add --update make g++ python3

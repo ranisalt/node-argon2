@@ -1,20 +1,23 @@
-import assert from "node:assert";
-import { randomBytes, timingSafeEqual } from "node:crypto";
-import { fileURLToPath } from "node:url";
-import { promisify } from "node:util";
-import { deserialize, serialize } from "@phc/format";
-import gypBuild from "node-gyp-build";
+const assert = require("node:assert");
+const { randomBytes, timingSafeEqual } = require("node:crypto");
+const { promisify } = require("node:util");
+const { deserialize, serialize } = require("@phc/format");
+const gypBuild = require("node-gyp-build");
 
-const { hash: _hash } = gypBuild(fileURLToPath(new URL(".", import.meta.url)));
+const { hash: _hash } = gypBuild(__dirname);
 
 const bindingsHash = promisify(_hash);
 
 /** @type {(size: number) => Promise<Buffer>} */
 const generateSalt = promisify(randomBytes);
 
-export const argon2d = 0;
-export const argon2i = 1;
-export const argon2id = 2;
+const argon2d = 0;
+const argon2i = 1;
+const argon2id = 2;
+
+module.exports.argon2d = argon2d;
+module.exports.argon2i = argon2i;
+module.exports.argon2id = argon2id;
 
 /** @enum {argon2i | argon2d | argon2id} */
 const types = Object.freeze({ argon2d, argon2i, argon2id });
@@ -36,12 +39,13 @@ const defaults = Object.freeze({
   version: 0x13,
 });
 
-export const limits = Object.freeze({
+const limits = Object.freeze({
   hashLength: { min: 4, max: 2 ** 32 - 1 },
   memoryCost: { min: 1 << 10, max: 2 ** 32 - 1 },
   timeCost: { min: 2, max: 2 ** 32 - 1 },
   parallelism: { min: 1, max: 2 ** 24 - 1 },
 });
+module.exports.limits = limits;
 
 /**
  * @typedef {object} Options
@@ -57,7 +61,7 @@ export const limits = Object.freeze({
  * @property {Buffer} [secret]
  */
 
-/**>
+/**
  * Hashes a password with Argon2, producing a raw hash
  *
  * @overload
@@ -78,7 +82,7 @@ export const limits = Object.freeze({
  * @param {Options & { raw?: boolean }} options
  * @returns {Promise<Buffer | string>}
  */
-export async function hash(plain, options) {
+module.exports.hash = async function (plain, options) {
   const { raw, salt, saltLength, ...rest } = { ...defaults, ...options };
 
   for (const [key, { min, max }] of Object.entries(limits)) {
@@ -112,14 +116,14 @@ export async function hash(plain, options) {
     salt: salt_,
     hash,
   });
-}
+};
 
 /**
  * @param {string} digest The digest to be checked
  * @param {Options} [options] The current parameters for Argon2
  * @return {boolean} `true` if the digest parameters do not match the parameters in `options`, otherwise `false`
  */
-export function needsRehash(digest, options) {
+module.exports.needsRehash = function (digest, options) {
   const { memoryCost, timeCost, version } = { ...defaults, ...options };
 
   const {
@@ -128,7 +132,7 @@ export function needsRehash(digest, options) {
   } = deserialize(digest);
 
   return +v !== +version || +m !== +memoryCost || +t !== +timeCost;
-}
+};
 
 /**
  * @param {string} digest The digest to be checked
@@ -136,7 +140,7 @@ export function needsRehash(digest, options) {
  * @param {Options} [options] The current parameters for Argon2
  * @return {Promise<boolean>} `true` if the digest parameters matches the hash generated from `plain`, otherwise `false`
  */
-export async function verify(digest, plain, options) {
+module.exports.verify = async function (digest, plain, options) {
   const { id, ...rest } = deserialize(digest);
   if (!(id in types)) {
     return false;
@@ -162,4 +166,4 @@ export async function verify(digest, plain, options) {
     }),
     hash,
   );
-}
+};

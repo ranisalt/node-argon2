@@ -19,13 +19,13 @@
   },
   "license": "MIT",
   "author": "Ranieri Althoff <ranisalt+argon2@gmail.com>",
-  "type": "module",
-  "main": "argon2.mjs",
-  "types": "argon2.d.ts",
+  "type": "commonjs",
+  "main": "argon2.cjs",
+  "types": "argon2.d.cts",
   "files": [
     "argon2_node.cpp",
-    "argon2.d.ts",
-    "argon2.d.ts.map",
+    "argon2.d.cts",
+    "argon2.d.cts.map",
     "binding.gyp",
     "argon2/CHANGELOG.md",
     "argon2/LICENSE",
@@ -49,11 +49,11 @@
   },
   "scripts": {
     "build": "prebuildify --napi --strip --tag-armv --tag-libc",
-    "format": "prettier --write \"*.{json,mjs}\"",
+    "format": "prettier --write \"*.{cjs,json}\"",
     "install": "node-gyp-build",
     "prepack": "yarn prepare",
     "prepare": "tsc",
-    "test": "node --test test.mjs"
+    "test": "node --test test.cjs"
   },
   "dependencies": {
     "@phc/format": "^1.0.0",
