@@ -196,7 +196,10 @@ jobs:
         run: mkdir prebuilds && cp --recursive prebuild-*/* prebuilds/
 
       - name: Publish to NPM
-        run: yarn publish --tag ${{ inputs.npm-tag }} --new-version ${{ inputs.new-version || github.ref_name }}
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          yarn publish --tag ${{ inputs.npm-tag }} --new-version ${{ inputs.new-version || github.ref_name }}
         if: ${{ !env.ACT }}
         env:
           NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
