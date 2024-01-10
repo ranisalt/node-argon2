@@ -79,7 +79,7 @@ module.exports.limits = limits;
  */
 /**
  * @param {Buffer | string} plain
- * @param {Options & { raw?: boolean }} options
+ * @param {Options & { raw?: boolean }} [options]
  * @returns {Promise<Buffer | string>}
  */
 module.exports.hash = async function (plain, options) {
