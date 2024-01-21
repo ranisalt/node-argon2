@@ -78,9 +78,9 @@ module.exports.limits = limits;
  * @return {Promise<string>} The encoded hash generated from `plain`
  */
 /**
- * @param {Buffer | string} plain
- * @param {Options & { raw?: boolean }} [options]
- * @returns {Promise<Buffer | string>}
+ * @param {Buffer | string} plain The plaintext password to be hashed
+ * @param {Options & { raw?: boolean }} [options] The parameters for Argon2
+ * @returns {Promise<Buffer | string>} The raw or encoded hash generated from `plain`
  */
 module.exports.hash = async function (plain, options) {
   const { raw, salt, saltLength, ...rest } = { ...defaults, ...options };
