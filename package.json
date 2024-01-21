@@ -56,14 +56,14 @@
   },
   "dependencies": {
     "@phc/format": "^1.0.0",
-    "node-addon-api": "^7.0.0",
-    "node-gyp-build": "^4.7.1"
+    "node-addon-api": "^7.1.0",
+    "node-gyp-build": "^4.8.0"
   },
   "devDependencies": {
-    "@types/node": "^20.10.5",
+    "@types/node": "^20.11.5",
     "node-gyp": "^10.0.1",
-    "prebuildify": "^5.0.1",
-    "prettier": "^3.1.1",
+    "prebuildify": "^6.0.0",
+    "prettier": "^3.2.4",
     "typescript": "^5.3.3"
   },
   "engines": {
