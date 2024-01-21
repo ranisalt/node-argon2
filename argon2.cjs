@@ -4,9 +4,7 @@ const { promisify } = require("node:util");
 const { deserialize, serialize } = require("@phc/format");
 const gypBuild = require("node-gyp-build");
 
-const { hash: _hash } = gypBuild(__dirname);
-
-const bindingsHash = promisify(_hash);
+const { hash: bindingsHash } = gypBuild(__dirname);
 
 /** @type {(size: number) => Promise<Buffer>} */
 const generateSalt = promisify(randomBytes);

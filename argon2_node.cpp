@@ -14,10 +14,6 @@ static ustring from_buffer(const Value &value) {
     return {data, data + buf.Length()};
 }
 
-static Buffer<uint8_t> to_buffer(const Env &env, const ustring &str) {
-    return Buffer<uint8_t>::Copy(env, str.data(), str.size());
-}
-
 struct Options {
     ustring secret;
     ustring ad;
@@ -59,38 +55,41 @@ static argon2_context make_context(uint8_t *buf, ustring &plain, ustring &salt,
 
 class HashWorker final : public AsyncWorker {
 public:
-    HashWorker(const Function &callback, ustring &&plain, ustring &&salt,
-               Options &&opts)
-        : AsyncWorker{callback, "argon2:HashWorker"}, plain{std::move(plain)},
-          salt{std::move(salt)}, opts{std::move(opts)} {}
+    HashWorker(const Env &env, ustring &&plain, ustring &&salt, Options &&opts)
+        : AsyncWorker{env, "argon2:HashWorker"}, deferred{env},
+          plain{std::move(plain)}, salt{std::move(salt)},
+          opts{std::move(opts)} {}
 
+    Promise GetPromise() { return deferred.Promise(); }
+
+protected:
     void Execute() override {
-        auto buf = std::make_unique<uint8_t[]>(opts.hash_length);
+        hash = std::make_unique<uint8_t[]>(opts.hash_length);
 
-        auto ctx = make_context(buf.get(), plain, salt, opts);
+        auto ctx = make_context(hash.get(), plain, salt, opts);
         int result = argon2_ctx(&ctx, opts.type);
 
         if (result != ARGON2_OK) {
             /* LCOV_EXCL_START */
             SetError(argon2_error_message(result));
             /* LCOV_EXCL_STOP */
-        } else {
-            hash.assign(buf.get(), buf.get() + opts.hash_length);
         }
     }
 
     void OnOK() override {
-        const auto &env = Env();
-        HandleScope scope{env};
-        Callback()({env.Undefined(), to_buffer(env, hash)});
+        deferred.Resolve(
+            Buffer<uint8_t>::Copy(Env(), hash.get(), opts.hash_length));
     }
 
+    void OnError(const Error &err) override { deferred.Reject(err.Value()); }
+
 private:
+    Promise::Deferred deferred;
     ustring plain;
     ustring salt;
     Options opts;
 
-    ustring hash;
+    std::unique_ptr<uint8_t[]> hash;
 };
 
 static Options extract_opts(const Object &opts) {
@@ -109,14 +108,14 @@ static Options extract_opts(const Object &opts) {
 
 static Value Hash(const CallbackInfo &info) {
     assert(info.Length() == 4 && info[0].IsBuffer() && info[1].IsBuffer() &&
-           info[2].IsObject() && info[3].IsFunction());
+           info[2].IsObject());
 
-    auto worker = new HashWorker{info[3].As<Function>(), from_buffer(info[0]),
-                                 from_buffer(info[1]),
-                                 extract_opts(info[2].As<Object>())};
+    auto worker =
+        new HashWorker{info.Env(), from_buffer(info[0]), from_buffer(info[1]),
+                       extract_opts(info[2].As<Object>())};
 
     worker->Queue();
-    return info.Env().Undefined();
+    return worker->GetPromise();
 }
 
 static Object init(Env env, Object exports) {
