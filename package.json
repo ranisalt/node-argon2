@@ -51,7 +51,6 @@
     "build": "prebuildify --napi --strip --tag-armv --tag-libc",
     "format": "prettier --write \"*.{cjs,json}\"",
     "install": "node-gyp-build",
-    "prepack": "yarn prepare",
     "prepare": "tsc",
     "test": "node --test test.cjs"
   },
