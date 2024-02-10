@@ -69,7 +69,8 @@
               "cflags": ["--coverage"],
               "ldflags": ["-fprofile-arcs", "-ftest-coverage"]
             }]
-          ]
+          ],
+          "defines+": ["NODE_ADDON_API_ENABLE_TYPE_CHECK_ON_AS"]
         }
       }
     }

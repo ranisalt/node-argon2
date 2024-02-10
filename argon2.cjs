@@ -29,7 +29,6 @@ const names = Object.freeze({
 
 const defaults = Object.freeze({
   hashLength: 32,
-  saltLength: 16,
   timeCost: 3,
   memoryCost: 1 << 16,
   parallelism: 4,
@@ -51,7 +50,6 @@ module.exports.limits = limits;
  * @property {number} [timeCost=3]
  * @property {number} [memoryCost=65536]
  * @property {number} [parallelism=4]
- * @property {number} [saltLength=16]
  * @property {keyof typeof names} [type=argon2id]
  * @property {number} [version=19]
  * @property {Buffer} [salt]
@@ -63,25 +61,24 @@ module.exports.limits = limits;
  * Hashes a password with Argon2, producing a raw hash
  *
  * @overload
- * @param {Buffer | string} plain The plaintext password to be hashed
+ * @param {Buffer | string} password The plaintext password to be hashed
  * @param {Options & { raw: true }} options The parameters for Argon2
- * @return {Promise<Buffer>} The raw hash generated from `plain`
+ * @returns {Promise<Buffer>} The raw hash generated from `plain`
  */
 /**
  * Hashes a password with Argon2, producing an encoded hash
  *
  * @overload
- * @param {Buffer | string} plain The plaintext password to be hashed
+ * @param {Buffer | string} password The plaintext password to be hashed
  * @param {Options & { raw?: boolean }} [options] The parameters for Argon2
- * @return {Promise<string>} The encoded hash generated from `plain`
+ * @returns {Promise<string>} The encoded hash generated from `plain`
  */
 /**
- * @param {Buffer | string} plain The plaintext password to be hashed
+ * @param {Buffer | string} password The plaintext password to be hashed
  * @param {Options & { raw?: boolean }} [options] The parameters for Argon2
- * @returns {Promise<Buffer | string>} The raw or encoded hash generated from `plain`
  */
-module.exports.hash = async function (plain, options) {
-  const { raw, salt, saltLength, ...rest } = { ...defaults, ...options };
+async function hash(password, options) {
+  let { raw, salt, ...rest } = { ...defaults, ...options };
 
   for (const [key, { min, max }] of Object.entries(limits)) {
     const value = rest[key];
@@ -91,37 +88,54 @@ module.exports.hash = async function (plain, options) {
     );
   }
 
-  const salt_ = salt ?? (await generateSalt(saltLength));
-
-  const hash = await bindingsHash(Buffer.from(plain), salt_, rest);
-  if (raw) {
-    return hash;
-  }
+  salt = salt ?? (await generateSalt(16));
 
   const {
+    hashLength,
+    secret = Buffer.alloc(0),
     type,
     version,
     memoryCost: m,
     timeCost: t,
     parallelism: p,
-    associatedData: data,
+    associatedData: data = Buffer.alloc(0),
   } = rest;
+
+  const hash = await bindingsHash({
+    password: Buffer.from(password),
+    salt,
+    secret,
+    data,
+    hashLength,
+    m,
+    t,
+    p,
+    version,
+    type,
+  });
+  if (raw) {
+    return hash;
+  }
 
   return serialize({
     id: names[type],
     version,
-    params: { m, t, p, ...(data ? { data } : {}) },
-    salt: salt_,
+    params: { m, t, p, ...(data.byteLength > 0 ? { data } : {}) },
+    salt,
     hash,
   });
-};
+}
+module.exports.hash = hash;
 
 /**
  * @param {string} digest The digest to be checked
- * @param {Options} [options] The current parameters for Argon2
- * @return {boolean} `true` if the digest parameters do not match the parameters in `options`, otherwise `false`
+ * @param {Object} [options] The current parameters for Argon2
+ * @param {number} [options.timeCost=3]
+ * @param {number} [options.memoryCost=65536]
+ * @param {number} [options.parallelism=4]
+ * @returns {boolean} `true` if the digest parameters do not match the parameters in `options`, otherwise `false`
  */
-module.exports.needsRehash = function (digest, options) {
+function needsRehash(digest, options = {}) {
   const { memoryCost, timeCost, version } = { ...defaults, ...options };
 
   const {
@@ -130,15 +144,21 @@ module.exports.needsRehash = function (digest, options) {
   } = deserialize(digest);
 
   return +v !== +version || +m !== +memoryCost || +t !== +timeCost;
-};
+}
+module.exports.needsRehash = needsRehash;
 
 /**
  * @param {string} digest The digest to be checked
- * @param {Buffer | string} plain The plaintext password to be verified
- * @param {Options} [options] The current parameters for Argon2
- * @return {Promise<boolean>} `true` if the digest parameters matches the hash generated from `plain`, otherwise `false`
+ * @param {Buffer | string} password The plaintext password to be verified
+ * @param {Object} [options] The current parameters for Argon2
+ * @param {Buffer} [options.secret]
+ * @returns {Promise<boolean>} `true` if the digest parameters matches the hash generated from `plain`, otherwise `false`
  */
-module.exports.verify = async function (digest, plain, options) {
+async function verify(
+  digest,
+  password,
+  { secret } = { secret: Buffer.alloc(0) },
+) {
   const { id, ...rest } = deserialize(digest);
   if (!(id in types)) {
     return false;
@@ -146,22 +166,25 @@ module.exports.verify = async function (digest, plain, options) {
 
   const {
     version = 0x10,
-    params: { m, t, p, data },
+    params: { m, t, p, data = "" },
     salt,
     hash,
   } = rest;
 
   return timingSafeEqual(
-    await bindingsHash(Buffer.from(plain), salt, {
-      ...options,
-      type: types[id],
+    await bindingsHash({
+      password: Buffer.from(password),
+      salt,
+      secret,
+      data: Buffer.from(data, "base64"),
+      hashLength: hash.byteLength,
+      m: +m,
+      t: +t,
+      p: +p,
       version: +version,
-      hashLength: hash.length,
-      memoryCost: +m,
-      timeCost: +t,
-      parallelism: +p,
-      ...(data ? { associatedData: Buffer.from(data, "base64") } : {}),
+      type: types[id],
     }),
     hash,
   );
-};
+}
+module.exports.verify = verify;
