@@ -49,8 +49,8 @@
   },
   "scripts": {
     "build": "prebuildify --napi --strip --tag-armv --tag-libc",
-    "format": "prettier --write \"*.{cjs,json}\"",
     "install": "node-gyp-build",
+    "lint": "biome check .",
     "prepare": "tsc",
     "test": "node --test test.cjs"
   },
@@ -60,10 +60,10 @@
     "node-gyp-build": "^4.8.0"
   },
   "devDependencies": {
+    "@biomejs/biome": "^1.5.3",
     "@types/node": "^20.11.17",
     "node-gyp": "^10.0.1",
     "prebuildify": "^6.0.0",
-    "prettier": "^3.2.5",
     "typescript": "^5.3.3"
   },
   "engines": {

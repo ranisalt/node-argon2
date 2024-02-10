@@ -3,6 +3,25 @@ name: CI
 on: [push, pull_request]
 
 jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Lint
+        run: yarn lint
+
+      - name: Audit
+        run: yarn audit
+
   test:
     strategy:
       matrix:
@@ -75,6 +94,6 @@ jobs:
           prepare: |
             pkg install -y gmake python3 yarn-node${{ matrix.node-version }}
           run: |
-            yarn install --frozen-lockfile
+            yarn install
             yarn test
           sync: sshfs
