@@ -69,7 +69,7 @@ private:
     using ustring = std::basic_string<uint8_t>;
 
     Napi::Promise::Deferred deferred;
-    ustring hash;
+    ustring hash = {};
 
     ustring plain;
     ustring salt;
