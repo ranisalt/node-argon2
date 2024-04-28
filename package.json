@@ -52,12 +52,13 @@
     "node-gyp-build": "^4.8.0"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.5.3",
-    "@types/node": "^20.11.19",
-    "node-gyp": "^10.0.1",
-    "prebuildify": "^6.0.0",
-    "typescript": "^5.3.3"
+    "@biomejs/biome": "^1.7.1",
+    "@types/node": "^20.12.7",
+    "node-gyp": "^10.1.0",
+    "prebuildify": "^6.0.1",
+    "typescript": "^5.4.5"
   },
+  "packageManager": "yarn@1.22.19+sha1.4ba7fc5c6e704fce2066ecbfb0b0d8976fe62447",
   "engines": {
     "node": ">=16.17.0"
   },
