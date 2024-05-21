@@ -1,8 +1,7 @@
 #include "argon2/include/argon2.h"
-#include <cassert>
 #include <cstdint>
 #include <napi.h>
-#include <vector>
+#include <string>
 
 namespace {
 
@@ -15,15 +14,15 @@ public:
                uint32_t memory_cost, uint32_t time_cost, uint32_t parallelism,
                uint32_t version, uint32_t type)
         : AsyncWorker{env, "argon2:HashWorker"}, deferred{env},
-          plain{plain.Data(), plain.Data() + plain.ByteLength()},
-          salt{salt.Data(), salt.Data() + salt.ByteLength()},
-          secret{secret.Data(), secret.Data() + secret.ByteLength()},
-          ad{ad.Data(), ad.Data() + ad.ByteLength()}, hash_length{hash_length},
+          plain{plain.Data(), plain.ByteLength()},
+          salt{salt.Data(), salt.ByteLength()},
+          secret{secret.Data(), secret.ByteLength()},
+          ad{ad.Data(), ad.ByteLength()}, hash_length{hash_length},
           memory_cost{memory_cost}, time_cost{time_cost},
           parallelism{parallelism}, version{version},
           type{static_cast<argon2_type>(type)} {}
 
-    Napi::Promise GetPromise() { return deferred.Promise(); }
+    auto GetPromise() -> Napi::Promise { return deferred.Promise(); }
 
 protected:
     void Execute() override {
@@ -49,7 +48,7 @@ protected:
         ctx.flags = ARGON2_FLAG_CLEAR_PASSWORD | ARGON2_FLAG_CLEAR_SECRET;
         ctx.version = version;
 
-        if (int result = argon2_ctx(&ctx, type); result != ARGON2_OK) {
+        if (const int result = argon2_ctx(&ctx, type); result != ARGON2_OK) {
             /* LCOV_EXCL_START */
             SetError(argon2_error_message(result));
             /* LCOV_EXCL_STOP */
@@ -85,27 +84,27 @@ private:
     argon2_type type;
 };
 
-static Napi::Value Hash(const Napi::CallbackInfo &info) {
+auto Hash(const Napi::CallbackInfo &info) -> Napi::Value {
     NAPI_CHECK(info.Length() == 1, "Hash", "expected 1 argument");
 
     const auto &args = info[0].As<Napi::Object>();
-    auto worker = new HashWorker{info.Env(),
-                                 args["password"].As<Napi::Buffer<uint8_t>>(),
-                                 args["salt"].As<Napi::Buffer<uint8_t>>(),
-                                 args["secret"].As<Napi::Buffer<uint8_t>>(),
-                                 args["data"].As<Napi::Buffer<uint8_t>>(),
-                                 args["hashLength"].ToNumber(),
-                                 args["m"].ToNumber(),
-                                 args["t"].ToNumber(),
-                                 args["p"].ToNumber(),
-                                 args["version"].ToNumber(),
-                                 args["type"].ToNumber()};
+    auto *worker = new HashWorker{info.Env(),
+                                  args["password"].As<Napi::Buffer<uint8_t>>(),
+                                  args["salt"].As<Napi::Buffer<uint8_t>>(),
+                                  args["secret"].As<Napi::Buffer<uint8_t>>(),
+                                  args["data"].As<Napi::Buffer<uint8_t>>(),
+                                  args["hashLength"].ToNumber(),
+                                  args["m"].ToNumber(),
+                                  args["t"].ToNumber(),
+                                  args["p"].ToNumber(),
+                                  args["version"].ToNumber(),
+                                  args["type"].ToNumber()};
 
     worker->Queue();
     return worker->GetPromise();
 }
 
-static Napi::Object init(Napi::Env env, Napi::Object exports) {
+auto init(Napi::Env env, Napi::Object exports) -> Napi::Object {
     exports["hash"] = Napi::Function::New(env, Hash);
     return exports;
 }
