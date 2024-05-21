@@ -1,6 +1,11 @@
 {
   "target_defaults": {
     "include_dirs": ["argon2/include"],
+    "conditions": [
+      ["target_arch == 'ia32' or target_arch == 'x64'", {
+        "cflags+": ["-march=x86-64-v3"]
+      }]
+    ],
     "target_conditions": [
       ["OS == 'mac'", {
         "xcode_settings": {
@@ -41,7 +46,6 @@
       "cflags+": ["-Wno-type-limits"],
       "conditions": [
         ["target_arch == 'ia32' or target_arch == 'x64'", {
-          "cflags+": ["-msse", "-msse2"],
           "sources+": ["argon2/src/opt.c"]
         }, {
           "sources+": ["argon2/src/ref.c"]
