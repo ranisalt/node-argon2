@@ -45,7 +45,7 @@ const limits = Object.freeze({
 module.exports.limits = limits;
 
 /**
- * @typedef {object} Options
+ * @typedef {Object} Options
  * @property {number} [hashLength=32]
  * @property {number} [timeCost=3]
  * @property {number} [memoryCost=65536]
