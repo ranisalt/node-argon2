@@ -25,7 +25,7 @@ jobs:
   test:
     strategy:
       matrix:
-        node-version: [18, 20]
+        node-version: [18, 20, 22]
         os: [ubuntu-20.04, macos-11, macos-m1, windows-2019]
 
     name: Test for node-${{ matrix.node-version }} on ${{ matrix.os }}
@@ -52,7 +52,7 @@ jobs:
   test-alpine:
     strategy:
       matrix:
-        node-version: [18, 20]
+        node-version: [18, 20, 22]
 
     name: Test for node-${{ matrix.node-version }} on Alpine Linux
     runs-on: ubuntu-latest
