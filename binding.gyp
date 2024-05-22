@@ -19,12 +19,22 @@
     "configurations": {
       "Release": {
         "target_conditions": [
-          ["OS != 'win'", {
+          ['OS not in "ios mac win"', {
             "cflags+": ["-fdata-sections", "-ffunction-sections", "-flto", "-fvisibility=hidden"],
-            "ldflags+": ["-Wl,--gc-sections"]
+            "ldflags+": ["-Wl,--gc-sections"],
+            "defines+": ["_FORTIFY_SOURCE=2", "NDEBUG"],
+          }],
+          # Avoid defining _FORTIFY_SOURCE on Darwin
+          ['OS not in "ios mac"', {
+            "defines+": ["_FORTIFY_SOURCE=2"],
+          }],
+          ['OS in "ios mac"', {
+            # On Darwin with Xcode CLT/LLVM, "-fvisibility=hidden" hide all symbols that
+            # not explicitly marked with __attribute__((visibility("default")))
+            "cflags+": ["-fexceptions", "-flto"]
           }]
         ],
-        "defines+": ["_FORTIFY_SOURCE=2", "NDEBUG"]
+        "defines+": ["NDEBUG"]
       }
     }
   },
