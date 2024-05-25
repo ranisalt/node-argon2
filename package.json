@@ -43,7 +43,7 @@
     "build": "prebuildify --napi --strip --tag-armv --tag-libc",
     "install": "node-gyp-build",
     "lint": "biome check .",
-    "prepare": "tsc",
+    "prepare": "npx -p typescript tsc",
     "test": "node --test test.cjs"
   },
   "dependencies": {
@@ -58,6 +58,7 @@
     "prebuildify": "6.0.1",
     "typescript": "5.4.5"
   },
+  "packageManager": "npm@10.8.0+sha512.c21f77b91733829ec70e73cc88b5dc0a4bf685a81d252d3327d293ff7d5dd05a173f4dbeaa037600ec29696f397f14569229e5dab10b7cfc3e0a30575b8f3f8d",
   "engines": {
     "node": ">=16.17.0"
   },
