@@ -154,11 +154,7 @@ module.exports.needsRehash = needsRehash;
  * @param {Buffer} [options.secret]
  * @returns {Promise<boolean>} `true` if the digest parameters matches the hash generated from `plain`, otherwise `false`
  */
-async function verify(
-  digest,
-  password,
-  { secret } = { secret: Buffer.alloc(0) },
-) {
+async function verify(digest, password, options = {}) {
   const { id, ...rest } = deserialize(digest);
   if (!(id in types)) {
     return false;
@@ -170,6 +166,8 @@ async function verify(
     salt,
     hash,
   } = rest;
+
+  const { secret = Buffer.alloc(0) } = options;
 
   return timingSafeEqual(
     await bindingsHash({

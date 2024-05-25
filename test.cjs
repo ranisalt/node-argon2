@@ -255,6 +255,13 @@ describe("verify", () => {
     );
   });
 
+  it("verify with options without secret", async () => {
+    // https://github.com/ranisalt/node-argon2/issues/407
+    await assert.doesNotReject(
+      argon2.verify(await argon2.hash(password, { secret }), "password", {}),
+    );
+  });
+
   it("verify argon2d correct password", async () => {
     assert(
       await argon2.verify(
