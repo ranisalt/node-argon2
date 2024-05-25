@@ -199,7 +199,8 @@ jobs:
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          yarn publish --tag ${{ inputs.npm-tag }} --new-version ${{ inputs.new-version || github.ref_name }}
+          yarn publish --tag ${{ inputs.npm-tag }} --new-version $(echo $VERSION | sed 's/^v//')
         if: ${{ !env.ACT }}
         env:
           NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          VERSION: ${{ inputs.new-version || github.ref_name }}
