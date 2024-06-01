@@ -13,9 +13,14 @@ on:
 
 jobs:
   check-format:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
+
+      - name: Setup LLVM repository
+        run: |
+          wget -qO- https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+          sudo add-apt-repository -y 'deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy main'
 
       - name: Install clang-format
         run: sudo apt update -q && sudo apt install -yq clang-format
