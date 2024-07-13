@@ -27,7 +27,7 @@ jobs:
         include:
           - os: ubuntu-20.04
             arch: linux-x64-glibc
-          - os: macos-11
+          - os: macos-12
             arch: darwin-x64
           - os: macos-m1
             arch: darwin-arm64

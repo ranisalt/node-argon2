@@ -26,7 +26,7 @@ jobs:
     strategy:
       matrix:
         node-version: [18, 20, 22]
-        os: [ubuntu-20.04, macos-11, macos-m1, windows-2019]
+        os: [ubuntu-20.04, macos-12, macos-m1, windows-2019]
 
     name: Test for node-${{ matrix.node-version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
