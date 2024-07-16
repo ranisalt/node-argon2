@@ -55,6 +55,7 @@ module.exports.limits = limits;
  * @property {Buffer} [salt]
  * @property {Buffer} [associatedData]
  * @property {Buffer} [secret]
+ * @property {number} [saltLength]
  */
 
 /**
