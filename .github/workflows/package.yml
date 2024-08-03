@@ -1,8 +1,7 @@
-name: Release
+name: Publish package
 
 on:
-  release:
-    types: [published]
+  push:
 
   workflow_dispatch:
     inputs:
@@ -173,12 +172,8 @@ jobs:
           path: prebuilds/**/*.node
 
   publish:
-    name: Publish package
+    name: Upload package artifact
     runs-on: ubuntu-latest
-
-    permissions:
-      contents: read
-      id-token: write
 
     needs:
       - build
@@ -211,12 +206,10 @@ jobs:
       - name: Move prebuild artifacts
         run: mkdir prebuilds && cp --recursive prebuild-*/* prebuilds/
 
-      - name: Publish to NPM
-        run: |
-          npm version --allow-same-version --no-git-tag-version $VERSION
-          npm publish --provenance --tag $TAG
-        if: ${{ !env.ACT }}
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          TAG: ${{ inputs.npm-tag || 'latest' }}
-          VERSION: ${{ inputs.new-version || github.ref_name }}
+      - name: Pack package
+        run: npm pack
+
+      - name: Upload package artifact
+        uses: actions/upload-artifact@v4
+        with:
+          path: '*.tgz'
