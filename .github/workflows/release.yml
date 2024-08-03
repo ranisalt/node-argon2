@@ -1,6 +1,12 @@
 name: Release
 
 on:
+  push:
+
+  pull_request:
+    branches:
+    - master
+
   release:
     types: [published]
 
@@ -25,8 +31,10 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: ubuntu-20.04
+          - os: ubuntu-22.04
             arch: linux-x64-glibc
+          - os: ubuntu-22.04-arm
+            arch: linux-arm64-glibc
           - os: macos-13
             arch: darwin-x64
           - os: macos-14
@@ -61,65 +69,22 @@ jobs:
           name: prebuild-${{ matrix.arch }}
           path: prebuilds/**/*.node
 
-  build-linux-arm64-glibc:
-    name: Build for linux-arm64-glibc
-    runs-on: buildjet-2vcpu-ubuntu-2204-arm
+  build-musl:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-22.04
+            arch: x64
+            platform: linux/amd64
+          - os: ubuntu-22.04-arm
+            arch: arm64
+            platform: linux/arm64
+          - os: ubuntu-22.04-arm
+            arch: armv7
+            platform: linux/arm/v7
 
-    container:
-      image: node:20-bullseye
-
-    steps:
-      - name: Install build deps
-        run: apt update -yq && apt install -yq g++ git make python3
-
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          submodules: true
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Prebuild
-        run: npm run build
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: prebuild-linux-arm64-glibc
-          path: prebuilds/**/*.node
-
-  build-linux-x64-musl:
-    name: Build for linux-x64-musl
-    runs-on: ubuntu-latest
-
-    container:
-      image: node:20-alpine
-
-    steps:
-      - name: Install build deps
-        run: apk add --no-cache g++ git make python3
-
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          submodules: true
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Prebuild
-        run: npm run build
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: prebuild-linux-x64-musl
-          path: prebuilds/**/*.node
-
-  build-linux-arm64-musl:
-    name: Build for linux-arm64-musl
-    runs-on: ubuntu-latest
+    name: Build for linux-${{ matrix.arch }}-musl
+    runs-on: ${{ matrix.os }}
 
     steps:
       - name: Checkout
@@ -127,23 +92,25 @@ jobs:
         with:
           submodules: true
 
-      - name: Prebuild
-        uses: uraimo/run-on-arch-action@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
         with:
-          arch: aarch64
-          distro: alpine_latest
-          dockerRunArgs: --volume "${PWD}:/repo" --workdir /repo
-          install: |
-            apk add --update make g++ python3
-            apk add --no-cache --repository https://dl-cdn.alpinelinux.org/alpine/v3.19/main/ nodejs~=20 npm
+          platforms: ${{ matrix.platform }}
+
+      - name: Prebuild
+        uses: addnab/docker-run-action@v3
+        with:
+          image: node:20-alpine
+          options: --platform=${{ matrix.platform }} --volume=${{ github.workspace }}:/repo --workdir=/repo
           run: |
+            apk add --no-cache g++ make python3
             npm ci
             npm run build
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: prebuild-linux-arm64-musl
+          name: prebuild-linux-${{ matrix.arch }}-musl
           path: prebuilds/**/*.node
 
   build-freebsd-x64:
@@ -172,35 +139,6 @@ jobs:
           name: prebuild-freebsd-x64
           path: prebuilds/**/*.node
 
-  build-linux-armv7-musl:
-    name: Build for linux-armv7-musl
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          submodules: true
-
-      - name: Prebuild
-        uses: uraimo/run-on-arch-action@v2
-        with:
-          arch: armv7
-          distro: alpine_latest
-          dockerRunArgs: --volume "${PWD}:/repo" --workdir /repo
-          install: |
-            apk add --update make g++ python3
-            apk add --no-cache --repository https://dl-cdn.alpinelinux.org/alpine/v3.19/main/ nodejs~=20 npm
-          run: |
-            npm ci
-            npm run build
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: prebuild-linux-armv7-musl
-          path: prebuilds/**/*.node
-
   build-linux-armv7-glibc:
     name: Build for linux-armv7-glibc
     runs-on: ubuntu-latest
@@ -211,18 +149,20 @@ jobs:
         with:
           submodules: true
 
-      - name: Prebuild
-        uses: uraimo/run-on-arch-action@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
         with:
-          arch: armv7
-          distro: ubuntu_latest
-          dockerRunArgs: --volume "${PWD}:/repo" --workdir /repo
-          install: |
-            apt update -yq
-            apt install -yq curl
-            curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
-            apt install -yq g++ git make python3 nodejs
+          platforms: linux/arm/v7
+
+      - name: Prebuild
+        uses: addnab/docker-run-action@v3
+        with:
+          image: node:20-bullseye
+          options: --platform=linux/arm/v7 --volume=${{ github.workspace }}:/repo --workdir=/repo
           run: |
+            apt update -yq && apt install -yq wget
+            wget -qL https://deb.nodesource.com/setup_20.x | bash -
+            apt install -yq g++ make python3 nodejs
             npm ci
             npm run build
 
@@ -242,11 +182,8 @@ jobs:
 
     needs:
       - build
+      - build-musl
       - build-freebsd-x64
-      - build-linux-arm64-glibc
-      - build-linux-arm64-musl
-      - build-linux-x64-musl
-      - build-linux-armv7-musl
       - build-linux-armv7-glibc
 
     steps:
@@ -273,11 +210,22 @@ jobs:
       - name: Move prebuild artifacts
         run: mkdir prebuilds && cp --recursive prebuild-*/* prebuilds/
 
+      - name: Pack package
+        run: npm pack
+        if: ${{ github.event_name == 'push' }}
+
+      - name: Upload package artifact
+        uses: actions/upload-artifact@v4
+        if: ${{ github.event_name == 'push' }}
+        with:
+          name: package
+          path: '*.tgz'
+
       - name: Publish to NPM
         run: |
           npm version --allow-same-version --no-git-tag-version $VERSION
           npm publish --provenance --tag $TAG
-        if: ${{ !env.ACT }}
+        if: ${{ !env.ACT && github.event_name != 'push' }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           TAG: ${{ inputs.npm-tag || 'latest' }}
