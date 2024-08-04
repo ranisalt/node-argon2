@@ -45,14 +45,14 @@ jobs:
       - name: Use Node.js 20
         uses: actions/setup-node@v4
         with:
-          cache: yarn
+          cache: npm
           node-version: 20
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile --ignore-scripts
+        run: npm ci
 
       - name: Prebuild
-        run: yarn build
+        run: npm run build
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -77,10 +77,10 @@ jobs:
           submodules: true
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile --ignore-scripts
+        run: npm ci
 
       - name: Prebuild
-        run: yarn build
+        run: npm run build
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -105,10 +105,10 @@ jobs:
           submodules: true
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile --ignore-scripts
+        run: npm ci
 
       - name: Prebuild
-        run: yarn build
+        run: npm run build
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -134,10 +134,10 @@ jobs:
           dockerRunArgs: --volume "${PWD}:/repo" --workdir /repo
           install: |
             apk add --update make g++ python3
-            apk add --no-cache --repository https://dl-cdn.alpinelinux.org/alpine/v3.19/main/ nodejs~=20 yarn
+            apk add --no-cache --repository https://dl-cdn.alpinelinux.org/alpine/v3.19/main/ nodejs~=20 npm
           run: |
-            yarn install --frozen-lockfile --ignore-scripts
-            yarn build
+            npm ci
+            npm run build
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -159,10 +159,10 @@ jobs:
         uses: vmactions/freebsd-vm@v1
         with:
           prepare: |
-            pkg install -y gmake python3 yarn-node20
+            pkg install -y gmake python3 npm-node20
           run: |
-            yarn install --frozen-lockfile --ignore-scripts
-            yarn build
+            npm ci
+            npm run build
           sync: sshfs
 
       - name: Upload artifacts
@@ -195,7 +195,7 @@ jobs:
         run: mkdir prebuilds && cp --recursive prebuild-*/* prebuilds/
 
       - name: Pack package
-        run: yarn prepare && yarn pack
+        run: npm pack
 
       - name: Upload package artifact
         uses: actions/upload-artifact@v4
