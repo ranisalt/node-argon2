@@ -139,7 +139,7 @@ you'll need to specify that in the command.
   2. Ignore `node-argon2` install script and build manually.
   ```bash
   $ npm install argon2 --ignore-scripts
-  $ npx @mapbox/node-pre-gyp rebuild -C ./node_modules/argon2
+  $ npx node-gyp rebuild -C ./node_modules/argon2
   ```
 </details>
 
