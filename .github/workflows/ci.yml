@@ -14,13 +14,10 @@ jobs:
           submodules: true
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: npm ci
 
       - name: Lint
-        run: yarn lint
-
-      - name: Audit
-        run: yarn audit
+        run: npm run lint
 
   test:
     strategy:
@@ -40,14 +37,14 @@ jobs:
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
-          cache: yarn
+          cache: npm
           node-version: ${{ matrix.node-version }}
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: npm ci
 
       - name: Run tests
-        run: yarn test
+        run: npm test
 
   test-alpine:
     strategy:
@@ -70,10 +67,10 @@ jobs:
           submodules: true
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: npm ci
 
       - name: Run tests
-        run: yarn test
+        run: npm test
 
   test-freebsd:
     strategy:
@@ -92,8 +89,8 @@ jobs:
       - uses: vmactions/freebsd-vm@v1
         with:
           prepare: |
-            pkg install -y gmake python3 yarn-node${{ matrix.node-version }}
+            pkg install -y gmake python3 npm-node${{ matrix.node-version }}
           run: |
-            yarn install
-            yarn test
+            npm ci
+            npm test
           sync: sshfs

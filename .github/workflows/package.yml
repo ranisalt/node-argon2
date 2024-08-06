@@ -1,8 +1,7 @@
-name: Release
+name: Publish package
 
 on:
-  release:
-    types: [published]
+  push:
 
   workflow_dispatch:
     inputs:
@@ -173,7 +172,7 @@ jobs:
           path: prebuilds/**/*.node
 
   publish:
-    name: Publish package
+    name: Upload package artifact
     runs-on: ubuntu-latest
     needs:
       - build
@@ -188,19 +187,17 @@ jobs:
         with:
           submodules: true
 
-      - name: Download artifacts
+      - name: Download prebuild artifacts
         id: download-artifact
         uses: actions/download-artifact@v4
 
       - name: Move prebuild artifacts
         run: mkdir prebuilds && cp --recursive prebuild-*/* prebuilds/
 
-      - name: Publish to NPM
-        run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          npm publish --tag ${{ inputs.npm-tag }} --new-version $(echo $VERSION | sed 's/^v//')
-        if: ${{ !env.ACT }}
-        env:
-          NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          VERSION: ${{ inputs.new-version || github.ref_name }}
+      - name: Pack package
+        run: npm run prepare && npm pack
+
+      - name: Upload package artifact
+        uses: actions/upload-artifact@v4
+        with:
+          path: '*.tgz'

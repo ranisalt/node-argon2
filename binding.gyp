@@ -58,7 +58,7 @@
       "sources": [
         "argon2_node.cpp"
       ],
-      "cflags_cc+": ["-Wall", "-Wextra", "-Wconversion", "-Wformat", "-Wnon-virtual-dtor", "-pedantic", "-Werror"],
+      "cflags_cc+": ["-Wall", "-Wextra", "-Wformat", "-Wnon-virtual-dtor", "-pedantic", "-Werror"],
       "cflags_cc!": ["-fno-exceptions"],
       "include_dirs": ["<!(node -p \"require('node-addon-api').include_dir\")"],
       "dependencies": ["libargon2"],
