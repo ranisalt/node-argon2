@@ -91,6 +91,6 @@ jobs:
           prepare: |
             pkg install -y gmake python3 npm-node${{ matrix.node-version }}
           run: |
-            npm install
+            npm ci
             npm test
           sync: sshfs
