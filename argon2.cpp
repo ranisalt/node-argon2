@@ -1,5 +1,5 @@
 #include "argon2/include/argon2.h"
-#include <cstdint>
+
 #include <napi.h>
 #include <string>
 
