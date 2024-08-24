@@ -17,7 +17,7 @@
   "main": "argon2.cjs",
   "types": "argon2.d.cts",
   "files": [
-    "argon2_node.cpp",
+    "argon2.cpp",
     "argon2.d.cts",
     "argon2.d.cts.map",
     "binding.gyp",

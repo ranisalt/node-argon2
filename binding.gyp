@@ -56,7 +56,7 @@
         "NODE_API_NO_EXTERNAL_BUFFERS_ALLOWED"
       ],
       "sources": [
-        "argon2_node.cpp"
+        "argon2.cpp"
       ],
       "cflags_cc+": ["-Wall", "-Wextra", "-Wformat", "-Wnon-virtual-dtor", "-pedantic", "-Werror"],
       "cflags_cc!": ["-fno-exceptions"],
