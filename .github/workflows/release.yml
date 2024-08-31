@@ -175,6 +175,11 @@ jobs:
   publish:
     name: Publish package
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write
+
     needs:
       - build
       - build-freebsd-x64
@@ -208,10 +213,8 @@ jobs:
 
       - name: Publish to NPM
         run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           npm version --allow-same-version --no-git-tag-version $VERSION
-          npm publish --tag $TAG
+          npm publish --provenance --tag $TAG
         if: ${{ !env.ACT }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
