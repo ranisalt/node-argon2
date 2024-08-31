@@ -188,11 +188,16 @@ jobs:
         with:
           submodules: true
 
-      - name: Setup Node.js
+      - name: Setup npm with Node.js 20
         uses: actions/setup-node@v4
         with:
+          cache: npm
+          node-version: 20
           token: ${{ secrets.NPM_TOKEN }}
           registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
 
       - name: Download artifacts
         id: download-artifact
