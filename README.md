@@ -7,9 +7,6 @@
 Bindings to the reference [Argon2](https://github.com/P-H-C/phc-winner-argon2)
 implementation.
 
-**Want to use it on the command line? Instead check
-[node-argon2-cli](https://github.com/ranisalt/node-argon2-cli).**
-
 ## Usage
 It's possible to hash using either Argon2i, Argon2d or Argon2id (default), and
 verify if a password matches a hash.
