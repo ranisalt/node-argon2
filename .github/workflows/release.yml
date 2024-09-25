@@ -27,7 +27,7 @@ jobs:
         include:
           - os: ubuntu-20.04
             arch: linux-x64-glibc
-          - os: macos-11
+          - os: macos-12
             arch: darwin-x64
           - os: macos-m1
             arch: darwin-arm64
@@ -46,14 +46,14 @@ jobs:
       - name: Use Node.js 20
         uses: actions/setup-node@v4
         with:
-          cache: yarn
+          cache: npm
           node-version: 20
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile --ignore-scripts
+        run: npm ci
 
       - name: Prebuild
-        run: yarn build
+        run: npm run build
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -66,7 +66,7 @@ jobs:
     runs-on: buildjet-2vcpu-ubuntu-2204-arm
 
     container:
-      image: node:20
+      image: node:20-bullseye
 
     steps:
       - name: Install build deps
@@ -78,10 +78,10 @@ jobs:
           submodules: true
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile --ignore-scripts
+        run: npm ci
 
       - name: Prebuild
-        run: yarn build
+        run: npm run build
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -106,10 +106,10 @@ jobs:
           submodules: true
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile --ignore-scripts
+        run: npm ci
 
       - name: Prebuild
-        run: yarn build
+        run: npm run build
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -135,10 +135,10 @@ jobs:
           dockerRunArgs: --volume "${PWD}:/repo" --workdir /repo
           install: |
             apk add --update make g++ python3
-            apk add --no-cache --repository https://dl-cdn.alpinelinux.org/alpine/v3.19/main/ nodejs~=20 yarn
+            apk add --no-cache --repository https://dl-cdn.alpinelinux.org/alpine/v3.19/main/ nodejs~=20 npm
           run: |
-            yarn install --frozen-lockfile --ignore-scripts
-            yarn build
+            npm ci
+            npm run build
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -160,10 +160,10 @@ jobs:
         uses: vmactions/freebsd-vm@v1
         with:
           prepare: |
-            pkg install -y gmake python3 yarn-node20
+            pkg install -y gmake python3 npm-node20
           run: |
-            yarn install --frozen-lockfile --ignore-scripts
-            yarn build
+            npm ci
+            npm run build
           sync: sshfs
 
       - name: Upload artifacts
@@ -175,6 +175,11 @@ jobs:
   publish:
     name: Publish package
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write
+
     needs:
       - build
       - build-freebsd-x64
@@ -188,6 +193,17 @@ jobs:
         with:
           submodules: true
 
+      - name: Setup npm with Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          cache: npm
+          node-version: 20
+          token: ${{ secrets.NPM_TOKEN }}
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
       - name: Download artifacts
         id: download-artifact
         uses: actions/download-artifact@v4
@@ -197,9 +213,10 @@ jobs:
 
       - name: Publish to NPM
         run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          yarn publish --tag ${{ inputs.npm-tag }} --new-version ${{ inputs.new-version || github.ref_name }}
+          npm version --allow-same-version --no-git-tag-version $VERSION
+          npm publish --provenance --tag $TAG
         if: ${{ !env.ACT }}
         env:
-          NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          TAG: ${{ inputs.npm-tag || 'latest' }}
+          VERSION: ${{ inputs.new-version || github.ref_name }}

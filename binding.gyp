@@ -19,18 +19,18 @@
     "configurations": {
       "Release": {
         "target_conditions": [
-          ["OS!='win' and OS!='ios' and OS!='mac'", {
-            "cflags+": ["-fdata-sections", "-ffunction-sections", "-flto", "-fvisibility=hidden"],
-            "ldflags+": ["-Wl,--gc-sections"],
+          ["OS != 'win'", {
+            "cflags+": ["-fdata-sections", "-ffunction-sections"],
+            "ldflags+": ["-Wl,--gc-sections"]
           }],
-          # Avoid defining _FORTIFY_SOURCE on Darwin
-          ["OS!='ios' and OS!='mac'", {
-            "defines+": ["_FORTIFY_SOURCE=2"],
+          ["OS not in 'ios mac'", {
+            # Avoid defining _FORTIFY_SOURCE on Darwin
+            "defines+": ["_FORTIFY_SOURCE=2"]
           }],
-          ["OS=='ios' or OS=='mac'", {
+          ["OS not in 'win ios mac'", {
             # On Darwin with Xcode CLT/LLVM, "-fvisibility=hidden" hide all symbols that
             # not explicitly marked with __attribute__((visibility("default")))
-            "cflags+": ["-fexceptions", "-flto"]
+            "cflags+": ["-fvisibility=hidden"]
           }]
         ],
         "defines+": ["NDEBUG"]
@@ -65,9 +65,9 @@
         "NODE_API_NO_EXTERNAL_BUFFERS_ALLOWED"
       ],
       "sources": [
-        "argon2_node.cpp"
+        "argon2.cpp"
       ],
-      "cflags_cc+": ["-Wall", "-Wextra", "-Wconversion", "-Wformat", "-Wnon-virtual-dtor", "-pedantic", "-Werror"],
+      "cflags_cc+": ["-Wall", "-Wextra", "-Wformat", "-Wnon-virtual-dtor", "-pedantic", "-Werror"],
       "cflags_cc!": ["-fno-exceptions"],
       "include_dirs": ["<!(node -p \"require('node-addon-api').include_dir\")"],
       "dependencies": ["libargon2"],

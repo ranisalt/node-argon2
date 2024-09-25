@@ -14,19 +14,55 @@ jobs:
           submodules: true
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: npm ci
 
       - name: Lint
-        run: yarn lint
+        run: npm run lint
 
-      - name: Audit
-        run: yarn audit
+  coverage:
+    name: Report coverage
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          cache: npm
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          npm_config_debug: true
+
+      - name: Run tests
+        run: node --test --experimental-test-coverage --test-reporter=lcov --test-reporter-destination=lcov.info test.cjs
+
+      - name: Install lcov
+        run: sudo apt install -yq lcov
+
+      - name: Merge coverage reports
+        run: |
+          lcov --capture --directory . --no-external --output-file lcov-cpp.info
+          lcov --add-tracefile lcov-cpp.info --add-tracefile lcov.info --output-file lcov.info
+          lcov --remove lcov.info "*/node_modules/*" --output-file lcov.info
+
+      - name: "Send to Codacy"
+        uses: codacy/codacy-coverage-reporter-action@v1
+        with:
+          coverage-reports: lcov.info
+          project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
 
   test:
     strategy:
       matrix:
         node-version: [18, 20, 22]
-        os: [ubuntu-20.04, macos-11, macos-m1, windows-2019]
+        os: [ubuntu-20.04, macos-12, macos-m1, windows-2019]
 
     name: Test for node-${{ matrix.node-version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -40,14 +76,14 @@ jobs:
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
-          cache: yarn
+          cache: npm
           node-version: ${{ matrix.node-version }}
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: npm ci
 
       - name: Run tests
-        run: yarn test
+        run: npm test
 
   test-alpine:
     strategy:
@@ -70,10 +106,10 @@ jobs:
           submodules: true
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: npm ci
 
       - name: Run tests
-        run: yarn test
+        run: npm test
 
   test-freebsd:
     strategy:
@@ -92,8 +128,8 @@ jobs:
       - uses: vmactions/freebsd-vm@v1
         with:
           prepare: |
-            pkg install -y gmake python3 yarn-node${{ matrix.node-version }}
+            pkg install -y gmake python3 npm-node${{ matrix.node-version }}
           run: |
-            yarn install
-            yarn test
+            npm ci
+            npm test
           sync: sshfs
