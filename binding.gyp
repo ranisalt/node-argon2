@@ -23,7 +23,7 @@
             # Avoid defining _FORTIFY_SOURCE on Darwin
             "defines+": ["_FORTIFY_SOURCE=2"]
           }],
-          ["OS not in 'win ios mac'", {
+          ["OS not in 'win ios mac aix'", {
             # On Darwin with Xcode CLT/LLVM, "-fvisibility=hidden" hide all symbols that
             # not explicitly marked with __attribute__((visibility("default")))
             # Flags for sections are specific to ELF binaries
