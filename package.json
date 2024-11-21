@@ -48,17 +48,17 @@
   },
   "dependencies": {
     "@phc/format": "^1.0.0",
-    "node-addon-api": "^8.1.0",
-    "node-gyp-build": "^4.8.1"
+    "node-addon-api": "^8.2.2",
+    "node-gyp-build": "^4.8.4"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
-    "@types/node": "20.16.1",
+    "@types/node": "22.9.1",
     "node-gyp": "10.2.0",
     "prebuildify": "6.0.1",
     "typescript": "5.6.3"
   },
-  "packageManager": "npm@10.8.2+sha512.c7f0088c520a46596b85c6f8f1da943400199748a0f7ea8cb8df75469668dc26f6fb3ba26df87e2884a5ebe91557292d0f3db7d0929cdb4f14910c3032ac81fb",
+  "packageManager": "npm@10.9.0+sha512.65a9c38a8172948f617a53619762cd77e12b9950fe1f9239debcb8d62c652f2081824b986fee7c0af6c0a7df615becebe4bf56e17ec27214a87aa29d9e038b4b",
   "engines": {
     "node": ">=16.17.0"
   },
