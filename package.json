@@ -17,6 +17,7 @@
   "main": "argon2.cjs",
   "types": "argon2.d.cts",
   "files": [
+    "build.js",
     "argon2.cpp",
     "argon2.d.cts",
     "argon2.d.cts.map",
@@ -41,7 +42,7 @@
   },
   "scripts": {
     "build": "prebuildify --napi --strip --tag-armv --tag-libc",
-    "install": "node-gyp-build",
+    "install": "node build.js",
     "lint": "biome check .",
     "prepare": "tsc",
     "test": "node --test test.cjs"
