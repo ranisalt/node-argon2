@@ -9,7 +9,8 @@
         "xcode_settings": {
           "CLANG_CXX_LIBRARY": "libc++",
           "GCC_ENABLE_CPP_EXCEPTIONS": "YES",
-          "MACOSX_DEPLOYMENT_TARGET": "10.7"
+          "MACOSX_DEPLOYMENT_TARGET": "10.7",
+          "OTHER_CFLAGS+": ["-g0"],
         }
       }],
       ["OS == 'win'", {
