@@ -63,7 +63,7 @@ module.exports.limits = limits;
  * @overload
  * @param {Buffer | string} password The plaintext password to be hashed
  * @param {Options & { raw: true }} options The parameters for Argon2
- * @returns {Promise<Buffer>} The raw hash generated from `plain`
+ * @returns {Promise<Buffer>} The raw hash generated from `password`
  */
 /**
  * Hashes a password with Argon2, producing an encoded hash
@@ -71,7 +71,7 @@ module.exports.limits = limits;
  * @overload
  * @param {Buffer | string} password The plaintext password to be hashed
  * @param {Options & { raw?: boolean }} [options] The parameters for Argon2
- * @returns {Promise<string>} The encoded hash generated from `plain`
+ * @returns {Promise<string>} The encoded hash generated from `password`
  */
 /**
  * @param {Buffer | string} password The plaintext password to be hashed
@@ -152,7 +152,7 @@ module.exports.needsRehash = needsRehash;
  * @param {Buffer | string} password The plaintext password to be verified
  * @param {Object} [options] The current parameters for Argon2
  * @param {Buffer} [options.secret]
- * @returns {Promise<boolean>} `true` if the digest parameters matches the hash generated from `plain`, otherwise `false`
+ * @returns {Promise<boolean>} `true` if the digest parameters matches the hash generated from `password`, otherwise `false`
  */
 async function verify(digest, password, options = {}) {
   const { id, ...rest } = deserialize(digest);
