@@ -56,7 +56,7 @@
     "@types/node": "22.9.1",
     "node-gyp": "10.2.0",
     "prebuildify": "6.0.1",
-    "typescript": "5.6.3"
+    "typescript": "5.7.3"
   },
   "packageManager": "npm@10.9.0+sha512.65a9c38a8172948f617a53619762cd77e12b9950fe1f9239debcb8d62c652f2081824b986fee7c0af6c0a7df615becebe4bf56e17ec27214a87aa29d9e038b4b",
   "engines": {
