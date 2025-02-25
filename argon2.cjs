@@ -137,14 +137,22 @@ module.exports.hash = hash;
  * @returns {boolean} `true` if the digest parameters do not match the parameters in `options`, otherwise `false`
  */
 function needsRehash(digest, options = {}) {
-  const { memoryCost, timeCost, parallelism, version } = { ...defaults, ...options };
+  const { memoryCost, timeCost, parallelism, version } = {
+    ...defaults,
+    ...options,
+  };
 
   const {
     version: v,
     params: { m, t, p },
   } = deserialize(digest);
 
-  return +v !== +version || +m !== +memoryCost || +t !== +timeCost || +p !== +parallelism;
+  return (
+    +v !== +version ||
+    +m !== +memoryCost ||
+    +t !== +timeCost ||
+    +p !== +parallelism
+  );
 }
 module.exports.needsRehash = needsRehash;
 

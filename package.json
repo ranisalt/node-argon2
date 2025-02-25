@@ -48,18 +48,18 @@
   },
   "dependencies": {
     "@phc/format": "^1.0.0",
-    "node-addon-api": "^8.2.2",
+    "node-addon-api": "^8.3.1",
     "node-gyp-build": "^4.8.4"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
     "@tsconfig/node18": "18.2.4",
-    "@types/node": "22.9.1",
-    "node-gyp": "10.2.0",
+    "@types/node": "22.13.5",
+    "node-gyp": "11.1.0",
     "prebuildify": "6.0.1",
     "typescript": "5.7.3"
   },
-  "packageManager": "npm@10.9.0+sha512.65a9c38a8172948f617a53619762cd77e12b9950fe1f9239debcb8d62c652f2081824b986fee7c0af6c0a7df615becebe4bf56e17ec27214a87aa29d9e038b4b",
+  "packageManager": "npm@11.1.0+sha512.acf301ad9b9ddba948fcb72341e2f0fcae477f56a95cc2a092934d133a7461062633cefbf93d5934a3dc0768674e2edee9f04dcfcc4bb4c327ff0e3a7d552a1b",
   "engines": {
     "node": ">=16.17.0"
   },
