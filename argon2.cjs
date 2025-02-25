@@ -133,17 +133,18 @@ module.exports.hash = hash;
  * @param {number} [options.timeCost=3]
  * @param {number} [options.memoryCost=65536]
  * @param {number} [options.parallelism=4]
+ * @param {number} [options.version=0x13]
  * @returns {boolean} `true` if the digest parameters do not match the parameters in `options`, otherwise `false`
  */
 function needsRehash(digest, options = {}) {
-  const { memoryCost, timeCost, version } = { ...defaults, ...options };
+  const { memoryCost, timeCost, parallelism, version } = { ...defaults, ...options };
 
   const {
     version: v,
-    params: { m, t },
+    params: { m, t, p },
   } = deserialize(digest);
 
-  return +v !== +version || +m !== +memoryCost || +t !== +timeCost;
+  return +v !== +version || +m !== +memoryCost || +t !== +timeCost || +p !== +parallelism;
 }
 module.exports.needsRehash = needsRehash;
 
