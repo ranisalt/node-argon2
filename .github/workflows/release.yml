@@ -27,9 +27,9 @@ jobs:
         include:
           - os: ubuntu-20.04
             arch: linux-x64-glibc
-          - os: macos-12
+          - os: macos-13
             arch: darwin-x64
-          - os: macos-m1
+          - os: macos-14
             arch: darwin-arm64
           - os: windows-2019
             arch: win32-x64
