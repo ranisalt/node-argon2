@@ -1,6 +1,6 @@
 {
   "name": "argon2",
-  "version": "0.41.1",
+  "version": "0.42.0",
   "description": "An Argon2 library for Node",
   "keywords": ["argon2", "crypto", "encryption", "hashing", "password"],
   "homepage": "https://github.com/ranisalt/node-argon2#readme",
@@ -54,12 +54,12 @@
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
     "@tsconfig/node18": "18.2.4",
-    "@types/node": "22.13.5",
+    "@types/node": "22.13.10",
     "node-gyp": "11.1.0",
     "prebuildify": "6.0.1",
-    "typescript": "5.7.3"
+    "typescript": "5.8.2"
   },
-  "packageManager": "npm@11.1.0+sha512.acf301ad9b9ddba948fcb72341e2f0fcae477f56a95cc2a092934d133a7461062633cefbf93d5934a3dc0768674e2edee9f04dcfcc4bb4c327ff0e3a7d552a1b",
+  "packageManager": "npm@11.2.0+sha512.3dc9c50ba813a3d54393155a435fe66404b72685ab0e3008f9ae9ed8d81f6104860f07ed2656dd5748c1322d95f3140fa9b19c59a6bba7750fd12285f81866da",
   "engines": {
     "node": ">=16.17.0"
   },
