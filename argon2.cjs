@@ -27,22 +27,14 @@ const names = Object.freeze({
   [types.argon2id]: "argon2id",
 });
 
-const defaults = Object.freeze({
+const defaults = {
   hashLength: 32,
   timeCost: 3,
   memoryCost: 1 << 16,
   parallelism: 4,
   type: argon2id,
   version: 0x13,
-});
-
-const limits = Object.freeze({
-  hashLength: { min: 4, max: 2 ** 32 - 1 },
-  memoryCost: { min: 1 << 10, max: 2 ** 32 - 1 },
-  timeCost: { min: 2, max: 2 ** 32 - 1 },
-  parallelism: { min: 1, max: 2 ** 24 - 1 },
-});
-module.exports.limits = limits;
+};
 
 /**
  * @typedef {Object} Options
@@ -80,12 +72,20 @@ module.exports.limits = limits;
 async function hash(password, options) {
   let { raw, salt, ...rest } = { ...defaults, ...options };
 
-  for (const [key, { min, max }] of Object.entries(limits)) {
-    const value = rest[key];
-    assert(
-      min <= value && value <= max,
-      `Invalid ${key}, must be between ${min} and ${max}.`,
-    );
+  if (rest.hashLength > 2 ** 32 - 1) {
+    throw new RangeError("Hash length is too large");
+  }
+
+  if (rest.memoryCost > 2 ** 32 - 1) {
+    throw new RangeError("Memory cost is too large");
+  }
+
+  if (rest.timeCost > 2 ** 32 - 1) {
+    throw new RangeError("Time cost is too large");
+  }
+
+  if (rest.parallelism > 2 ** 24 - 1) {
+    throw new RangeError("Parallelism is too large");
   }
 
   salt = salt ?? (await generateSalt(16));

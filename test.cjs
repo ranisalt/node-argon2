@@ -2,7 +2,7 @@ const assert = require("node:assert/strict");
 const { describe, it } = require("node:test");
 const argon2 = require("./argon2.cjs");
 
-const { argon2i, argon2d, argon2id, limits } = argon2;
+const { argon2i, argon2d, argon2id } = argon2;
 
 const password = "password";
 const salt = Buffer.alloc(16, "salt");
@@ -121,17 +121,11 @@ describe("set options", () => {
     assert.match(await argon2.hash(password, { timeCost: 4 }), /t=4/);
   });
 
-  it("hash with low time cost", async () => {
+  it("hash with high time cost", () => {
     assert.rejects(
-      argon2.hash(password, { timeCost: limits.timeCost.min - 1 }),
-      /invalid timeCost.+between \d+ and \d+/i,
-    );
-  });
-
-  it("hash with high time cost", async () => {
-    assert.rejects(
-      argon2.hash(password, { timeCost: limits.timeCost.max + 1 }),
-      /invalid timeCost.+between \d+ and \d+/i,
+      argon2.hash(password, { timeCost: Number.MAX_SAFE_INTEGER }),
+      RangeError,
+      "Time cost is too large",
     );
   });
 
@@ -140,17 +134,11 @@ describe("set options", () => {
     assert.match(await argon2.hash(password, { hashLength: 4 }), /\$[^$]{6}$/);
   });
 
-  it("hash with low hash length", async () => {
+  it("hash with high hash length", () => {
     assert.rejects(
-      argon2.hash(password, { hashLength: limits.hashLength.min - 1 }),
-      /invalid hashLength.+between \d+ and \d+/i,
-    );
-  });
-
-  it("hash with high hash length", async () => {
-    assert.rejects(
-      argon2.hash(password, { hashLength: limits.hashLength.max + 1 }),
-      /invalid hashLength.+between \d+ and \d+/i,
+      argon2.hash(password, { hashLength: Number.MAX_SAFE_INTEGER }),
+      RangeError,
+      "Hash length is too large",
     );
   });
 
@@ -161,17 +149,11 @@ describe("set options", () => {
     );
   });
 
-  it("hash with low memory cost", async () => {
+  it("hash with high memory cost", () => {
     assert.rejects(
-      argon2.hash(password, { memoryCost: limits.memoryCost.min / 2 }),
-      /invalid memoryCost.+between \d+ and \d+/i,
-    );
-  });
-
-  it("hash with high memory cost", async () => {
-    assert.rejects(
-      argon2.hash(password, { memoryCost: limits.memoryCost.max * 2 }),
-      /invalid memoryCost.+between \d+ and \d+/i,
+      argon2.hash(password, { memoryCost: Number.MAX_SAFE_INTEGER }),
+      RangeError,
+      "Memory cost is too large",
     );
   });
 
@@ -179,17 +161,11 @@ describe("set options", () => {
     assert.match(await argon2.hash(password, { parallelism: 2 }), /p=2/);
   });
 
-  it("hash with low parallelism", async () => {
+  it("hash with high parallelism", () => {
     assert.rejects(
-      argon2.hash(password, { parallelism: limits.parallelism.min - 1 }),
-      /invalid parallelism.+between \d+ and \d+/i,
-    );
-  });
-
-  it("hash with high parallelism", async () => {
-    assert.rejects(
-      argon2.hash(password, { parallelism: limits.parallelism.max + 1 }),
-      /invalid parallelism.+between \d+ and \d+/i,
+      argon2.hash(password, { parallelism: Number.MAX_SAFE_INTEGER }),
+      RangeError,
+      "Parallelism is too large",
     );
   });
 
