@@ -60,16 +60,29 @@ jobs:
           name: prebuild-${{ matrix.arch }}
           path: prebuilds/**/*.node
 
-  build-linux-arm64-glibc:
-    name: Build for linux-arm64-glibc
+  build-linux-arm64:
+    strategy:
+      matrix:
+        include:
+          - os: bullsye
+            libc: glibc
+          - os: alpine
+            libc: musl
+
+    name: Build for linux-arm64-${{ matrix.libc }}
     runs-on: buildjet-2vcpu-ubuntu-2204-arm
 
     container:
-      image: node:20-bullseye
+      image: node:20-${{ matrix.os }}
 
     steps:
       - name: Install build deps
+        if: matrix.libc == 'glibc'
         run: apt update -yq && apt install -yq g++ git make python3
+
+      - name: Install build deps
+        if: matrix.libc == 'musl'
+        run: apk add --no-cache g++ git make python3
 
       - name: Checkout
         uses: actions/checkout@v4
@@ -85,7 +98,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: prebuild-linux-arm64-glibc
+          name: prebuild-linux-arm64-${{ matrix.libc }}
           path: prebuilds/**/*.node
 
   build-linux-x64-musl:
@@ -114,35 +127,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: prebuild-linux-x64-musl
-          path: prebuilds/**/*.node
-
-  build-linux-arm64-musl:
-    name: Build for linux-arm64-musl
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          submodules: true
-
-      - name: Prebuild
-        uses: uraimo/run-on-arch-action@v2
-        with:
-          arch: aarch64
-          distro: alpine_latest
-          dockerRunArgs: --volume "${PWD}:/repo" --workdir /repo
-          install: |
-            apk add --update make g++ python3
-            apk add --no-cache --repository https://dl-cdn.alpinelinux.org/alpine/v3.19/main/ nodejs~=20 npm
-          run: |
-            npm ci
-            npm run build
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: prebuild-linux-arm64-musl
           path: prebuilds/**/*.node
 
   build-freebsd-x64:
@@ -178,8 +162,7 @@ jobs:
     needs:
       - build
       - build-freebsd-x64
-      - build-linux-arm64-glibc
-      - build-linux-arm64-musl
+      - build-linux-arm64
       - build-linux-x64-musl
 
     steps:
