@@ -201,6 +201,37 @@ jobs:
           name: prebuild-linux-armv7-musl
           path: prebuilds/**/*.node
 
+  build-linux-armv7-glibc:
+    name: Build for linux-armv7-glibc
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Prebuild
+        uses: uraimo/run-on-arch-action@v2
+        with:
+          arch: armv7
+          distro: ubuntu_latest
+          dockerRunArgs: --volume "${PWD}:/repo" --workdir /repo
+          install: |
+            apt update -yq
+            apt install -yq curl
+            curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+            apt install -yq g++ git make python3 nodejs
+          run: |
+            npm ci
+            npm run build
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: prebuild-linux-armv7-glibc
+          path: prebuilds/**/*.node
+
   publish:
     name: Publish package
     runs-on: ubuntu-latest
@@ -216,6 +247,7 @@ jobs:
       - build-linux-arm64-musl
       - build-linux-x64-musl
       - build-linux-armv7-musl
+      - build-linux-armv7-glibc
 
     steps:
       - name: Checkout
