@@ -57,7 +57,7 @@
     "@types/node": "22.13.10",
     "node-gyp": "11.1.0",
     "prebuildify": "6.0.1",
-    "typescript": "5.8.2"
+    "typescript": "5.8.3"
   },
   "packageManager": "npm@11.2.0+sha512.3dc9c50ba813a3d54393155a435fe66404b72685ab0e3008f9ae9ed8d81f6104860f07ed2656dd5748c1322d95f3140fa9b19c59a6bba7750fd12285f81866da",
   "engines": {
