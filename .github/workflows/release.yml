@@ -172,6 +172,66 @@ jobs:
           name: prebuild-freebsd-x64
           path: prebuilds/**/*.node
 
+  build-linux-armv7-musl:
+    name: Build for linux-armv7-musl
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Prebuild
+        uses: uraimo/run-on-arch-action@v2
+        with:
+          arch: armv7
+          distro: alpine_latest
+          dockerRunArgs: --volume "${PWD}:/repo" --workdir /repo
+          install: |
+            apk add --update make g++ python3
+            apk add --no-cache --repository https://dl-cdn.alpinelinux.org/alpine/v3.19/main/ nodejs~=20 npm
+          run: |
+            npm ci
+            npm run build
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: prebuild-linux-armv7-musl
+          path: prebuilds/**/*.node
+
+  build-linux-armv7-glibc:
+    name: Build for linux-armv7-glibc
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Prebuild
+        uses: uraimo/run-on-arch-action@v2
+        with:
+          arch: armv7
+          distro: ubuntu_latest
+          dockerRunArgs: --volume "${PWD}:/repo" --workdir /repo
+          install: |
+            apt update -yq
+            apt install -yq curl
+            curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+            apt install -yq g++ git make python3 nodejs
+          run: |
+            npm ci
+            npm run build
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: prebuild-linux-armv7-glibc
+          path: prebuilds/**/*.node
+
   publish:
     name: Publish package
     runs-on: ubuntu-latest
@@ -186,6 +246,8 @@ jobs:
       - build-linux-arm64-glibc
       - build-linux-arm64-musl
       - build-linux-x64-musl
+      - build-linux-armv7-musl
+      - build-linux-armv7-glibc
 
     steps:
       - name: Checkout
