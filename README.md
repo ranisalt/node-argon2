@@ -148,24 +148,6 @@ you'll need to specify that in the command.
   This seems to be an issue related to snap (see [#345 (comment)](https://github.com/ranisalt/node-argon2/issues/345#issuecomment-1164178674)). Installing Node with another package manager, such as [asdf](https://asdf-vm.com/) or [nvm](https://github.com/nvm-sh/nvm), is a possible workaround.
 </details>
 
-### Differences from [node-argon2-ffi](https://github.com/cjlarose/argon2-ffi)
-The interface of both are very similar, notably, node-argon2-ffi splits the
-argon2i and argon2d function set, but this module also has the argon2id option,
-which node-argon2-ffi **does not support**.  Also, while node-argon2-ffi
-suggests you promisify `crypto.randomBytes`, node-argon2 library does that
-internally.
-
-**node-argon2** is much lighter than **node-argon2-ffi**, at 184 KB for
-argon2@0.29.1 against 2.56 MB for argon2-ffi@1.2.0. Performance-wise, the
-libraries are equal. You can run the same benchmark suite if you are curious,
-but both can perform around 130 hashes/second on an Intel Core i5-4460 @ 3.2GHz
-with default options.
-
-This library is implemented natively, meaning it is an extension to the node
-engine. Thus, half of the code is C++ bindings, the other half is Javascript
-functions. node-argon2-ffi uses ffi, a mechanism to call functions from one
-language in another, and handles the type bindings (e.g. JS Number -> C++ int).
-
 ## Contributors
 
 ### Code contributors
