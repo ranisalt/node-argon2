@@ -59,11 +59,11 @@ const hash = await argon2.hash(..);
 built every release using GitHub Actions.
 
 The current prebuilt binaries are built and tested with the following systems:
-- Ubuntu 20.04 (x86-64; ARM64 from v0.28.2)
-- MacOS 11 (x86-64)
-- MacOS 12 (ARM64 from v0.29.0)
+- Ubuntu 20.04 (x86-64; ARM64 from v0.28.2; ARMv7 from v0.43.0)
+- MacOS 13 (x86-64)
+- MacOS 14 (ARM64 from v0.29.0)
 - Windows Server 2019 (x86-64)
-- Alpine Linux 3.18 (x86-64 from v0.28.1; ARM64 from v0.28.2)
+- Alpine Linux 3.18 (x86-64 from v0.28.1; ARM64 from v0.28.2; ARMv7 from v0.43.0)
 - FreeBSD 14 (x86-64 from v0.29.1)
 
 Binaries should also work for any version more recent than the ones listed
