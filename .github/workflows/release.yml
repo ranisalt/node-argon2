@@ -212,11 +212,11 @@ jobs:
 
       - name: Pack package
         run: npm pack
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' || github.event_name == 'pull_request' }}
 
       - name: Upload package artifact
         uses: actions/upload-artifact@v4
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' || github.event_name == 'pull_request' }}
         with:
           name: package
           path: '*.tgz'
@@ -225,7 +225,7 @@ jobs:
         run: |
           npm version --allow-same-version --no-git-tag-version $VERSION
           npm publish --provenance --tag $TAG
-        if: ${{ !env.ACT && github.event_name != 'push' }}
+        if: ${{ !env.ACT && (github.event_name == 'release' || github.event_name == 'workflow_dispatch') }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           TAG: ${{ inputs.npm-tag || 'latest' }}
