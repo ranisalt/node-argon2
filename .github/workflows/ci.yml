@@ -133,3 +133,26 @@ jobs:
             npm ci
             npm test
           sync: sshfs
+
+  build-with-fortify-source:
+    strategy:
+      matrix:
+        cppflags: ['', '-D _FORTIFY_SOURCE=2', '-D _FORTIFY_SOURCE=3', '-D_FORTIFY_SOURCE=2', '-D_FORTIFY_SOURCE=3']
+
+    name: Test that setting _FORTIFY_SOURCE will not break the build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Use Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          cache: npm
+          node-version: 22
+
+      - name: Install
+        run: CPPFLAGS="${{ matrix.cppflags }}" npm ci
