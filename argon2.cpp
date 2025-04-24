@@ -14,10 +14,10 @@ public:
                uint32_t memory_cost, uint32_t time_cost, uint32_t parallelism,
                uint32_t version, uint32_t type)
         : AsyncWorker{env, "argon2:HashWorker"}, deferred{env},
-          plain{plain.Data(), plain.ByteLength()},
-          salt{salt.Data(), salt.ByteLength()},
-          secret{secret.Data(), secret.ByteLength()},
-          ad{ad.Data(), ad.ByteLength()}, hash_length{hash_length},
+          plain{plain.Data(), plain.Data() + plain.ByteLength()},
+          salt{salt.Data(), salt.Data() + salt.ByteLength()},
+          secret{secret.Data(), secret.Data() + secret.ByteLength()},
+          ad{ad.Data(), ad.Data() + ad.ByteLength()}, hash_length{hash_length},
           memory_cost{memory_cost}, time_cost{time_cost},
           parallelism{parallelism}, version{version},
           type{static_cast<argon2_type>(type)} {}
@@ -65,7 +65,7 @@ protected:
     }
 
 private:
-    using ustring = std::basic_string<uint8_t>;
+    using ustring = std::vector<uint8_t>;
 
     Napi::Promise::Deferred deferred;
     ustring hash = {};
