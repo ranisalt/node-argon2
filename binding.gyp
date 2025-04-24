@@ -1,4 +1,7 @@
 {
+  "variables": {
+    "fortify_source_defined": "<!(node -p \"/-D\\s*_FORTIFY_SOURCE=/.test((process.env.CFLAGS || '') + (process.env.CPPFLAGS || '') + (process.env.CXXFLAGS || ''))\")",
+  },
   "target_defaults": {
     "include_dirs": ["argon2/include"],
     "target_conditions": [
@@ -19,9 +22,11 @@
     "configurations": {
       "Release": {
         "target_conditions": [
+          # Define _FORTIFY_SOURCE on non-Darwin, but avoid overriding it if already set
           ["OS not in 'ios mac'", {
-            # Avoid defining _FORTIFY_SOURCE on Darwin
-            "defines+": ["_FORTIFY_SOURCE=2"]
+            "conditions": [
+              ["fortify_source_defined=='false'", {"defines+": ["_FORTIFY_SOURCE=2"]}]
+            ]
           }],
           ["OS not in 'win ios mac aix'", {
             # On Darwin with Xcode CLT/LLVM, "-fvisibility=hidden" hide all symbols that
