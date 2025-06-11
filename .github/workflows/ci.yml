@@ -52,7 +52,7 @@ jobs:
           lcov --add-tracefile lcov-cpp.info --add-tracefile lcov.info --output-file lcov.info
           lcov --remove lcov.info "*/node_modules/*" --output-file lcov.info
 
-      - name: "Send to Codacy"
+      - name: Send to Codacy
         uses: codacy/codacy-coverage-reporter-action@v1
         with:
           coverage-reports: lcov.info
@@ -61,7 +61,7 @@ jobs:
   test:
     strategy:
       matrix:
-        node-version: [18, 20, 22]
+        node-version: [20, 22]
         os: [ubuntu-22.04, macos-13, macos-14, windows-2019]
 
     name: Test for node-${{ matrix.node-version }} on ${{ matrix.os }}
@@ -88,7 +88,7 @@ jobs:
   test-alpine:
     strategy:
       matrix:
-        node-version: [18, 20, 22]
+        node-version: [20, 22]
 
     name: Test for node-${{ matrix.node-version }} on Alpine Linux
     runs-on: ubuntu-latest
@@ -114,7 +114,7 @@ jobs:
   test-freebsd:
     strategy:
       matrix:
-        node-version: [18, 20]
+        node-version: [20, 22]
 
     name: Test for node-${{ matrix.node-version }} on FreeBSD
     runs-on: ubuntu-latest
