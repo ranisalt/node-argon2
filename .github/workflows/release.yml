@@ -113,8 +113,16 @@ jobs:
           name: prebuild-linux-${{ matrix.arch }}-musl
           path: prebuilds/**/*.node
 
-  build-freebsd-x64:
-    name: Build for freebsd-x64
+  build-freebsd:
+    strategy:
+      matrix:
+        include:
+          - vm-arch: aarch64
+            arch: arm64
+          - vm-arch: x86_64
+            arch: x64
+
+    name: Build for freebsd-${{ matrix.arch }}
     runs-on: ubuntu-latest
 
     steps:
@@ -126,6 +134,7 @@ jobs:
       - name: Prebuild
         uses: vmactions/freebsd-vm@v1
         with:
+          arch: ${{ matrix.vm-arch }}
           prepare: |
             pkg install -y gmake python3 npm-node20
           run: |
@@ -136,7 +145,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: prebuild-freebsd-x64
+          name: prebuild-freebsd-${{ matrix.arch }}
           path: prebuilds/**/*.node
 
   build-linux-armv7-glibc:
@@ -183,7 +192,7 @@ jobs:
     needs:
       - build
       - build-musl
-      - build-freebsd-x64
+      - build-freebsd
       - build-linux-armv7-glibc
 
     steps:
