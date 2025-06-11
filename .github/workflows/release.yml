@@ -39,7 +39,7 @@ jobs:
             arch: darwin-x64
           - os: macos-14
             arch: darwin-arm64
-          - os: windows-2019
+          - os: windows-2022
             arch: win32-x64
 
     name: Build for ${{ matrix.arch }}
