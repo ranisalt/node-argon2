@@ -1,6 +1,6 @@
 {
   "name": "argon2",
-  "version": "0.43.0",
+  "version": "0.43.1",
   "description": "An Argon2 library for Node",
   "keywords": ["argon2", "crypto", "encryption", "hashing", "password"],
   "homepage": "https://github.com/ranisalt/node-argon2#readme",
