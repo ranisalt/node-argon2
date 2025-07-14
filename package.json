@@ -2,7 +2,13 @@
   "name": "argon2",
   "version": "0.43.0",
   "description": "An Argon2 library for Node",
-  "keywords": ["argon2", "crypto", "encryption", "hashing", "password"],
+  "keywords": [
+    "argon2",
+    "crypto",
+    "encryption",
+    "hashing",
+    "password"
+  ],
   "homepage": "https://github.com/ranisalt/node-argon2#readme",
   "bugs": {
     "url": "https://github.com/ranisalt/node-argon2/issues"
@@ -37,7 +43,9 @@
     "prebuilds/**/*.node"
   ],
   "binary": {
-    "napi_versions": [8]
+    "napi_versions": [
+      8
+    ]
   },
   "scripts": {
     "build": "prebuildify --napi --strip --tag-armv --tag-libc",
@@ -48,18 +56,18 @@
   },
   "dependencies": {
     "@phc/format": "^1.0.0",
-    "node-addon-api": "^8.3.1",
+    "node-addon-api": "^8.4.0",
     "node-gyp-build": "^4.8.4"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
     "@tsconfig/node18": "18.2.4",
-    "@types/node": "22.13.10",
+    "@types/node": "22.16.3",
     "node-gyp": "11.2.0",
     "prebuildify": "6.0.1",
-    "typescript": "5.8.3"
+    "typescript": "5.6.3"
   },
-  "packageManager": "npm@11.2.0+sha512.3dc9c50ba813a3d54393155a435fe66404b72685ab0e3008f9ae9ed8d81f6104860f07ed2656dd5748c1322d95f3140fa9b19c59a6bba7750fd12285f81866da",
+  "packageManager": "npm@11.4.2+sha512.f90c1ec8b207b625d6edb6693aef23dacb39c38e4217fe8c46a973f119cab392ac0de23fe3f07e583188dae9fd9108b3845ad6f525b598742bd060ebad60bff3",
   "engines": {
     "node": ">=16.17.0"
   },
