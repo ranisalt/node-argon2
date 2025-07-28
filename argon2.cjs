@@ -1,4 +1,3 @@
-const assert = require("node:assert");
 const { randomBytes, timingSafeEqual } = require("node:crypto");
 const { promisify } = require("node:util");
 const { deserialize, serialize } = require("@phc/format");
