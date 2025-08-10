@@ -9,13 +9,24 @@
         "xcode_settings": {
           "CLANG_CXX_LIBRARY": "libc++",
           "GCC_ENABLE_CPP_EXCEPTIONS": "YES",
-          "MACOSX_DEPLOYMENT_TARGET": "10.7"
+          "MACOSX_DEPLOYMENT_TARGET": "10.7",
+          "OTHER_CFLAGS+": ["-g0"],
         }
       }],
       ["OS == 'win'", {
         "defines+": ["_HAS_EXCEPTIONS=1"],
         "msvs_settings": {
-          "VCCLCompilerTool": { "ExceptionHandling": 1 }
+          "VCCLCompilerTool": { "ExceptionHandling": 1 },
+          "VCLinkerTool": {
+            "AdditionalOptions": [
+              # Reproducible builds: Do not include timestamps in binary
+              "/Brepro",
+              # Reproducible builds: Omit debug info (to avoid mismatching paths or RSDS signature)
+              "/DEBUG:NONE",
+              # Reproducible builds: Disable incremental building
+              "/INCREMENTAL:NO"
+            ]
+          }
         }
       }]
     ],

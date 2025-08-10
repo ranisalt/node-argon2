@@ -49,13 +49,14 @@
   },
   "scripts": {
     "build": "prebuildify --napi --strip --tag-armv --tag-libc",
-    "install": "node-gyp-build",
+    "install": "cross-env ZERO_AR_DATE=1 node-gyp-build",
     "lint": "biome check .",
     "prepare": "tsc",
     "test": "node --test test.cjs"
   },
   "dependencies": {
     "@phc/format": "^1.0.0",
+    "cross-env": "^10.0.0",
     "node-addon-api": "^8.5.0",
     "node-gyp-build": "^4.8.4"
   },
