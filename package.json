@@ -61,7 +61,7 @@
     "node-gyp-build": "^4.8.4"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.2.0",
+    "@biomejs/biome": "2.2.2",
     "@tsconfig/node18": "18.2.4",
     "@types/node": "22.16.3",
     "node-gyp": "11.3.0",
