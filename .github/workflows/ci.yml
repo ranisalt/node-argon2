@@ -31,11 +31,11 @@ jobs:
         with:
           submodules: true
 
-      - name: Use Node.js 20
+      - name: Use Node.js 24
         uses: actions/setup-node@v4
         with:
           cache: npm
-          node-version: 20
+          node-version: 24
 
       - name: Install dependencies
         run: npm ci
@@ -63,7 +63,7 @@ jobs:
   test:
     strategy:
       matrix:
-        node-version: [20, 22]
+        node-version: [20, 22, 24]
         os: [ubuntu-22.04, macos-13, macos-14, windows-2022]
 
     name: Test for node-${{ matrix.node-version }} on ${{ matrix.os }}
@@ -90,7 +90,7 @@ jobs:
   test-alpine:
     strategy:
       matrix:
-        node-version: [20, 22]
+        node-version: [20, 22, 24]
 
     name: Test for node-${{ matrix.node-version }} on Alpine Linux
     runs-on: ubuntu-latest
@@ -116,7 +116,7 @@ jobs:
   test-freebsd:
     strategy:
       matrix:
-        node-version: [20, 22]
+        node-version: [20, 22, 24]
 
     name: Test for node-${{ matrix.node-version }} on FreeBSD
     runs-on: ubuntu-latest
@@ -150,11 +150,11 @@ jobs:
         with:
           submodules: true
 
-      - name: Use Node.js 22
+      - name: Use Node.js 24
         uses: actions/setup-node@v4
         with:
           cache: npm
-          node-version: 22
+          node-version: 24
 
       - name: Install
         run: CPPFLAGS="${{ matrix.cppflags }}" npm ci
