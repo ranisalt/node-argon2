@@ -26,6 +26,10 @@ To see how you can modify the output (hash length, encoding) and parameters
 (time cost, memory cost and parallelism),
 [read the wiki](https://github.com/ranisalt/node-argon2/wiki/Options)
 
+> [!NOTE]
+> By default, argon2.hash will generate secure hashes according to the security recommendations by the team that develops Argon2.
+> **For password hashing, there is no need to modify them.**
+
 To verify a password:
 ```js
 try {
