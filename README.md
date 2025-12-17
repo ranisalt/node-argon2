@@ -22,10 +22,6 @@ try {
 }
 ```
 
-To see how you can modify the output (hash length, encoding) and parameters
-(time cost, memory cost and parallelism),
-[read the wiki](https://github.com/ranisalt/node-argon2/wiki/Options)
-
 To verify a password:
 ```js
 try {
@@ -38,6 +34,28 @@ try {
   // internal failure
 }
 ```
+
+> [!NOTE]
+> By default, argon2.hash will generate secure hashes according to the security recommendations by the team that develops Argon2.
+> **For password hashing, there is no need to modify them.**
+
+To see how you can modify the output (hash length, encoding) and parameters
+(time cost, memory cost and parallelism),
+[read the wiki](https://github.com/ranisalt/node-argon2/wiki/Options)
+
+### Comparison with the node:crypto native implementation
+
+The native API is focused towards generic usage of the Argon2 hash function, while this package historically focused on password hashing.
+
+Once all supported Node releases include native Argon2 and older versions are officially EOL, node-argon2 will transition into a minimal wrapper. It will offer the most developer-friendly interface, bridging users to Node's native crypto methods. This avoids duplication and ensures seamless upgrades once native support is universal.
+
+|                                                                                                                   	| node-argon2 	| node:crypto argon2 	|
+|-------------------------------------------------------------------------------------------------------------------	|-------------	|--------------------	|
+| Generate hashes                                                                                                   	| ✅           	| ✅                  	|
+| [PHC string formatting](https://github.com/P-H-C/phc-string-format/blob/master/phc-sf-spec.md)                    	| ✅           	| ❌                  	|
+| Verify PHC string                                                                                                 	| ✅           	| ❌                  	|
+| Check if re-hash is needed                                                                                        	| ✅           	| ❌                  	|
+| [Provide sensible default parameters](https://github.com/ranisalt/node-argon2/issues/469#issuecomment-3452416217) 	| ✅           	| ❌                  	|
 
 ### Migrating from another hash function
 See [this article on the wiki](https://github.com/ranisalt/node-argon2/wiki/Migrating-from-another-hash-function) for steps on how to migrate your existing code to Argon2. It's easy!
