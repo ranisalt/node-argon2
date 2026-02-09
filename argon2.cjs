@@ -28,9 +28,9 @@ const names = Object.freeze({
 
 const defaults = {
   hashLength: 32,
-  timeCost: 3,
   memoryCost: 1 << 16,
   parallelism: 4,
+  timeCost: 3,
   type: argon2id,
   version: 0x13,
 };
@@ -68,8 +68,8 @@ const defaults = {
  * @param {Buffer | string} password The plaintext password to be hashed
  * @param {Options & { raw?: boolean }} [options] The parameters for Argon2
  */
-async function hash(password, options) {
-  let { raw, salt, ...rest } = { ...defaults, ...options };
+const hash = async (password, options) => {
+  const { raw, salt: _salt, ...rest } = { ...defaults, ...options };
 
   if (rest.hashLength > 2 ** 32 - 1) {
     throw new RangeError("Hash length is too large");
@@ -87,7 +87,7 @@ async function hash(password, options) {
     throw new RangeError("Parallelism is too large");
   }
 
-  salt = salt ?? (await generateSalt(16));
+  const salt = _salt ?? (await generateSalt(16));
 
   const {
     hashLength,
@@ -101,29 +101,34 @@ async function hash(password, options) {
   } = rest;
 
   const hash = await bindingsHash({
-    password: Buffer.from(password),
-    salt,
-    secret,
     data,
     hashLength,
     m,
-    t,
     p,
-    version,
+    password: Buffer.from(password),
+    salt,
+    secret,
+    t,
     type,
+    version,
   });
   if (raw) {
     return hash;
   }
 
+  const params = { m, p, t };
+  if (data.byteLength > 0) {
+    params.data = data;
+  }
+
   return serialize({
-    id: names[type],
-    version,
-    params: { m, t, p, ...(data.byteLength > 0 ? { data } : {}) },
-    salt,
     hash,
+    id: names[type],
+    params,
+    salt,
+    version,
   });
-}
+};
 module.exports.hash = hash;
 
 /**
@@ -135,7 +140,7 @@ module.exports.hash = hash;
  * @param {number} [options.version=0x13]
  * @returns {boolean} `true` if the digest parameters do not match the parameters in `options`, otherwise `false`
  */
-function needsRehash(digest, options = {}) {
+const needsRehash = (digest, options = {}) => {
   const { memoryCost, timeCost, parallelism, version } = {
     ...defaults,
     ...options,
@@ -147,12 +152,12 @@ function needsRehash(digest, options = {}) {
   } = deserialize(digest);
 
   return (
-    +v !== +version ||
-    +m !== +memoryCost ||
-    +t !== +timeCost ||
-    +p !== +parallelism
+    Number(v) !== Number(version) ||
+    Number(m) !== Number(memoryCost) ||
+    Number(t) !== Number(timeCost) ||
+    Number(p) !== Number(parallelism)
   );
-}
+};
 module.exports.needsRehash = needsRehash;
 
 /**
@@ -162,7 +167,7 @@ module.exports.needsRehash = needsRehash;
  * @param {Buffer} [options.secret]
  * @returns {Promise<boolean>} `true` if the digest parameters matches the hash generated from `password`, otherwise `false`
  */
-async function verify(digest, password, options = {}) {
+const verify = async (digest, password, options = {}) => {
   const { id, ...rest } = deserialize(digest);
   if (!(id in types)) {
     return false;
@@ -179,18 +184,18 @@ async function verify(digest, password, options = {}) {
 
   return timingSafeEqual(
     await bindingsHash({
+      data: Buffer.from(data, "base64"),
+      hashLength: hash.byteLength,
+      m: Number(m),
+      p: Number(p),
       password: Buffer.from(password),
       salt,
       secret,
-      data: Buffer.from(data, "base64"),
-      hashLength: hash.byteLength,
-      m: +m,
-      t: +t,
-      p: +p,
-      version: +version,
+      t: Number(t),
       type: types[id],
+      version: Number(version),
     }),
     hash,
   );
-}
+};
 module.exports.verify = verify;

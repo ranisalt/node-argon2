@@ -18,8 +18,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Format
+        run: node --run fmt:check
+
       - name: Lint
-        run: npm run lint
+        run: node --run lint
 
   coverage:
     name: Report coverage
@@ -139,7 +142,14 @@ jobs:
   build-with-fortify-source:
     strategy:
       matrix:
-        cppflags: ['', '-D _FORTIFY_SOURCE=2', '-D _FORTIFY_SOURCE=3', '-D_FORTIFY_SOURCE=2', '-D_FORTIFY_SOURCE=3']
+        cppflags:
+          [
+            "",
+            "-D _FORTIFY_SOURCE=2",
+            "-D _FORTIFY_SOURCE=3",
+            "-D_FORTIFY_SOURCE=2",
+            "-D_FORTIFY_SOURCE=3",
+          ]
 
     name: Test that setting _FORTIFY_SOURCE will not break the build
     runs-on: ubuntu-latest

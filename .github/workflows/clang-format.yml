@@ -4,12 +4,12 @@ on:
   push:
     paths:
       - .clang-format
-      - '*.cpp'
+      - "*.cpp"
 
   pull_request:
     paths:
       - .clang-format
-      - '*.cpp'
+      - "*.cpp"
 
 jobs:
   check-format:

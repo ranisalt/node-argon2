@@ -1,0 +1,21 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "categories": {
+    "correctness": "error",
+    "pedantic": "error",
+    "perf": "error",
+    "style": "error",
+    "suspicious": "error"
+  },
+  "rules": {
+    "eslint/id-length": "off",
+    "eslint/max-lines-per-function": "off",
+    "eslint/max-statements": "off",
+    "eslint/no-magic-numbers": "off"
+  },
+  "settings": {},
+  "env": {
+    "node": true
+  },
+  "globals": {}
+}
