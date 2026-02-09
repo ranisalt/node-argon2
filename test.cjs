@@ -12,13 +12,13 @@ const secret = Buffer.alloc(16, "secret");
 // Hashes for argon2i and argon2d with default options
 const hashes = {
   argon2d:
-    "$argon2d$v=19$m=65536,t=3,p=4$c2FsdHNhbHRzYWx0c2FsdA$VtxJNl5Jr/yZ2UIhvfvL4sGPdDQyGCcy45Cs7rIdFq8",
+    "$argon2d$v=19$m=65536,p=4,t=3$c2FsdHNhbHRzYWx0c2FsdA$VtxJNl5Jr/yZ2UIhvfvL4sGPdDQyGCcy45Cs7rIdFq8",
   argon2i:
-    "$argon2i$v=19$m=65536,t=3,p=4$c2FsdHNhbHRzYWx0c2FsdA$1Ccmp7ECb+Rb5XPjqRwEuAjCufY1xQDOJwnHrB+orZ4",
+    "$argon2i$v=19$m=65536,p=4,t=3$c2FsdHNhbHRzYWx0c2FsdA$1Ccmp7ECb+Rb5XPjqRwEuAjCufY1xQDOJwnHrB+orZ4",
   argon2id:
-    "$argon2id$v=19$m=65536,t=3,p=4$c2FsdHNhbHRzYWx0c2FsdA$rBWULD5jOGpQy32rLvGcmvQMVqIVNAmrCtekWvUA8bw",
+    "$argon2id$v=19$m=65536,p=4,t=3$c2FsdHNhbHRzYWx0c2FsdA$rBWULD5jOGpQy32rLvGcmvQMVqIVNAmrCtekWvUA8bw",
   oldFormat:
-    "$argon2i$m=4096,t=3,p=1$tbagT6b1YH33niCo9lVzuA$htv/k+OqWk1V9zD9k5DOBi2kcfcZ6Xu3tWmwEPV3/nc",
+    "$argon2i$m=4096,p=1,t=3$tbagT6b1YH33niCo9lVzuA$htv/k+OqWk1V9zD9k5DOBi2kcfcZ6Xu3tWmwEPV3/nc",
   rawArgon2d: Buffer.from(
     "56dc49365e49affc99d94221bdfbcbe2c18f743432182732e390aceeb21d16af",
     "hex",
@@ -36,11 +36,11 @@ const hashes = {
     "hex",
   ),
   withAd:
-    "$argon2id$v=19$m=65536,t=3,p=4,data=YWRhZGFkYWRhZGFkYWRhZA$c2FsdHNhbHRzYWx0c2FsdA$TEIIM4GBSUxvMLolL9ePXYP5G/qcr0vywQqqm/ILvsM",
+    "$argon2id$v=19$m=65536,p=4,t=3,data=YWRhZGFkYWRhZGFkYWRhZA$c2FsdHNhbHRzYWx0c2FsdA$TEIIM4GBSUxvMLolL9ePXYP5G/qcr0vywQqqm/ILvsM",
   withNull:
-    "$argon2id$v=19$m=65536,t=3,p=4$c2FsdHNhbHRzYWx0c2FsdA$NqchDOxwWbcBzA+0gtsCtyspEQxqKFf4/PO/AoIvo+Q",
+    "$argon2id$v=19$m=65536,p=4,t=3$c2FsdHNhbHRzYWx0c2FsdA$NqchDOxwWbcBzA+0gtsCtyspEQxqKFf4/PO/AoIvo+Q",
   withSecret:
-    "$argon2id$v=19$m=65536,t=3,p=4$c2FsdHNhbHRzYWx0c2FsdA$8dZyo1MdHgdzBm+VU7+tyW06dUO7B9FyaPImH5ejVOU",
+    "$argon2id$v=19$m=65536,p=4,t=3$c2FsdHNhbHRzYWx0c2FsdA$8dZyo1MdHgdzBm+VU7+tyW06dUO7B9FyaPImH5ejVOU",
 };
 
 describe("hash", () => {
@@ -148,7 +148,7 @@ describe("set options", () => {
         parallelism: 2,
         timeCost: 4,
       }),
-      /m=8192,t=4,p=2/,
+      /m=8192,p=2,t=4/,
     );
   });
 });
