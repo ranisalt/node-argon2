@@ -68,7 +68,7 @@
     "@types/node": "24.10.12",
     "node-gyp": "12.2.0",
     "oxfmt": "0.28.0",
-    "oxlint": "1.43.0",
+    "oxlint": "1.48.0",
     "prebuildify": "6.0.1",
     "typescript": "5.9.3"
   },
