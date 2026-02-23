@@ -75,7 +75,7 @@
   "engines": {
     "node": ">=16.17.0"
   },
-  "packageManager": "npm@11.9.0",
+  "packageManager": "npm@11.10.1",
   "collective": {
     "type": "opencollective",
     "url": "https://opencollective.com/node-argon2"
