@@ -100,7 +100,7 @@ const hash = async (password, options) => {
     associatedData: data = Buffer.alloc(0),
   } = rest;
 
-  const hash = await bindingsHash({
+  const result = await bindingsHash({
     data,
     hashLength,
     m,
@@ -113,7 +113,7 @@ const hash = async (password, options) => {
     version,
   });
   if (raw) {
-    return hash;
+    return result;
   }
 
   const params = { m, p, t };
@@ -122,7 +122,7 @@ const hash = async (password, options) => {
   }
 
   return serialize({
-    hash,
+    hash: result,
     id: names[type],
     params,
     salt,
@@ -177,25 +177,24 @@ const verify = async (digest, password, options = {}) => {
     version = 0x10,
     params: { m, t, p, data = "" },
     salt,
-    hash,
+    hash: actual,
   } = rest;
 
   const { secret = Buffer.alloc(0) } = options;
 
-  return timingSafeEqual(
-    await bindingsHash({
-      data: Buffer.from(data, "base64"),
-      hashLength: hash.byteLength,
-      m: Number(m),
-      p: Number(p),
-      password: Buffer.from(password),
-      salt,
-      secret,
-      t: Number(t),
-      type: types[id],
-      version: Number(version),
-    }),
-    hash,
-  );
+  const expected = await bindingsHash({
+    data: Buffer.from(data, "base64"),
+    hashLength: actual.byteLength,
+    m: Number(m),
+    p: Number(p),
+    password: Buffer.from(password),
+    salt,
+    secret,
+    t: Number(t),
+    type: types[id],
+    version: Number(version),
+  });
+
+  return timingSafeEqual(expected, actual);
 };
 module.exports.verify = verify;
