@@ -60,22 +60,22 @@
   "dependencies": {
     "@phc/format": "^1.0.0",
     "cross-env": "^10.1.0",
-    "node-addon-api": "^8.5.0",
+    "node-addon-api": "^8.7.0",
     "node-gyp-build": "^4.8.4"
   },
   "devDependencies": {
     "@tsconfig/node20": "20.1.9",
     "@types/node": "24.10.12",
     "node-gyp": "12.2.0",
-    "oxfmt": "0.36.0",
-    "oxlint": "1.51.0",
+    "oxfmt": "0.44.0",
+    "oxlint": "1.59.0",
     "prebuildify": "6.0.1",
     "typescript": "5.9.3"
   },
   "engines": {
     "node": ">=16.17.0"
   },
-  "packageManager": "npm@11.10.1",
+  "packageManager": "npm@11.12.1",
   "collective": {
     "type": "opencollective",
     "url": "https://opencollective.com/node-argon2"
