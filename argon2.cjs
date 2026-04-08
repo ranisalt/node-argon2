@@ -36,7 +36,7 @@ const defaults = {
 };
 
 /**
- * @typedef {Object} Options
+ * @typedef {Object} HashOptions
  * @property {number} [hashLength=32]
  * @property {number} [timeCost=3]
  * @property {number} [memoryCost=65536]
@@ -53,7 +53,7 @@ const defaults = {
  *
  * @overload
  * @param {Buffer | string} password The plaintext password to be hashed
- * @param {Options & { raw: true }} options The parameters for Argon2
+ * @param {HashOptions & { raw: true }} options The parameters for Argon2
  * @returns {Promise<Buffer>} The raw hash generated from `password`
  */
 /**
@@ -61,12 +61,12 @@ const defaults = {
  *
  * @overload
  * @param {Buffer | string} password The plaintext password to be hashed
- * @param {Options & { raw?: boolean }} [options] The parameters for Argon2
+ * @param {HashOptions & { raw?: boolean }} [options] The parameters for Argon2
  * @returns {Promise<string>} The encoded hash generated from `password`
  */
 /**
  * @param {Buffer | string} password The plaintext password to be hashed
- * @param {Options & { raw?: boolean }} [options] The parameters for Argon2
+ * @param {HashOptions & { raw?: boolean }} [options] The parameters for Argon2
  */
 const hash = async (password, options) => {
   const { raw, salt: _salt, ...rest } = { ...defaults, ...options };
@@ -161,10 +161,14 @@ const needsRehash = (digest, options = {}) => {
 module.exports.needsRehash = needsRehash;
 
 /**
+ * @typedef {Object} VerifyOptions
+ * @property {Buffer} [secret]
+ */
+
+/**
  * @param {string} digest The digest to be checked
  * @param {Buffer | string} password The plaintext password to be verified
- * @param {Object} [options] The current parameters for Argon2
- * @param {Buffer} [options.secret]
+ * @param {VerifyOptions} [options] The current parameters for Argon2
  * @returns {Promise<boolean>} `true` if the digest parameters matches the hash generated from `password`, otherwise `false`
  */
 const verify = async (digest, password, options = {}) => {

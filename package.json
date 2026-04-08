@@ -70,7 +70,7 @@
     "oxfmt": "0.44.0",
     "oxlint": "1.59.0",
     "prebuildify": "6.0.1",
-    "typescript": "5.9.3"
+    "typescript": "6.0.2"
   },
   "engines": {
     "node": ">=16.17.0"
