@@ -67,7 +67,7 @@
     "@tsconfig/node20": "20.1.9",
     "@types/node": "24.10.12",
     "node-gyp": "12.2.0",
-    "oxfmt": "0.44.0",
+    "oxfmt": "0.45.0",
     "oxlint": "1.59.0",
     "prebuildify": "6.0.1",
     "typescript": "6.0.2"
