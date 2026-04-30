@@ -45,14 +45,13 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: true
 
       - name: Use Node.js 22
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          cache: npm
           node-version: 22
 
       - name: Install dependencies
@@ -62,7 +61,7 @@ jobs:
         run: npm run build
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: prebuild-${{ matrix.arch }}
           path: prebuilds/**/*.node
@@ -86,12 +85,12 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: true
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@v4
         with:
           platforms: ${{ matrix.platform }}
 
@@ -106,7 +105,7 @@ jobs:
             npm run build
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: prebuild-linux-${{ matrix.arch }}-musl
           path: prebuilds/**/*.node
@@ -125,7 +124,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: true
 
@@ -141,7 +140,7 @@ jobs:
           sync: sshfs
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: prebuild-freebsd-${{ matrix.arch }}
           path: prebuilds/**/*.node
@@ -152,12 +151,12 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: true
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@v4
         with:
           platforms: linux/arm/v7
 
@@ -174,7 +173,7 @@ jobs:
             npm run build
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: prebuild-linux-armv7-glibc
           path: prebuilds/**/*.node
@@ -195,14 +194,13 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: true
 
       - name: Setup npm with Node.js 22
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          cache: npm
           node-version: 22
           token: ${{ secrets.NPM_TOKEN }}
           registry-url: "https://registry.npmjs.org"
@@ -222,7 +220,7 @@ jobs:
         if: ${{ github.event_name == 'push' || github.event_name == 'pull_request' }}
 
       - name: Upload package artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: ${{ github.event_name == 'push' || github.event_name == 'pull_request' }}
         with:
           name: package
