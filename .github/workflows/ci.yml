@@ -66,7 +66,7 @@ jobs:
   test:
     strategy:
       matrix:
-        node-version: [20, 22, 24]
+        node-version: [22, 24]
         os: [ubuntu-22.04, macos-14, windows-2022]
 
     name: Test for node-${{ matrix.node-version }} on ${{ matrix.os }}
@@ -93,7 +93,7 @@ jobs:
   test-alpine:
     strategy:
       matrix:
-        node-version: [20, 22, 24]
+        node-version: [22, 24]
 
     name: Test for node-${{ matrix.node-version }} on Alpine Linux
     runs-on: ubuntu-latest
@@ -119,7 +119,7 @@ jobs:
   test-freebsd:
     strategy:
       matrix:
-        node-version: [20, 22, 24]
+        node-version: [22, 24]
 
     name: Test for node-${{ matrix.node-version }} on FreeBSD
     runs-on: ubuntu-latest

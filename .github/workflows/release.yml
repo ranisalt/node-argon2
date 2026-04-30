@@ -49,11 +49,11 @@ jobs:
         with:
           submodules: true
 
-      - name: Use Node.js 20
+      - name: Use Node.js 22
         uses: actions/setup-node@v4
         with:
           cache: npm
-          node-version: 20
+          node-version: 22
 
       - name: Install dependencies
         run: npm ci
@@ -98,7 +98,7 @@ jobs:
       - name: Prebuild
         uses: addnab/docker-run-action@v3
         with:
-          image: node:20-alpine
+          image: node:22-alpine
           options: --platform=${{ matrix.platform }} --volume=${{ github.workspace }}:/repo --workdir=/repo
           run: |
             apk add --no-cache g++ make python3
@@ -134,7 +134,7 @@ jobs:
         with:
           arch: ${{ matrix.vm-arch }}
           prepare: |
-            pkg install -y gmake python3 npm-node20
+            pkg install -y gmake python3 npm-node22
           run: |
             npm ci
             npm run build
@@ -164,11 +164,11 @@ jobs:
       - name: Prebuild
         uses: addnab/docker-run-action@v3
         with:
-          image: node:20-bullseye
+          image: node:22-bullseye
           options: --platform=linux/arm/v7 --volume=${{ github.workspace }}:/repo --workdir=/repo
           run: |
             apt update -yq && apt install -yq wget
-            wget -qL https://deb.nodesource.com/setup_20.x | bash -
+            wget -qL https://deb.nodesource.com/setup_22.x | bash -
             apt install -yq g++ make python3 nodejs
             npm ci
             npm run build
@@ -199,11 +199,11 @@ jobs:
         with:
           submodules: true
 
-      - name: Setup npm with Node.js 20
+      - name: Setup npm with Node.js 22
         uses: actions/setup-node@v4
         with:
           cache: npm
-          node-version: 20
+          node-version: 22
           token: ${{ secrets.NPM_TOKEN }}
           registry-url: "https://registry.npmjs.org"
 
