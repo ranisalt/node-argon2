@@ -107,7 +107,7 @@ You **MUST** have a **node-gyp** global install before proceeding with the insta
 along with GCC >= 5 / Clang >= 3.3. On Windows, you must compile under Visual
 Studio 2015 or newer.
 
-**node-argon2** works only and is tested against Node >=18.0.0.
+**node-argon2** works only and is tested against Node >=22.0.0.
 
 ### OSX
 
