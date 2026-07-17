@@ -17,7 +17,7 @@
   "author": "Ranieri Althoff <ranisalt+argon2@gmail.com>",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ranisalt/node-argon2.git"
+    "url": "git+https://github.com/ranisalt/node-argon2.git"
   },
   "binary": {
     "napi_versions": [
