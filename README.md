@@ -4,8 +4,8 @@
 [![Build status][actions-image]][actions-url]
 [![NPM package][npm-image]][npm-url]
 
-Bindings to the reference [Argon2](https://github.com/P-H-C/phc-winner-argon2)
-implementation.
+Bindings to the native [Argon2](https://github.com/P-H-C/phc-winner-argon2)
+implementation available in `node:crypto`.
 
 ## Usage
 
@@ -15,7 +15,7 @@ verify if a password matches a hash.
 To hash a password:
 
 ```js
-const argon2 = require("argon2");
+import * as argon2 from "argon2";
 
 try {
   const hash = await argon2.hash("password");
@@ -42,23 +42,17 @@ try {
 > By default, argon2.hash will generate secure hashes according to the security recommendations by the team that develops Argon2.
 > **For password hashing, there is no need to modify them.**
 
+node-argon2 requires Node.js 24.7.0 or newer.
+
 To see how you can modify the output (hash length, encoding) and parameters
 (time cost, memory cost and parallelism),
 [read the wiki](https://github.com/ranisalt/node-argon2/wiki/Options)
 
 ### Comparison with the node:crypto native implementation
 
-The native API is focused towards generic usage of the Argon2 hash function, while this package historically focused on password hashing.
-
-Once all supported Node releases include native Argon2 and older versions are officially EOL, node-argon2 will transition into a minimal wrapper. It will offer the most developer-friendly interface, bridging users to Node's native crypto methods. This avoids duplication and ensures seamless upgrades once native support is universal.
-
-|                                                                                                                   | node-argon2 | node:crypto argon2 |
-| ----------------------------------------------------------------------------------------------------------------- | ----------- | ------------------ |
-| Generate hashes                                                                                                   | ✅          | ✅                 |
-| [PHC string formatting](https://github.com/P-H-C/phc-string-format/blob/master/phc-sf-spec.md)                    | ✅          | ❌                 |
-| Verify PHC string                                                                                                 | ✅          | ❌                 |
-| Check if re-hash is needed                                                                                        | ✅          | ❌                 |
-| [Provide sensible default parameters](https://github.com/ranisalt/node-argon2/issues/469#issuecomment-3452416217) | ✅          | ❌                 |
+node-argon2 delegates to the native Argon2 implementation in `node:crypto` and
+keeps the password-hashing-friendly API, PHC formatting, and rehash checks that
+the native API does not provide.
 
 ### Migrating from another hash function
 
@@ -76,112 +70,6 @@ import * as argon2 from "argon2";
 
 const hash = await argon2.hash(..);
 ```
-
-## Prebuilt binaries
-
-**node-argon2** provides prebuilt binaries from `v0.26.0` onwards. They are
-built every release using GitHub Actions.
-
-The current prebuilt binaries are built and tested with the following systems:
-
-- Ubuntu 22.04 (x86-64; ARM64 from v0.28.2; ARMv7 from v0.43.0)
-- MacOS 13 (x86-64)
-- MacOS 14 (ARM64 from v0.29.0)
-- Windows Server 2022 (x86-64)
-- Alpine Linux 3.18 (x86-64 from v0.28.1; ARM64 from v0.28.2; ARMv7 from v0.43.0)
-- FreeBSD 14 (x86-64 from v0.29.1; ARM64 from v0.44.0)
-
-Binaries should also work for any version more recent than the ones listed
-above. For example, the binary for Ubuntu 20.04 also works on Ubuntu 22.04, or
-any other Linux system that ships a newer version of glibc; the binary for
-MacOS 11 also works on MacOS 12. If your platform is below the above
-requirements, you can follow the [Before installing](#before-installing)
-section below to manually compile from source. It is also always recommended to
-build from source to ensure consistency of the compiled module.
-
-## Before installing
-
-_You can skip this section if the [prebuilt binaries](#prebuilt-binaries) work for you._
-
-You **MUST** have a **node-gyp** global install before proceeding with the install,
-along with GCC >= 5 / Clang >= 3.3. On Windows, you must compile under Visual
-Studio 2015 or newer.
-
-**node-argon2** works only and is tested against Node >=22.0.0.
-
-### OSX
-
-To install GCC >= 5 on OSX, use [homebrew](http://brew.sh/):
-
-```console
-$ brew install gcc
-```
-
-Once you've got GCC installed and ready to run, you then need to install
-node-gyp, you must do this globally:
-
-```console
-$ npm install -g node-gyp
-```
-
-Finally, once node-gyp is installed and ready to go, you can install this
-library, specifying the GCC or Clang binary to use:
-
-```console
-$ CXX=g++-12 npm install argon2
-```
-
-**NOTE**: If your GCC or Clang binary is named something different than `g++-12`,
-you'll need to specify that in the command.
-
-## FAQ
-
-<details>
-  <summary>How do I manually rebuild the binaries?</summary>
-
-```bash
-$ npx @mapbox/node-pre-gyp rebuild -C ./node_modules/argon2
-```
-
-Run `@mapbox/node-pre-gyp` instead of `node-gyp` because node-argon2's
-`binding.gyp` file relies on variables from `@mapbox/node-pre-gyp`.
-
-You can omit `npx @mapbox` and use just `node-pre-gyp` if you have a global
-installation of `@mapbox/node-pre-gyp`, otherwise prefixing `npx` will use
-the local one in `./node_modules/.bin`
-
-</details>
-
-<details>
-  <summary>
-    How do I skip installing prebuilt binaries and manually compile from source?
-  </summary>
-
-You can do either of the two methods below:
-
-1. Force build from source on install.
-
-```bash
-$ npm install argon2 --build-from-source
-```
-
-2. Ignore `node-argon2` install script and build manually.
-
-```bash
-$ npm install argon2 --ignore-scripts
-$ npx node-gyp rebuild -C ./node_modules/argon2
-```
-
-</details>
-
-<details>
-  <summary>
-    I installed Node as a <a href="https://snapcraft.io/node">snap</a>, and I can't install node-argon2.
-  </summary>
-
-This seems to be an issue related to snap (see [#345 (comment)](https://github.com/ranisalt/node-argon2/issues/345#issuecomment-1164178674)). Installing Node with another package manager, such as [asdf](https://asdf-vm.com/) or [nvm](https://github.com/nvm-sh/nvm), is a possible workaround.
-
-</details>
 
 ## Contributors
 

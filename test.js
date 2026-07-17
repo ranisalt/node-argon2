@@ -1,8 +1,6 @@
-const assert = require("node:assert/strict");
-const { describe, it } = require("node:test");
-const argon2 = require("./argon2.cjs");
-
-const { argon2i, argon2d, argon2id } = argon2;
+import * as argon2 from "./argon2.js";
+import { describe, it } from "node:test";
+import assert from "node:assert/strict";
 
 const password = "password";
 const salt = Buffer.alloc(16, "salt");
@@ -19,22 +17,6 @@ const hashes = {
     "$argon2id$v=19$m=65536,p=4,t=3$c2FsdHNhbHRzYWx0c2FsdA$rBWULD5jOGpQy32rLvGcmvQMVqIVNAmrCtekWvUA8bw",
   oldFormat:
     "$argon2i$m=4096,p=1,t=3$tbagT6b1YH33niCo9lVzuA$htv/k+OqWk1V9zD9k5DOBi2kcfcZ6Xu3tWmwEPV3/nc",
-  rawArgon2d: Buffer.from(
-    "56dc49365e49affc99d94221bdfbcbe2c18f743432182732e390aceeb21d16af",
-    "hex",
-  ),
-  rawArgon2i: Buffer.from(
-    "d42726a7b1026fe45be573e3a91c04b808c2b9f635c500ce2709c7ac1fa8ad9e",
-    "hex",
-  ),
-  rawArgon2id: Buffer.from(
-    "ac15942c3e63386a50cb7dab2ef19c9af40c56a2153409ab0ad7a45af500f1bc",
-    "hex",
-  ),
-  rawWithNull: Buffer.from(
-    "36a7210cec7059b701cc0fb482db02b72b29110c6a2857f8fcf3bf02822fa3e4",
-    "hex",
-  ),
   withAd:
     "$argon2id$v=19$m=65536,p=4,t=3,data=YWRhZGFkYWRhZGFkYWRhZA$c2FsdHNhbHRzYWx0c2FsdA$TEIIM4GBSUxvMLolL9ePXYP5G/qcr0vywQqqm/ILvsM",
   withNull:
@@ -45,41 +27,19 @@ const hashes = {
 
 describe("hash", () => {
   it("hash with argon2i", async () => {
-    assert.equal(hashes.argon2i, await argon2.hash(password, { salt, type: argon2i }));
-  });
-
-  it("argon2i with raw hash", async () => {
-    assert(
-      hashes.rawArgon2i.equals(await argon2.hash(password, { raw: true, salt, type: argon2i })),
-    );
+    assert.equal(hashes.argon2i, await argon2.hash(password, { salt, type: "argon2i" }));
   });
 
   it("hash with argon2d", async () => {
-    assert.equal(hashes.argon2d, await argon2.hash(password, { salt, type: argon2d }));
-  });
-
-  it("argon2d with raw hash", async () => {
-    assert(
-      hashes.rawArgon2d.equals(await argon2.hash(password, { raw: true, salt, type: argon2d })),
-    );
+    assert.equal(hashes.argon2d, await argon2.hash(password, { salt, type: "argon2d" }));
   });
 
   it("hash with argon2id", async () => {
-    assert.equal(hashes.argon2id, await argon2.hash(password, { salt, type: argon2id }));
-  });
-
-  it("argon2id with raw hash", async () => {
-    assert(
-      hashes.rawArgon2id.equals(await argon2.hash(password, { raw: true, salt, type: argon2id })),
-    );
+    assert.equal(hashes.argon2id, await argon2.hash(password, { salt, type: "argon2id" }));
   });
 
   it("with null in password", async () => {
     assert.equal(hashes.withNull, await argon2.hash("pass\0word", { salt }));
-  });
-
-  it("with raw hash, null in password", async () => {
-    assert(hashes.rawWithNull.equals(await argon2.hash("pass\0word", { raw: true, salt })));
   });
 
   it("with associated data", async () => {
@@ -154,47 +114,45 @@ describe("set options", () => {
 });
 
 describe("needsRehash", () => {
-  it("needs rehash old version", async () => {
-    const hash = await argon2.hash(password, { version: 0x10 });
-    assert(argon2.needsRehash(hash));
-    assert(!argon2.needsRehash(hash, { version: 0x10 }));
-  });
-
   it("needs rehash low memory cost", async () => {
     const hash = await argon2.hash(password, { memoryCost: 1 << 15 });
-    assert(argon2.needsRehash(hash));
-    assert(!argon2.needsRehash(hash, { memoryCost: 1 << 15 }));
+    assert.equal(argon2.needsRehash(hash), true);
+    assert.equal(argon2.needsRehash(hash, { memoryCost: 1 << 15 }), false);
   });
 
   it("needs rehash low time cost", async () => {
     const hash = await argon2.hash(password, { timeCost: 2 });
-    assert(argon2.needsRehash(hash));
-    assert(!argon2.needsRehash(hash, { timeCost: 2 }));
+    assert.equal(argon2.needsRehash(hash), true);
+    assert.equal(argon2.needsRehash(hash, { timeCost: 2 }), false);
   });
 });
 
 describe("verify", () => {
   it("verify correct password", async () => {
-    assert(await argon2.verify(await argon2.hash(password), password));
+    assert.equal(await argon2.verify(await argon2.hash(password), password), true);
   });
 
   it("verify wrong password", async () => {
-    assert(!(await argon2.verify(await argon2.hash(password), "passworld")));
+    assert.equal(await argon2.verify(await argon2.hash(password), "passworld"), false);
   });
 
   it("verify with null in password", async () => {
-    assert(await argon2.verify(await argon2.hash("pass\0word"), "pass\0word"));
+    assert.equal(await argon2.verify(await argon2.hash("pass\0word"), "pass\0word"), true);
   });
 
   it("verify with associated data", async () => {
-    assert(await argon2.verify(await argon2.hash(password, { associatedData }), "password"));
+    assert.equal(
+      await argon2.verify(await argon2.hash(password, { associatedData }), "password"),
+      true,
+    );
   });
 
   it("verify with secret", async () => {
-    assert(
+    assert.equal(
       await argon2.verify(await argon2.hash(password, { secret }), "password", {
         secret,
       }),
+      true,
     );
   });
 
@@ -206,32 +164,40 @@ describe("verify", () => {
   });
 
   it("verify argon2d correct password", async () => {
-    assert(await argon2.verify(await argon2.hash(password, { type: argon2d }), password));
+    assert.equal(
+      await argon2.verify(await argon2.hash(password, { type: "argon2d" }), password),
+      true,
+    );
   });
 
   it("verify argon2d wrong password", async () => {
-    assert(!(await argon2.verify(await argon2.hash(password, { type: argon2d }), "passworld")));
+    assert.equal(
+      await argon2.verify(await argon2.hash(password, { type: "argon2d" }), "passworld"),
+      false,
+    );
   });
 
   it("verify argon2id correct password", async () => {
-    assert(await argon2.verify(await argon2.hash(password, { type: argon2id }), password));
+    assert.equal(
+      await argon2.verify(await argon2.hash(password, { type: "argon2id" }), password),
+      true,
+    );
   });
 
   it("verify argon2id wrong password", async () => {
-    assert(!(await argon2.verify(await argon2.hash(password, { type: argon2id }), "passworld")));
-  });
-
-  it("verify old hash format", async () => {
-    // Older hashes did not contain the v (version) parameter
-    assert(await argon2.verify(hashes.oldFormat, "password"));
+    assert.equal(
+      await argon2.verify(await argon2.hash(password, { type: "argon2id" }), "passworld"),
+      false,
+    );
   });
 
   it("verify invalid hash function", async () => {
-    assert(
-      !(await argon2.verify(
+    assert.equal(
+      await argon2.verify(
         "$2a$12$R9h/cIPz0gi.URNNX3kh2OPST9/PgBkqquzi.Ss7KIUgO2t0jWMUW",
         "abc123xyz",
-      )),
+      ),
+      false,
     );
   });
 });

@@ -1,19 +1,17 @@
 name: CI
 
 on: [push, pull_request]
-permissions:
-  contents: read
 
 jobs:
   lint:
-    name: Lint
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
+
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout
         uses: actions/checkout@v7
-        with:
-          submodules: true
 
       - name: Install dependencies
         run: npm ci
@@ -24,15 +22,15 @@ jobs:
       - name: Lint
         run: npm run lint
 
-  coverage:
-    name: Report coverage
-    runs-on: ubuntu-latest
+  test:
+    runs-on: ubuntu-slim
+
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout
         uses: actions/checkout@v7
-        with:
-          submodules: true
 
       - name: Use Node.js 24
         uses: actions/setup-node@v7
@@ -41,126 +39,12 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
-        env:
-          npm_config_debug: true
 
       - name: Run tests
-        run: node --test --experimental-test-coverage --test-reporter=lcov --test-reporter-destination=lcov.info test.cjs
-
-      - name: Install lcov
-        run: sudo apt install -yq lcov
-
-      - name: Merge coverage reports
-        run: |
-          lcov --capture --directory . --no-external --output-file lcov-cpp.info
-          lcov --add-tracefile lcov-cpp.info --add-tracefile lcov.info --output-file lcov.info
-          lcov --remove lcov.info "*/node_modules/*" --output-file lcov.info
+        run: node --test --experimental-test-coverage --test-reporter=lcov --test-reporter-destination=lcov.info
 
       - name: Send to Codacy
         uses: codacy/codacy-coverage-reporter-action@v1
         with:
           coverage-reports: lcov.info
           project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
-
-  test:
-    strategy:
-      matrix:
-        node-version: [22, 24]
-        os: [ubuntu-22.04, macos-14, windows-2022]
-
-    name: Test for node-${{ matrix.node-version }} on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v7
-        with:
-          submodules: true
-
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v7
-        with:
-          node-version: ${{ matrix.node-version }}
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run tests
-        run: npm test
-
-  test-alpine:
-    strategy:
-      matrix:
-        node-version: [22, 24]
-
-    name: Test for node-${{ matrix.node-version }} on Alpine Linux
-    runs-on: ubuntu-latest
-
-    container:
-      image: node:${{ matrix.node-version }}-alpine
-
-    steps:
-      - name: Install build deps
-        run: apk add make g++ python3 git
-
-      - name: Checkout
-        uses: actions/checkout@v7
-        with:
-          submodules: true
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run tests
-        run: npm test
-
-  test-freebsd:
-    strategy:
-      matrix:
-        node-version: [22, 24]
-
-    name: Test for node-${{ matrix.node-version }} on FreeBSD
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v7
-        with:
-          submodules: true
-
-      - uses: vmactions/freebsd-vm@v1
-        with:
-          prepare: |
-            pkg install -y gmake python3 npm-node${{ matrix.node-version }}
-          run: |
-            npm ci
-            npm test
-
-  build-with-fortify-source:
-    strategy:
-      matrix:
-        cppflags:
-          [
-            "",
-            "-D _FORTIFY_SOURCE=2",
-            "-D _FORTIFY_SOURCE=3",
-            "-D_FORTIFY_SOURCE=2",
-            "-D_FORTIFY_SOURCE=3",
-          ]
-
-    name: Test that setting _FORTIFY_SOURCE will not break the build
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v7
-        with:
-          submodules: true
-
-      - name: Use Node.js 24
-        uses: actions/setup-node@v7
-        with:
-          node-version: 24
-
-      - name: Install
-        run: CPPFLAGS="${{ matrix.cppflags }}" npm ci
