@@ -93,7 +93,7 @@ describe("hash", () => {
 
 describe("set options", () => {
   it("hash with time cost", async () => {
-    assert.match(await argon2.hash(password, { timeCost: 4 }), /t=4/);
+    assert.match(await argon2.hash(password, { timeCost: 4 }), /t=4/u);
   });
 
   it("hash with high time cost", () => {
@@ -106,7 +106,7 @@ describe("set options", () => {
 
   it("hash with hash length", async () => {
     // 4 bytes ascii == 6 bytes base64
-    assert.match(await argon2.hash(password, { hashLength: 4 }), /\$[^$]{6}$/);
+    assert.match(await argon2.hash(password, { hashLength: 4 }), /\$[^$]{6}$/u);
   });
 
   it("hash with high hash length", () => {
@@ -118,7 +118,7 @@ describe("set options", () => {
   });
 
   it("hash with memory cost", async () => {
-    assert.match(await argon2.hash(password, { memoryCost: 1 << 13 }), /m=8192/);
+    assert.match(await argon2.hash(password, { memoryCost: 1 << 13 }), /m=8192/u);
   });
 
   it("hash with high memory cost", () => {
@@ -130,7 +130,7 @@ describe("set options", () => {
   });
 
   it("hash with parallelism", async () => {
-    assert.match(await argon2.hash(password, { parallelism: 2 }), /p=2/);
+    assert.match(await argon2.hash(password, { parallelism: 2 }), /p=2/u);
   });
 
   it("hash with high parallelism", () => {
@@ -148,7 +148,7 @@ describe("set options", () => {
         parallelism: 2,
         timeCost: 4,
       }),
-      /m=8192,p=2,t=4/,
+      /m=8192,p=2,t=4/u,
     );
   });
 });
