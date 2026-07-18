@@ -135,7 +135,6 @@ jobs:
           run: |
             npm ci
             npm test
-          sync: sshfs
 
   build-with-fortify-source:
     strategy:
