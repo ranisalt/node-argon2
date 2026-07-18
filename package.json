@@ -1,6 +1,6 @@
 {
   "name": "argon2",
-  "version": "0.45.0",
+  "version": "1.0.0",
   "description": "An Argon2 library for Node",
   "keywords": [
     "argon2",
@@ -19,61 +19,33 @@
     "type": "git",
     "url": "git+https://github.com/ranisalt/node-argon2.git"
   },
-  "binary": {
-    "napi_versions": [
-      8
-    ]
-  },
   "files": [
-    "argon2.cpp",
-    "argon2.d.cts",
-    "argon2.d.cts.map",
-    "binding.gyp",
-    "argon2/CHANGELOG.md",
-    "argon2/LICENSE",
-    "argon2/include/",
-    "argon2/src/blake2/",
-    "argon2/src/argon2.c",
-    "argon2/src/core.c",
-    "argon2/src/core.h",
-    "argon2/src/encoding.c",
-    "argon2/src/encoding.h",
-    "argon2/src/opt.c",
-    "argon2/src/ref.c",
-    "argon2/src/thread.c",
-    "argon2/src/thread.h",
-    "prebuilds/**/*.node"
+    "argon2.d.ts",
+    "argon2.d.ts.map"
   ],
-  "type": "commonjs",
-  "main": "argon2.cjs",
-  "types": "argon2.d.cts",
+  "type": "module",
+  "main": "argon2.js",
+  "types": "argon2.d.ts",
   "scripts": {
-    "build": "prebuildify --napi --strip --tag-armv --tag-libc",
     "fmt": "oxfmt",
     "fmt:check": "oxfmt --check",
-    "install": "cross-env ZERO_AR_DATE=1 node-gyp-build",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
     "prepare": "tsc",
-    "test": "node --test test.cjs"
+    "test": "node --test"
   },
   "dependencies": {
-    "@phc/format": "^1.0.0",
-    "cross-env": "^10.1.0",
-    "node-addon-api": "^8.9.0",
-    "node-gyp-build": "^4.8.4"
+    "@phc/format": "^1.0.0"
   },
   "devDependencies": {
-    "@tsconfig/node22": "22.0.5",
+    "@tsconfig/node24": "24.0.4",
     "@types/node": "24.13.3",
-    "node-gyp": "12.4.0",
     "oxfmt": "0.59.0",
     "oxlint": "1.74.0",
-    "prebuildify": "6.0.1",
     "typescript": "7.0.2"
   },
   "engines": {
-    "node": ">=16.17.0"
+    "node": ">=24.7.0"
   },
   "packageManager": "npm@12.0.1",
   "collective": {

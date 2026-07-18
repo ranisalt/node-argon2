@@ -4,13 +4,6 @@ logs
 *.log
 npm-debug.log*
 
-# Coverage directory used by tools like istanbul
-coverage
-
-# Compiled binary addons (http://nodejs.org/api/addons.html)
-lib/
-build*/
-
 # Dependency directories
 node_modules/
 
@@ -18,5 +11,5 @@ node_modules/
 *.tgz
 
 # Generated Typescript declarations
-*.d.cts
-*.d.cts.map
+*.d.ts
+*.d.ts.map
