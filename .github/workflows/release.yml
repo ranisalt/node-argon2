@@ -137,7 +137,6 @@ jobs:
           run: |
             npm ci
             npm run build
-          sync: sshfs
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v7
