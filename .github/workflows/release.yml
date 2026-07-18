@@ -228,7 +228,7 @@ jobs:
       - name: Publish to NPM
         run: |
           npm version --allow-same-version --no-git-tag-version $VERSION
-          npm publish --provenance --tag $TAG
+          npm stage publish --provenance --tag $TAG
         if: ${{ !env.ACT && (github.event_name == 'release' || github.event_name == 'workflow_dispatch') }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
