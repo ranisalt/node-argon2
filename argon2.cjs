@@ -68,7 +68,7 @@ const defaults = {
  * @param {Buffer | string} password The plaintext password to be hashed
  * @param {HashOptions & { raw?: boolean }} [options] The parameters for Argon2
  */
-const hash = async (password, options) => {
+async function hash(password, options) {
   const { raw, salt: _salt, ...rest } = { ...defaults, ...options };
 
   if (rest.hashLength > 2 ** 32 - 1) {
@@ -128,7 +128,7 @@ const hash = async (password, options) => {
     salt,
     version,
   });
-};
+}
 module.exports.hash = hash;
 
 /**
@@ -140,7 +140,7 @@ module.exports.hash = hash;
  * @param {number} [options.version=0x13]
  * @returns {boolean} `true` if the digest parameters do not match the parameters in `options`, otherwise `false`
  */
-const needsRehash = (digest, options = {}) => {
+function needsRehash(digest, options = {}) {
   const { memoryCost, timeCost, parallelism, version } = {
     ...defaults,
     ...options,
@@ -157,7 +157,7 @@ const needsRehash = (digest, options = {}) => {
     Number(t) !== Number(timeCost) ||
     Number(p) !== Number(parallelism)
   );
-};
+}
 module.exports.needsRehash = needsRehash;
 
 /**
@@ -171,7 +171,7 @@ module.exports.needsRehash = needsRehash;
  * @param {VerifyOptions} [options] The current parameters for Argon2
  * @returns {Promise<boolean>} `true` if the digest parameters matches the hash generated from `password`, otherwise `false`
  */
-const verify = async (digest, password, options = {}) => {
+async function verify(digest, password, options = {}) {
   const { id, ...rest } = deserialize(digest);
   if (!(id in types)) {
     return false;
@@ -200,5 +200,5 @@ const verify = async (digest, password, options = {}) => {
   });
 
   return timingSafeEqual(expected, actual);
-};
+}
 module.exports.verify = verify;

@@ -8,6 +8,7 @@
     "suspicious": "error"
   },
   "rules": {
+    "eslint/func-style": ["error", "declaration"],
     "eslint/id-length": "off",
     "eslint/max-lines-per-function": "off",
     "eslint/max-statements": "off",
