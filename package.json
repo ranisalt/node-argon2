@@ -64,7 +64,7 @@
     "node-gyp-build": "^4.8.4"
   },
   "devDependencies": {
-    "@tsconfig/node22": "22.0.5",
+    "@tsconfig/node22": "22.0.6",
     "@types/node": "24.13.3",
     "node-gyp": "12.4.0",
     "oxfmt": "0.59.0",
