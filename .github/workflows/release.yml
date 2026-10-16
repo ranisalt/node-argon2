@@ -35,7 +35,7 @@ jobs:
             arch: linux-x64-glibc
           - os: ubuntu-22.04-arm
             arch: linux-arm64-glibc
-          - os: macos-14
+          - os: macos-15
             arch: darwin-arm64
           - os: windows-2022
             arch: win32-x64
