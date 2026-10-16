@@ -116,7 +116,7 @@ async function hash(password, options) {
     return result;
   }
 
-  const params = { m, p, t };
+  const params = { m, t, p };
   if (data.byteLength > 0) {
     params.data = data;
   }
