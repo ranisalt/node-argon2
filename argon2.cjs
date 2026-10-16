@@ -116,7 +116,12 @@ async function hash(password, options) {
     return result;
   }
 
-  const params = { m, t, p };
+  // @phc/format serializes parameters in insertion order; PHC requires m,t,p.
+  const params = Object.fromEntries([
+    ["m", m],
+    ["t", t],
+    ["p", p],
+  ]);
   if (data.byteLength > 0) {
     params.data = data;
   }

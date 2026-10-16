@@ -148,7 +148,7 @@ describe("set options", () => {
         parallelism: 2,
         timeCost: 4,
       }),
-      /m=8192,p=2,t=4/u,
+      /m=8192,t=4,p=2/u,
     );
   });
 });
