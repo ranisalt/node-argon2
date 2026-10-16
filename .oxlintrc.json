@@ -12,7 +12,8 @@
     "eslint/id-length": "off",
     "eslint/max-lines-per-function": "off",
     "eslint/max-statements": "off",
-    "eslint/no-magic-numbers": "off"
+    "eslint/no-magic-numbers": "off",
+    "eslint/one-var": "off"
   },
   "settings": {},
   "env": {
