@@ -117,11 +117,8 @@ async function hash(password, options) {
   }
 
   // @phc/format serializes parameters in insertion order; PHC requires m,t,p.
-  const params = Object.fromEntries([
-    ["m", m],
-    ["t", t],
-    ["p", p],
-  ]);
+  // oxlint-disable-next-line eslint/sort-keys
+  const params = { m, t, p };
   if (data.byteLength > 0) {
     params.data = data;
   }
