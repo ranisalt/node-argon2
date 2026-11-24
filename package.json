@@ -13,7 +13,7 @@
   "bugs": {
     "url": "https://github.com/ranisalt/node-argon2/issues"
   },
-  "license": "MIT",
+  "license": "CC0-1.0",
   "author": "Ranieri Althoff <ranisalt+argon2@gmail.com>",
   "repository": {
     "type": "git",
