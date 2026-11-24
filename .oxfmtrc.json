@@ -1,4 +1,3 @@
 {
-  "$schema": "./node_modules/oxfmt/configuration_schema.json",
-  "ignorePatterns": ["argon2/**"]
+  "$schema": "./node_modules/oxfmt/configuration_schema.json"
 }
